@@ -12,32 +12,30 @@ body {
 	background-color: #FFFFFF;
 }
 
-.navbar-btn {
-	color: #000000;
-  background-color: #FFFFFF;
+.navbar-nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
+  color: #337ab7;
+	background-color: #000000;
 }
-
-.navbar-btn:hover {
-	color: #FFFFFF;
-  background-color: #000000;
-}
-
 
 /* Carousel base class */
 .carousel {
   height: 900px;
   margin-bottom: 60px;
-	background-color: #B0E0E6;
+	background-color: #337ab7;
 }
 /* Since positioning the image, we need to help out the caption */
 .carousel-caption {
   z-index: 10;
 }
 
+.carousel-indicators {
+	color: #337ab7;
+}
+
 /* Declare heights because of positioning of img element */
 .carousel .item {
   height: 900px;
-  background-color: #B0E0E6;
+  background-color: #337ab7;
 }
 .carousel-inner > .item > img {
   position: absolute;
