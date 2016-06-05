@@ -17,7 +17,15 @@ body {
 	background-color: #000000;
 }
 
-img {
-	margin: auto;
-  width: 100% !important;
+.tutorial-text {
+  padding: 40px 15px;
+  text-align: left;
+	font-size: 18px;
+}
+
+pre {
+  text-align: left;
+	font-size: 24px;
+	width: 75%;
+	  padding: 0px 30px;
 }

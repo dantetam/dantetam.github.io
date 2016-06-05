@@ -10,11 +10,18 @@ body {
 .navbar-intro {
 	color: #FFFFFF;
 	background-color: #FFFFFF;
+	display: inline-block;
+  list-style-type: none;
 }
 
 .navbar-nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
   color: #337ab7;
 	background-color: #000000;
+}
+
+img {
+	margin: auto;
+  width: 80%;
 }
 
 /* Carousel base class */
