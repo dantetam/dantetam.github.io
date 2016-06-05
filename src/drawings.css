@@ -16,3 +16,8 @@ body {
   color: #337ab7;
 	background-color: #000000;
 }
+
+img {
+	margin: auto;
+  width: 80%;
+}
