@@ -40,6 +40,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
+						<span class="icon-bar"></span>
           </button>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
@@ -47,9 +48,11 @@
 					  <li><a href="../writings.html">Writings</a></li>
 						<li><a href="./java1-0.html">Introductions</a></li>
             <li class="active"><a href="./java1-1.html">OOP</a></li>
-            <li><a href="./java1-2.html">Control</a></li>
-						<li><a href="./java1-3.html">Computational Thinking</a></li>
-						<li><a href="./java1-4.html">Objects</a></li>
+            <li><a href="./java1-2.html">Software Eng., Data</a></li>
+						<li><a href="./java1-3.html">Trees</a></li>
+						<li><a href="./java1-4.html">Hashing, Heaps</a></li>
+						<li><a href="./java1-5.html">Graphs</a></li>
+						<li><a href="./java1-6.html">Sorts</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -138,13 +141,118 @@ class ElementaryParticle extends Particle {
 	
 	//Let's add custom behavior for elementary particles
 	Particle collide(Particle other) {
-		return new Particle((type + other.type) % numberAllTypes);
+		Paricle base = super.collide(other);
+		base.type += (type + other.type) / 2;
+		return base;
 	}
 }
 </pre>				
 				
+				Let's try to define custom behavior for ElementaryParticle collision. We would at first try<br> 
+				<code>ElementaryParticle collide(ElementaryParticle other)</code>, but we have a problem here.<br>
+				All instances of <code>ElementaryParticle</code> are <code>Particle</code>, so which method would be called?<br>
+				We'll use the method we defined and introduce the <code>instanceof</code> keyword. 
 				
+<pre>
+class ElementaryParticle extends Particle {
+	double charge;
+	double spin;
+	
+	ElementaryParticle(int type) {
+		super(type);
+		charge = (type / 4) / (double) 4 - 0.5;
+		spin = (double) type / (double) numberAllTypes;
+	}
+	
+	ElementaryParticle(int type, double c, double s) {
+		super(type);
+		charge = c;
+		spin = s;
+	}
+	
+	//Let's add custom behavior for elementary particles
+	Particle collide(Particle other) {
+		if (other instanceof ElementaryParticle) {
+			ElementaryParticle otherCasted = (ElementaryParticle) other;
+			ElementaryParticle elem = new ElementaryParticle((type + other.type) / 2);
+			elem.charge = charge * otherCasted.charge;
+			elem.spin = spin / (spin + otherCasted.spin);
+			return elem;
+		}
+		else {
+			Paricle base = super.collide(other);
+			base.type += (type + other.type) / 2;
+			return base;
+		}
+	}
+}
+
+Particle[] particles = {new Particle(8), new ElementaryParticle(2)};
+Particle third = particles[0].collide(particles[1]);
+</pre>					
 				
+				Let's make our first data structure and introduce the "has-a" relationship.<br>
+				An alternative method of extension to include an instance of the super class within the sub class.<br>
+				
+<pre>
+class Collection {
+	Particle particle;
+	Particle[] childParticles;
+	Collection(Particle p, Particle[] c) {
+		particle = p;
+		childParticles = c;
+	}
+}
+</pre>
+				
+				We learned how to extend code. What if we want to group code?<br>
+				The problem is that we have a class <code>Spark</code> that is definitely not a <code>Particle</code><br>
+				but shares a <code>void show(obj)</code> method with it. We use interfaces to passively group classes together.<br>
+				An interface is a class declaration of usually only methods with no body. There is no default behavior.<br>
+				
+<pre>
+interface Graphic {
+	void show();
+	Graphic join(Graphic g);
+}
+</pre>
+
+				Now we say that Particle and Spark must implement the interface Graphic. These two classes<br>
+				must implement, in their own way, the methods prototyped in Graphic.<br>
+				
+<pre>
+class Particle implements Graphic {
+	static int numberAllTypes = 16;
+	int type;
+	
+	/* other methods and constructors not shown */
+	
+	void show() { 
+		System.out.println(type);
+	}
+	
+	Particle join(Particle g) { //Note in place of Graphic g, we used Particle g.
+		return new Particle(type + g.type);
+	}
+}
+
+class Spark implements Graphic {
+	/* other methods and constructors not shown */
+	
+	void show() { 
+		/* implementation not shown */
+	}
+	
+	Spark join(Spark g) { 
+		/* implementation not shown */
+	}
+}
+
+Graphic[] array = new Graphic[2];
+array[0] = new Particle(8); array[1] = new ElementaryParticle(2,-0.3,0.75); 
+array[2] = 
+</pre>
+	
       </div>
 			
     </div><!-- /.container -->
