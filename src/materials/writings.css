@@ -2,6 +2,11 @@ body {
   padding-top: 50px;
 }
 
+img {
+  margin: auto;
+  max-width: 500px;
+}
+
 .intro {
   padding: 40px 15px;
   text-align: center;
@@ -27,5 +32,5 @@ pre {
   text-align: left;
 	font-size: 24px;
 	width: 75%;
-	  padding: 0px 30px;
+	padding: 0px 30px;
 }

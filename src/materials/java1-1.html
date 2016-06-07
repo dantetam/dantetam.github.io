@@ -239,6 +239,10 @@ class Particle implements Graphic {
 class Spark implements Graphic {
 	/* other methods and constructors not shown */
 	
+	Spark(int n) {
+		/* implementation not shown */
+	}
+	
 	void show() { 
 		/* implementation not shown */
 	}
@@ -248,9 +252,10 @@ class Spark implements Graphic {
 	}
 }
 
-Graphic[] array = new Graphic[2];
+Graphic[] array = new Graphic[3];
 array[0] = new Particle(8); array[1] = new ElementaryParticle(2,-0.3,0.75); 
-array[2] = 
+array[2] = new Spark(5);
+array[3] = array[0].join(array[1]).join(array[2]);
 </pre>
 	
       </div>
