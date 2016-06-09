@@ -120,6 +120,8 @@ class Particle {
 				The idea of a "guarantee" is simply that Particle and any classes that extend it follow these rules:<br>
 				they can all be treated as instances of type <code>Particle</code> — each instance "is-a" <code>Particle</code>;<br>
 				and they are known to have defined or inherited the methods contained within <code>Particle</code>. 
+				We must either inherit or override class members and keep the same <b>signature</b>,<br>
+				meaning that if we use the inherited name (and arguments), then we must keep the same type.<br>
 				<br>
 				Now let's extend the class <code>Particle</code>. We're creating a new subclass<br>
 				and we'll call it <code>ElementaryParticle</code>. Since we're guaranteeing that <code>ElementaryParticle</code><br>
@@ -258,6 +260,81 @@ array[2] = new Spark(5);
 array[3] = array[0].join(array[1]).join(array[2]);
 </pre>
 	
+				Now we have a real conumdrum. What if we want an object to have two superclasses?<br>
+				Let's look at the following situation: we want to group particles by colors.<br>
+				
+<pre>
+class RedObject {
+	/* implementation not shown */
+	void showRed() {
+		/* ... */
+	}
+}
+class GreenObject {
+	/* ... */
+	void showGreen() {
+		/* ... */
+	}
+}
+class BlueObject {
+	/* ... */
+	void showBlue() {
+		/* ... */
+	}
+}
+</pre>
+				
+				This works fine if we have distinct red, green, and blue objects. Then we define, as before,<br>
+
+<pre>
+class RedHerring extends RedObject() {
+	void showRed() {
+		/* implementation not shown */
+	}
+}
+</pre>
+				
+				Let's say we have a cyan herring, which is both blue and green. Before we get into the code,<br>
+				let's resolve what a cyan herring does. We have two possible solutions:<br>
+				a cyan herring shows blue and shows green at the same time;<br>
+				or, it defines a new behavior, such as showing cyan.<br>
+				
+				We'll look at both to see how the approach changes. Let's go for the first one.<br>
+				Java does not allow multiple inheritance (can you guess why this is the case?).<br>
+				However, we can still have multiple "guarantees" through multiple interfaces.<br>
+				
+<pre>
+//Remember, interfaces normally do not have methods with bodies.
+//However, we can define static behavior, and default behavior. More on that later.
+interface GreenObject { 
+	void showGreen();
+}
+interface BlueObject {
+	void showBlue();
+}
+class BlueSnapper implements BlueObject {
+	void showBlue() {
+		System.out.println("Blue herring")
+	}
+}
+class CyanHerring implements GreenObject implements BlueObject {
+	void showGreen() {
+		System.out.println("The green side of a cyan herring");
+	}
+	void showBlue() {
+		System.out.println("The blue side of a cyan herring");
+	}
+}
+
+Object[] possiblyAnything = new Object[3];
+possiblyAnything[0] = ElementaryParticle(5);
+</pre>
+				
+				Note that the interfaces approach is much more logical for this problem since<br>
+				all green objects do not "evolve" from one common ancestor; rather, they are meant to be grouped<br>
+				by their common trait. A green car and a blue car have much more in common,<br>
+				than a blue car and a blue fish.<br>
+				
       </div>
 			
     </div><!-- /.container -->

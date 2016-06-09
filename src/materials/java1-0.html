@@ -87,7 +87,7 @@ public class HelloWorld { //A class declaration.
 	}
 }
 
-//For space, assume all code not within classes runs correctly.
+//To save space and time, assume all code not within classes runs correctly.
 </pre>
 				For now, do not be concerned with the keywords <code>public</code> and <code>static</code>.<br>
 				The <code>void</code> modifier declares that the function returns nothing, takes in an<br>
@@ -205,6 +205,7 @@ System.out.println(a[0]); //0
 				Its task is to initialize values and do anything required when a new object is created.
 				
 <pre>
+//Here we define the class. We declare it.
 class Student {
 	double stressFactor = 1.0;
 	int year;
@@ -216,6 +217,7 @@ class Student {
 	}
 }
 
+//Here we're going to create an instance of the class.
 Student namelessEntity = new Student(2019);
 namelessEntity.promote();
 System.out.println(namelessEntity.year); //2020
@@ -391,6 +393,50 @@ class DataSet {
 
 double[] a = {1,2,3,4,5};
 double b = DataSet.letsDoSomeArithmetic(a);
+</pre>
+				
+				Here we'll provide a recap of all the syntax covered, for convenience.
+				
+<pre>
+class Cafe {
+	static String chainName = "Kama O Deli"; 
+	String cafeName;
+	
+	Cafe(String name) {
+		cafeName = name;
+	}
+
+	String[] orders;
+	
+	void placeOrder(String ord) {
+		String[] copy = new String[orders.length];
+		for (int i = 0; i &lt; orders.length; i++) {
+			copy[i] = orders[i];
+		}
+		orders[orders.length] = ord;
+		orders = copy;
+	}
+	
+	String takeFirstOrder() {
+		int i = 0;
+		while (true) {
+			if (i &gt;= orders.length) {
+				return null; //Note a function that returns an Object or its subclass can return null
+			}
+			if (orders[i] != null) {
+				break;
+			}
+		}
+		String temp = orders[i];
+		orders[i] = null; 
+		return temp;
+	}
+	
+	static String getChainName() {
+		String temp = chainName + "!";
+		return temp;
+	}
+}
 </pre>
 				
 				That was quite a bit. Once you've mastered Java's syntax, move on to OOP.
