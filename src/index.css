@@ -19,11 +19,6 @@ body {
 	background-color: #000000;
 }
 
-img {
-  margin: auto;
-  width: 80%;
-}
-
 /* Carousel base class */
 .carousel {
 	background-color: #337ab7;
