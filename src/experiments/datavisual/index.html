@@ -153,7 +153,7 @@
 
 		var hexbin = d3.hexbin()
 				.size([width, height])
-				.radius(20);
+				.radius(10);
 
 		var x = d3.scale.identity()
 				.domain([0, width]);
@@ -203,6 +203,14 @@
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
 				.call(xAxis);*/
+			
+		d3.select("body").style("background-color", "#326EFF");
+			
+		d3.select("body").on("click", function() {
+			var coords = d3.mouse(this);
+
+			console.log(coords[0] + " " + coords[1]);
+		})		
 
 		</script>
 		
