@@ -1,0 +1,432 @@
+<!--
+ * Copyright 2011, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dante Tam</title>
+<link type="text/css" href="../jquery-ui-1.8.2.custom/css/ui-lightness/jquery-ui-1.8.2.custom.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../google-io/2011/style.css" />
+<style>
+#fpsContainer {
+    width: 200px;
+}
+</style>
+<script type="text/javascript" src="../jquery-ui-1.8.2.custom/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="../jquery-ui-1.8.2.custom/js/jquery-ui-1.8.2.custom.min.js"></script>
+<script type="text/javascript" src="../js/perf-harness.js"></script>
+<script type="text/javascript" src="../tdl/base.js"></script>
+<script type="text/javascript">
+tdl.require('tdl.buffers');
+tdl.require('tdl.fast');
+tdl.require('tdl.fps');
+tdl.require('tdl.log');
+tdl.require('tdl.math');
+tdl.require('tdl.models');
+tdl.require('tdl.primitives');
+tdl.require('tdl.programs');
+tdl.require('tdl.textures');
+tdl.require('tdl.webgl');
+window.onload = initialize;
+
+// globals
+var gl;                   // the gl context.
+var canvas;               // the canvas
+var math;                 // the math lib.
+var fast;                 // the fast math lib.
+
+var g_maxImages = 32*32;
+var g_numImages = 32*32;
+var g_imageSize = 64;
+var g_targetFrameRate = 60 - 2;  // add some fudge so browser that runs at 58-59 can still run the test
+	
+var rows = 32;
+var cols = 32;
+
+function CreateApp() {
+  var updatePositions = true;
+
+  window.addEventListener('keypress', handleKeyPress, false);
+
+  function handleKeyPress(event) {
+    updatePositions = !updatePositions;
+  }
+
+  // Create Geometry.
+  var planeArrays = tdl.primitives.createPlane(g_imageSize, g_imageSize, 1, 1);
+  // Don't need the normals.
+  delete planeArrays.nornal;
+  // rotate from xz plane to xy plane
+  tdl.primitives.reorient(planeArrays,
+      [1, 0, 0, 0,
+       0, 0, 1, 0,
+       0, -1, 0, 0,
+       0, 0, 0, 1]);
+  // translate so we position from top left instead of center.
+  tdl.primitives.reorient(planeArrays,
+      [1, 0, 0, 0,
+       0, 1, 0, 0,
+       0, 0, 1, 0,
+       g_imageSize / 2, g_imageSize / 2, 0, 1]);
+
+  // Load textures
+  var textures = {
+      diffuseSampler: tdl.textures.loadTexture('../google-io/2011/assets/google.png')
+  };
+
+  // Create Shader Program
+  var program = tdl.programs.loadProgramFromScriptTags(
+      'sphereVertexShader',
+      'sphereFragmentShader');
+
+  // --Setup Arrays---------------------------------------
+  var arrays = [
+    planeArrays
+  ];
+	
+	var newModel = new tdl.models.Model(program, planeArrays, textures);
+	
+  // -- Setup Instances ----------------------------------
+  //var instances = [];
+  var width = canvas.clientWidth - g_imageSize;
+  var height = canvas.clientHeight - g_imageSize;
+
+	var instances = []
+	for (var r = 0; r < rows; r++) {
+		var temp = [];
+		for (var c = 0; c < cols; c++) {
+			var blue = (r + c) * 10.0 / 255.0;
+			var red = Math.min(50.0 / 255.0, blue);
+			var green = Math.min(110.0 / 255.0, blue);
+			temp.push({
+				x: r * g_imageSize,
+				y: c * g_imageSize,
+				xSize: g_imageSize,
+				ySize: g_imageSize,
+				//colorMult: new Float32Array([Math.random(), Math.random(), Math.random(), Math.random()]),
+				colorMult: new Float32Array([red,green,blue,1.0]),
+				arrayIndex: Math.floor(Math.random() * arrays.length)
+			});
+		}
+		instances.push(temp);
+  }
+	
+	var position = new Float32Array([500, 500]);
+	var colorMult = new Float32Array([0.8,0.0,0.0,1.0]);
+	var testPlayer = {
+		position: position,
+		colorMult: colorMult,
+		uniforms: {
+			translation: position,
+			colorMult: colorMult
+		},
+		x: 12.5 * g_imageSize,
+		y: 6.5 * g_imageSize,
+		xSize: g_imageSize,
+		ySize: g_imageSize,
+	};
+
+  // Expand arrays from instances to geometry.
+
+  // Step 1: Add an extra worldPosition and colorMult field to each geometry
+  for (var ii = 0; ii < arrays.length; ++ii) {
+		//for (var jj = 0; jj < arrays[0].length; ++jj) {
+			var numElements = arrays[ii].position.numElements;
+			arrays[ii].worldPosition = new tdl.primitives.AttribBuffer(2, numElements);
+			arrays[ii].colorMult = new tdl.primitives.AttribBuffer(4, numElements);
+		//}
+  }
+
+  // Step 2: convert instances to expanded geometry
+  var arrayInstances = [];
+  for (var ii = 0; ii < instances.length; ++ii) {
+		for (var jj = 0; jj < instances[0].length; ++jj) {
+    	arrayInstances.push(arrays[instances[ii][jj].arrayIndex]);
+		}
+  }
+  var expanded = tdl.primitives.concatLarge(arrayInstances);
+
+  // Step 3: Make models from our expanded geometry.
+  var models = [];
+  for (var ii = 0; ii < expanded.arrays.length; ++ii) {
+    models.push(new tdl.models.Model(program, expanded.arrays[ii], textures));
+  }
+
+  // Step 4: Copy in Colors
+	var counter = 0;
+  for (var ii = 0; ii < instances.length; ++ii) {
+		for (var jj = 0; jj < instances[0].length; ++jj) {
+			var instance = instances[ii][jj];
+			var info = expanded.instances[counter];
+			var index = info.arrayIndex;
+			instance.firstVertex = info.firstVertex;
+			instance.numVertices = info.numVertices;
+			instance.expandedArrayIndex = index;
+			var attribBuffer = expanded.arrays[index].colorMult;
+			attribBuffer.fillRange(instance.firstVertex, instance.numVertices, instance.colorMult);
+			counter++;
+		}
+  }
+  for (var ii = 0; ii < models.length; ++ii) {
+    var attribBuffer = expanded.arrays[ii].colorMult;
+    models[ii].setBuffer('colorMult', attribBuffer);
+  }
+
+  // pre-allocate a bunch of arrays
+  var v3t0 = new Float32Array(3);
+  var v3t1 = new Float32Array(3);
+  var v3t2 = new Float32Array(3);
+  var v3t3 = new Float32Array(3);
+  var m4t0 = new Float32Array(16);
+  var m4t1 = new Float32Array(16);
+  var m4t2 = new Float32Array(16);
+  var m4t3 = new Float32Array(16);
+  var zero4 = new Float32Array(4);
+  var one4 = new Float32Array([1,1,1,1]);
+  var dimensions = new Float32Array([1, 1]);
+
+  // uniforms.
+  var sharedUniforms = {
+      dimensions: dimensions
+  };
+  
+  var clock = 0.0;
+  function update(elapsedTime) {
+    clock += elapsedTime;
+
+    resizeCanvas();
+
+    // --Update Instance Positions---------------------------------------
+    if (updatePositions) {
+      var advance = elapsedTime;
+      for (var ii = 0; ii < instances.length; ++ii) {
+				for (var jj = 0; jj < instances[0].length; ++jj) {
+					var instance = instances[ii][jj];
+					var width = canvas.clientWidth - instance.xSize;
+					var height = canvas.clientHeight - instance.ySize;
+
+					var index = instance.expandedArrayIndex;
+					var attribBuffer = expanded.arrays[index].worldPosition;
+					attribBuffer.fillRange(
+							instance.firstVertex,
+							instance.numVertices,
+							[instance.x, instance.y]);
+					
+					var blue = (ii + jj) * 10.0 / 255.0;
+					blue = blue + Math.sin(advance)
+					var red = Math.min(50.0 / 255.0, blue);
+					var green = Math.min(110.0 / 255.0, blue);
+					instance.colorMult = new Float32Array([red, green, blue, 1.0]);
+				}
+      }
+
+      var numImages = g_numImages;
+      for (var index = 0; index < expanded.arrays.length; index++) {
+        var attribBuffer = expanded.arrays[index].worldPosition;
+        var model = models[index];
+        model.setBuffer('worldPosition', attribBuffer);
+        var numImagesInModel = model.buffers.indices.numElements() / 2;
+        numImages -= numImagesInModel;
+        //++index;
+      }
+    }
+  }
+  
+  function forceUpdate(elapsedTime) {
+    updatePositions = true;
+    update(elapsedTime);
+    updatePositions = false;
+  }
+
+  function render() {
+    renderBegin();
+    renderScene();
+    renderEnd();
+  }
+
+  function renderBegin() {
+    // clear the screen.
+    gl.colorMask(true, true, true, true);
+    gl.clearColor(1, 1, 1, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    //gl.enable(gl.BLEND);
+    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    // Pass in the dimensions of the canvas.
+    dimensions[0] = canvas.clientWidth;
+    dimensions[1] = canvas.clientHeight;
+  }
+
+  function renderScene() {
+    // -- Render Models ---------------------------------------
+    // We only need to render each model once
+    // as they contain all the instances.
+    var numImages = g_numImages;
+    for (var ii = 0; ii < models.length; ++ii) {
+      var model = models[ii];
+      var numImagesInModel = model.buffers.indices.numElements() / 2;
+      var numToDraw = Math.min(numImagesInModel, numImages);
+      model.drawPrep(sharedUniforms);
+      model.draw(numToDraw * 6);
+      numImages -= numToDraw;
+    }
+		
+		newModel.drawPrep(sharedUniforms);
+		newModel.draw(testPlayer.uniforms);
+  }
+
+  function renderEnd() {
+    // nothing to do.
+  }
+
+  return {
+    update: update,
+    render: render
+  };
+}
+
+function resizeCanvas() {
+  if (canvas.width != canvas.clientWidth ||
+      canvas.height != canvas.clientHeight) {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    console.log("resized canvas: " + canvas.width + ", " + canvas.height);
+    gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+  }
+}
+
+function initialize() {
+  math = tdl.math;
+  fast = tdl.fast;
+  window.requestAnimFrame = tdl.webgl.requestAnimationFrame;
+  canvas = document.getElementById("canvas");
+  var fpsTimer = new tdl.fps.FPSTimer();
+  //var fpsElem = document.getElementById("fps");
+  //var cntElem = document.getElementById("cnt");
+
+  var targetFPS = 50;
+
+  var setTargetFPS = function(targetFPS) {
+    PerfHarness.setTargetFPS(targetFPS);
+  };
+
+  /*
+  $("#targetFPSSlider").slider({
+    max: 60,
+    min: 1,
+    value: targetFPS,
+    slide: function(event, ui) {
+      setTargetFPS(ui.value);
+    }
+  });
+  */
+  //setTargetFPS(targetFPS);
+
+  document.getElementById("title").innerHTML = document.getElementsByTagName("title")[0].innerHTML;
+
+  gl = tdl.webgl.setupWebGL(canvas, {alpha:false, antialias:false});
+  if (!gl) {
+    return false;
+  }
+
+  resizeCanvas();
+  //forceUpdate(0);
+
+  var app = CreateApp();
+  var changeAmount = 1;
+
+  function sign(v) {
+    return v > 0 ? 1 : (v < 0 ? -1 : 0);
+  }
+
+  function render(count, averageCount, elapsedTime) {
+    // Update the FPS timer.
+    fpsTimer.update(elapsedTime);
+    //fpsElem.innerHTML = fpsTimer.averageFPS;
+
+    g_numImages = Math.min(g_maxImages, count);
+
+    // cntElem.innerHTML = averageCount;
+
+    app.update(elapsedTime);
+    app.render();
+  }
+  var framesToAverage = 60;
+  PerfHarness.start(canvas, render, 60);
+  return true;
+}
+</script>
+  </head>
+<body>
+<div id="info"><span><span id="title"></span></span></div>
+
+<div id="viewContainer">
+
+	<canvas id="canvas" width="512" height="512" style="width: 100%; height: 100%;"></canvas>
+	<div><span><span>Test</span></span></div>
+	
+</div>
+</body>
+<script id="sphereVertexShader" type="text/something-not-javascript">
+uniform vec2 dimensions;
+attribute vec2 position;
+attribute vec2 texCoord;
+attribute vec2 worldPosition;
+attribute vec4 colorMult;
+varying vec2 v_texCoord;
+varying vec4 v_colorMult;
+void main() {
+  v_texCoord = texCoord;
+  v_colorMult = colorMult;
+  gl_Position = vec4(
+    (((position + worldPosition) / dimensions) * 2.0 - 1.0) * vec2(1, -1), 0, 1);
+}
+
+</script>
+<script id="sphereFragmentShader" type="text/something-not-javascript">
+#ifdef GL_ES
+precision mediump float;
+#endif
+varying vec2 v_texCoord;
+varying vec4 v_colorMult;
+
+uniform sampler2D diffuseSampler;
+
+void main() {
+  vec4 diffuse = texture2D(diffuseSampler, v_texCoord) * v_colorMult;
+  gl_FragColor = diffuse;
+}
+</script>
+</html>
+
+
+
+
