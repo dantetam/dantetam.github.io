@@ -51,9 +51,10 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 		
-		<script src="d3.v3.min.js"></script>
+		<!--<script src="d3.v3.min.js"></script>-->
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="d3.hexbin.min.js"></script>
+		<script src="https://d3js.org/d3-random.v1.min.js"></script>
 		
   </head>
 
@@ -149,6 +150,8 @@
 				civilizations = [];
 				//points = d3.range(2000).map(function() { return [randomX(), randomY()]; });
 			
+		var civColors = ["red", "blue", "steelblue", "violet", "green"];
+			
 		for (var i = 0; i < 2000; i++) {
 			var size = 0;
 			var rand = Math.random();
@@ -162,7 +165,7 @@
 			else {
 				size = Math.round(d3.random.normal(16, 2));
 			}
-			var rand2 = Math.random(1, 7);
+			var rand2 = d3.randomUniform(1, 7);
 			var tiles = [];
 			for (var j = 0; j < size; i++) {
 				var tile = {
@@ -173,22 +176,24 @@
 				};
 				tiles.push(tile);
 			}
+			var position = [randomX(), randomY()];
 			var planet = {
-				position: [randomX(), randomY()],
+				position: position,
 				size: size,
 				biome: rand2,
 				owner: null,
 				improvements: tiles
 			};
-			planets.push(planet);
+			planets[position] = planet;
 		}		
 			
-		for (var i = 0; i < planets.length; i++) {	
-			points.push(planets[i].position);
-		}
-			
 		for (var i = 0; i < 10; i++) {
+			var color = d3.scale.linear()
+				.domain([0, 20])
+				.range(["white", civColors[i % civColors.length]])
+				.interpolate(d3.interpolateLab);
 			var civilization = {
+				color: color,
 				worlds: [],
 				armies: [],
 				minerals: 150,
@@ -197,9 +202,16 @@
 			civilizations.push(civilization);
 		}	
 		
+		var planetPositions = Object.keys(planets);
+		for (var i = 0; i < 100; i++) {
+			var randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
+			var randCiv = Math.round(d3.randomUniform(0, civilizations.length - 1)());
+			planets[planetPositions[randPlanet]].owner = civilizations[randCiv];
+		}	
+			
 		var color = d3.scale.linear()
 				.domain([0, 20])
-				.range(["white", "steelblue"])
+				.range(["white", "white"])
 				.interpolate(d3.interpolateLab);
 
 		var hexbin = d3.hexbin()
@@ -239,12 +251,25 @@
 		svg.append("g")
 				.attr("clip-path", "url(#clip)")
 			.selectAll(".hexagon")
-				.data(hexbin(points))
+				.data(hexbin(planets))
 			.enter().append("path")
 				.attr("class", "hexagon")
 				.attr("d", hexbin.hexagon())
 				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-				.style("fill", function(d) { return color(d.length); });
+				.style("fill", function(d) {
+					var returnColor = color(0);
+					d.forEach(function(element) {
+						//console.log(planets[element]);
+						var planet = planets[element];
+						if (planet.owner == null) {
+							
+						}
+						else {
+							returnColor = planet.owner.color(d.length);
+						}
+					})
+					return returnColor;
+				});
 
 		/*svg.append("g")
 				.attr("class", "y axis")
@@ -261,6 +286,42 @@
 			var coords = d3.mouse(this);
 
 			console.log(coords[0] + " " + coords[1]);
+			
+			var minX = 0, minY = 0;
+			var minDist = 0;
+			/*for (var i = 0; i < planetPositions.length; i++) {
+				//console.log(Number(planetPositions[i]) + " " + Number(planetPositions[i][1]));
+				var data = planetPositions[i].split(",");
+				var dx = Number(planetPositions[i][0]) - coords[0];
+				var dy = Number(planetPositions[i][1]) - coords[1];
+				var dist = Math.sqrt(dx*dx + dy*dy);
+				if (dist < minDist || minDist == 0) {
+					minX = planetPositions[i][0];
+					minY = planetPositions[i][1];
+					minDist = dist;
+				}
+			}*/
+			for (var key in planets) {
+				if (planets.hasOwnProperty(key)) {
+					//console.log(key + " -> " + planets[key]);
+					var data = key.split(",");
+					var dx = Number(data[0]) - coords[0];
+					var dy = Number(data[1]) - coords[1];
+					var dist = Math.sqrt(dx*dx + dy*dy);
+					if (dist < minDist || minDist == 0) {
+						minX = Number(data[0]);
+						minY = Number(data[1]);
+						minDist = dist;
+					}
+				}
+			}
+			
+			console.log(minX + " " + minY);
+			
+			var planetClicked = planets[[minX, minY]];
+			if (planetClicked != null) {
+				planetClicked.owner = null;
+			}
 		})		
 
 		</script>
