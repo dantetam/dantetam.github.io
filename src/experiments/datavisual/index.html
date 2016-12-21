@@ -17,6 +17,36 @@
   stroke: #000;
   stroke-width: .5px;
 }
+	
+#planet-tooltip {	
+    position: absolute;			
+    text-align: center;
+		left: 2000px;
+		top: 2000px;
+    width: 600px;					
+    height: 280px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}	
+	
+.menu {
+    width: 25%;
+    float: left;
+    padding: 15px;
+    border: 1px solid red;
+}
+	
+.main {
+    width: 75%;
+    float: left;
+    padding: 15px;
+    border: 1px solid red;
+}	
+	
 </style>
 
 <html lang="en">
@@ -127,6 +157,27 @@
       </div>
 
     </div><!-- /.container -->
+		
+		<div id="planet-tooltip">
+			
+			<div class="header">
+				<h1>Test</h1>
+			</div>
+
+			<div class="menu">
+				<ul>
+					<li>Test</li>
+					<li>Test</li>
+					<li>Test</li>
+					<li>Test</li>
+				</ul>
+			</div>
+			
+			<div class="main">
+				<p>Resize the browser window to see how the content respond to the resizing.</p>
+			</div>
+			
+		</div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -235,6 +286,8 @@
 				.orient("left")
 				.tickSize(6, -width);*/
 
+		var div = d3.select("#planet-tooltip");	
+			
 		var svg = d3.select("body").append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
@@ -269,8 +322,17 @@
 						}
 					})
 					return returnColor;
-				});
+				}).on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            });
 
+		
+			
 		/*svg.append("g")
 				.attr("class", "y axis")
 				.call(yAxis);
@@ -322,7 +384,8 @@
 			if (planetClicked != null) {
 				planetClicked.owner = null;
 			}
-		})		
+			
+		});		
 
 		</script>
 		
