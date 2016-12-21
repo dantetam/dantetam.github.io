@@ -144,8 +144,59 @@
 
 		var randomX = d3.random.normal(width / 2, 80),
 				randomY = d3.random.normal(height / 2, 80),
-				points = d3.range(2000).map(function() { return [randomX(), randomY()]; });
-
+				points = [],
+				planets = [],
+				civilizations = [];
+				//points = d3.range(2000).map(function() { return [randomX(), randomY()]; });
+			
+		for (var i = 0; i < 2000; i++) {
+			var size = 0;
+			var rand = Math.random();
+			var type = "";
+			if (rand < 0.3) {
+				size = Math.round(d3.random.normal(7, 1.5));
+			}
+			else if (rand < 0.7) {
+				size = Math.round(d3.random.normal(12, 1.5));
+			}
+			else {
+				size = Math.round(d3.random.normal(16, 2));
+			}
+			var rand2 = Math.random(1, 7);
+			var tiles = [];
+			for (var j = 0; j < size; i++) {
+				var tile = {
+					building: null,
+					minerals: 0,
+					energy: 0,
+					food: 0
+				};
+				tiles.push(tile);
+			}
+			var planet = {
+				position: [randomX(), randomY()],
+				size: size,
+				biome: rand2,
+				owner: null,
+				improvements: tiles
+			};
+			planets.push(planet);
+		}		
+			
+		for (var i = 0; i < planets.length; i++) {	
+			points.push(planets[i].position);
+		}
+			
+		for (var i = 0; i < 10; i++) {
+			var civilization = {
+				worlds: [],
+				armies: [],
+				minerals: 150,
+				energy: 50
+			};
+			civilizations.push(civilization);
+		}	
+		
 		var color = d3.scale.linear()
 				.domain([0, 20])
 				.range(["white", "steelblue"])
