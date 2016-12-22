@@ -23,8 +23,8 @@
     text-align: center;
 		left: 2000px;
 		top: 0px;
-    width: 600px;					
-    height: 280px;					
+    width: 40%;					
+    height: 100%;	
     padding: 2px;				
     font: 12px sans-serif;		
     background: lightsteelblue;	
@@ -42,15 +42,15 @@
 }
 	
 #planet-tooltip-main {
-    width: 75%;
+    width: 100%;
     float: left;
     padding: 15px;
     /*border: 1px solid red;*/
 }	
 
-	.col-md-3 {
-		    border: 1px solid red;
-	}	
+.col-md-3 {
+		border: 1px solid red;
+}	
 	
 </style>
 
@@ -170,49 +170,45 @@
 				<h1>Test</h1>
 			</div>
 
-			<div id="planet-tooltip-menu">
+			<!--<div id="planet-tooltip-menu">
 				<ul>
 					<li>Test</li>
 					<li>Test</li>
 					<li>Test</li>
 					<li>Test</li>
 				</ul>
-			</div>
+			</div>-->
 			
 			<div id="planet-tooltip-main">
-				<p>Resize the browser window to see how the content respond to the resizing.</p>
 				<div class="row">
-					<div id="planet-tooltip-tile0" class="col-md-3">
-						
-						<p>Text</p>
-					</div>
+					<div id="planet-tooltip-tile0" class="col-md-3">Test Text</div>
 					<div id="planet-tooltip-tile1" class="col-md-3">col-md-3</div>
 					<div id="planet-tooltip-tile2" class="col-md-3">col-md-3</div>
 					<div id="planet-tooltip-tile3" class="col-md-3">col-md-3</div>
 				</div>
 				<div class="row">
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile4" class="col-md-3">Test Text</div>
+					<div id="planet-tooltip-tile5" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile6" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile7" class="col-md-3">col-md-3</div>
 				</div>
 				<div class="row">
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile8" class="col-md-3">Test Text</div>
+					<div id="planet-tooltip-tile9" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile10" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile11" class="col-md-3">col-md-3</div>
 				</div>
 				<div class="row">
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile12" class="col-md-3">Test Text</div>
+					<div id="planet-tooltip-tile13" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile14" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile15" class="col-md-3">col-md-3</div>
 				</div>
 				<div class="row">
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
-					<div class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile16" class="col-md-3">Test Text</div>
+					<div id="planet-tooltip-tile17" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile18" class="col-md-3">col-md-3</div>
+					<div id="planet-tooltip-tile19" class="col-md-3">col-md-3</div>
 				</div>
 			</div>
 			
@@ -279,7 +275,7 @@
 		});*/
 			
 		var planetData = [];
-		d3.csv("./planets-edit.csv", function(data) {
+		d3.csv("./planet-names.csv", function(data) {
 			//console.log(data);
 			for (var i = 0; i < data.length; i++) {
 				//console.log(data[i]["pl_hostname"]);
@@ -288,22 +284,33 @@
 			namePlanets();
 		});
 			
-		for (var i = 0; i < 2000; i++) {
+		var small = d3.random.normal(7, 1.5),
+				medium = d3.random.normal(12, 1.5),
+				large = d3.random.normal(16, 3);
+		
+		var maxTiles = 20;
+			
+		for (var i = 0; i < 500; i++) {
 			var size = 0;
 			var type = "";
 			
 			var rand = Math.random();
+		
 			if (rand < 0.3) {
-				size = Math.round(d3.random.normal(7, 1.5));
+				size = small();
 			}
 			else if (rand < 0.7) {
-				size = Math.round(d3.random.normal(12, 1.5));
+				size = medium();
 			}
 			else {
-				size = Math.round(d3.random.normal(16, 2));
+				size = large();
+			}
+			size = Math.round(size);
+			if (size > maxTiles) {
+				size = maxTiles;
 			}
 			
-			var rand2 = d3.randomUniform();
+			var rand2 = Math.random();
 			if (rand2 < 1.0/6.0) {
 				type = "Arid";
 			} else if (rand2 < 2.0/6.0) {
@@ -321,7 +328,7 @@
 			}
 			
 			var tiles = [];
-			for (var j = 0; j < size; i++) {
+			for (var j = 0; j < size; j++) {
 				var tile = {
 					building: null,
 					minerals: 0,
@@ -339,7 +346,7 @@
 				size: size,
 				biome: type,
 				owner: null,
-				improvements: tiles
+				tiles: tiles
 			};
 			planets[position] = planet;
 		}		
@@ -443,10 +450,10 @@
 					planetTooltip.transition()		
 						.duration(200)		
 						.style("opacity", .9);		
-					planetTooltip.style("left", (d3.event.pageX) + "px")		
-						.style("top", (d3.event.pageY - 28) + "px");	
-					var planetTooltipTile0 = d3.select("#planet-tooltip-tile0");
-					planetTooltipTile0.html("<p>Test0<img src=\"./minerals.png\"></img><p>");
+					//planetTooltip.style("left", (d3.event.pageX) + "px")		
+						//.style("top", (d3.event.pageY - 28) + "px");
+					planetTooltip.style("left", "200px")		
+						.style("top", "200px");	
 				}).on("contextmenu", function(data, index) {
 					d3.event.preventDefault();
 					hideTooltip();
@@ -470,7 +477,7 @@
 			
 			var coords = d3.mouse(this);
 			
-			var minX = 0, minY = 0;
+			var minX = null, minY = null;
 			var minDist = 0;
 			/*for (var i = 0; i < planetPositions.length; i++) {
 				//console.log(Number(planetPositions[i]) + " " + Number(planetPositions[i][1]));
@@ -491,7 +498,7 @@
 					var dx = Number(data[0]) - coords[0];
 					var dy = Number(data[1]) - coords[1];
 					var dist = Math.sqrt(dx*dx + dy*dy);
-					if (dist < minDist || minDist == 0) {
+					if ((dist < minDist || minDist == 0) && dist < 200) {
 						minX = Number(data[0]);
 						minY = Number(data[1]);
 						minDist = dist;
@@ -499,12 +506,27 @@
 				}
 			}
 			
-			var planetClicked = planets[[minX, minY]];
-			if (planetClicked != null) {
-				planetTooltipHeader.html("<p>"+planetClicked.name+"</p><br><p>"+planetClicked.biome+"</p>");
+			if (minX == null) {
+				hideTooltip();
 			}
 			else {
-				hideTooltip();
+				var planetClicked = planets[[minX, minY]];
+				if (planetClicked != null) {
+					planetTooltipHeader.html("<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + "</h4>");
+					//console.log(planetClicked.tiles.length);
+					for (var j = 0; j < maxTiles; j++) {
+						var planetTooltipTile = d3.select("#planet-tooltip-tile" + j);
+						if (j < planetClicked.tiles.length) {
+							planetTooltipTile.html("<p>Test"+j+"<img src=\"./minerals.png\"></img></p>");
+						}
+						else {
+							planetTooltipTile.html("");
+						}
+					}
+				}
+				else {
+					hideTooltip();
+				}
 			}
 			
 		}).on("contextmenu", function() {
@@ -516,8 +538,12 @@
 			for (var key in planets) {
 				var planet = planets[key];
 				var randPlanet = Math.round(Math.random()*planetData.length);
-				planet.name = planetData[randPlanet]["pl_hostname"];
+				planet.name = planetData[randPlanet]["pl_hostname"] + " " + planetData[randPlanet]["pl_letter"];
 			}
+			/*for (var key in planets) {
+				var planet = planets[key];
+				console.log(planet.name);
+			}*/
 		}	
 
 		</script>
