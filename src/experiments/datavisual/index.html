@@ -143,7 +143,8 @@
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Experiments<span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li class="dropdown-header">Design and Data</li>
-								<li><a href="../../experiments/testglwebsite/src/index.html">Interactive Resume (WebGL)</a></li>
+								<li><a href="../../experiments/resume/index.html">Interactive Resume (d3.js)</a></li>
+								<li><a href="../../experiments/testglwebsite/src/index.html">Graphics (WebGL)</a></li>
 								<li class="active"><a href="../../experiments/datavisual/index.html">Data Visualization (d3.js)</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="#"></a></li>
@@ -182,7 +183,7 @@
 				<p>Resize the browser window to see how the content respond to the resizing.</p>
 				<div class="row">
 					<div id="planet-tooltip-tile0" class="col-md-3">
-						<img src="./google.png"></img>
+						
 						<p>Text</p>
 					</div>
 					<div id="planet-tooltip-tile1" class="col-md-3">col-md-3</div>
@@ -427,7 +428,7 @@
 		d3.select("body").style("background-color", "#326EFF");
 			
 		d3.select("body").on("click", function() {
-			d3.event.preventDefault();
+			//d3.event.preventDefault();
 			
 			var coords = d3.mouse(this);
 			
