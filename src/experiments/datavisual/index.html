@@ -228,7 +228,7 @@
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
 	
 		<script>
-
+			
 		var margin = {top: 20, right: 100, bottom: 30, left: 100},
 				width = $(window).width() - margin.left - margin.right,
 				height = $(window).height() - margin.top - margin.bottom;
@@ -241,6 +241,8 @@
 				//points = d3.range(2000).map(function() { return [randomX(), randomY()]; });
 			
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
+			
+		//var temp = $.csv.toArrays(csv);	
 			
 		/*d3.csv("./small-planets.csv", function(trans)
     {
@@ -270,10 +272,27 @@
 			console.log(data[75]);
 		});	*/
 			
+		/*var dataset = []
+		d3.csv("./planets.csv", function(data) {
+			dataset = data.map(function(d) { return [ d["pl_hostname"] ]; });
+			console.log(dataset);
+		});*/
+			
+		var planetData = [];
+		d3.csv("./planets-edit.csv", function(data) {
+			//console.log(data);
+			for (var i = 0; i < data.length; i++) {
+				//console.log(data[i]["pl_hostname"]);
+				planetData.push(data[i]);
+			}
+			namePlanets();
+		});
+			
 		for (var i = 0; i < 2000; i++) {
 			var size = 0;
-			var rand = Math.random();
 			var type = "";
+			
+			var rand = Math.random();
 			if (rand < 0.3) {
 				size = Math.round(d3.random.normal(7, 1.5));
 			}
@@ -283,7 +302,24 @@
 			else {
 				size = Math.round(d3.random.normal(16, 2));
 			}
-			var rand2 = d3.randomUniform(1, 7);
+			
+			var rand2 = d3.randomUniform();
+			if (rand2 < 1.0/6.0) {
+				type = "Arid";
+			} else if (rand2 < 2.0/6.0) {
+				type = "Icy";
+			} else if (rand2 < 3.0/6.0) {
+				type = "Tundra";
+			} else if (rand2 < 4.0/6.0) {
+				type = "Ocean";
+			} else if (rand2 < 5.0/6.0) {
+				type = "Temperate";
+			} else if (rand2 < 6.0/6.0) {
+				type = "Tropical";
+			} else {
+				type = "Toxic";
+			}
+			
 			var tiles = [];
 			for (var j = 0; j < size; i++) {
 				var tile = {
@@ -294,12 +330,14 @@
 				};
 				tiles.push(tile);
 			}
+			
 			var position = [randomX(), randomY()];
+			
 			var planet = {
 				position: position,
 				name: "",
 				size: size,
-				biome: rand2,
+				biome: type,
 				owner: null,
 				improvements: tiles
 			};
@@ -463,13 +501,24 @@
 			
 			var planetClicked = planets[[minX, minY]];
 			if (planetClicked != null) {
-				planetTooltipHeader.html(planetClicked.name);
+				planetTooltipHeader.html("<p>"+planetClicked.name+"</p><br><p>"+planetClicked.biome+"</p>");
+			}
+			else {
+				hideTooltip();
 			}
 			
 		}).on("contextmenu", function() {
 			d3.event.preventDefault();
 			hideTooltip();
 		});		
+			
+		function namePlanets() {
+			for (var key in planets) {
+				var planet = planets[key];
+				var randPlanet = Math.round(Math.random()*planetData.length);
+				planet.name = planetData[randPlanet]["pl_hostname"];
+			}
+		}	
 
 		</script>
 		
