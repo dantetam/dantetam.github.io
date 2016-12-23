@@ -21,10 +21,10 @@
 #planet-tooltip {	
     position: absolute;			
     text-align: center;
-		left: 2000px;
-		top: 0px;
+		left: 0px;
+		top: 15%;
     width: 40%;					
-    height: 100%;	
+    height: 80%;	
     padding: 2px;				
     font: 12px sans-serif;		
     background: lightsteelblue;	
@@ -32,7 +32,7 @@
     border-radius: 8px;
 		opacity: 0;
     pointer-events: none;			
-}	
+}		
 	
 #planet-tooltip-menu {
     width: 25%;
@@ -51,6 +51,23 @@
 .col-md-3 {
 		border: 1px solid red;
 }	
+	
+.intro { height: 100px; width: 300px; }	
+	
+#player-hud {	
+    position: absolute;			
+    text-align: center;
+		top: 10%;
+    width: 80%;
+		left: 10%;
+    height: 10%;	
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;
+    pointer-events: none;			
+}		
 	
 </style>
 
@@ -164,6 +181,14 @@
 
     </div><!-- /.container -->
 		
+		<div id="player-hud">
+			<p>
+				Minerals<img src="./minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
+				Energy&emsp;<img src="./energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
+				Planets&emsp;<img src="./planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
+			</p>
+		</div>
+		
 		<div id="planet-tooltip">
 			
 			<div id="planet-tooltip-header">
@@ -238,42 +263,6 @@
 			
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 			
-		//var temp = $.csv.toArrays(csv);	
-			
-		/*d3.csv("./small-planets.csv", function(trans)
-    {
-        //prices is an array of json objects containing the data in from the csv
-        data = trans.map(function(d)
-        {
-            //each d is one line of the csv file represented as a json object
-            console.log("d", d);
-						return d;
-        })
-        console.log("data", data.toSource())
-    });
-		
-		d3.csv("./small-planets.csv", function(data) {
-			console.log(data[75]);
-		});	*/
-			
-		/*d3.csv("./small-planets.csv").row(function(d) { 
-			console.log(d.key + " " + d.value);
-			return {key: d.key, value: +d.value}; 
-		}).get(function(error, rows) { console.log(rows[0]); });*/
-			
-		/*d3.csv("./small-planets.csv", function(data) {
-			data.forEach(function(d) {
-				
-			});
-			console.log(data[75]);
-		});	*/
-			
-		/*var dataset = []
-		d3.csv("./planets.csv", function(data) {
-			dataset = data.map(function(d) { return [ d["pl_hostname"] ]; });
-			console.log(dataset);
-		});*/
-			
 		var planetData = [];
 		d3.csv("./planet-names.csv", function(data) {
 			//console.log(data);
@@ -289,6 +278,56 @@
 				large = d3.random.normal(16, 3);
 		
 		var maxTiles = 20;
+			
+		var tileStarts = [
+			[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
+			[0,0,1],[0,1,0],[1,0,0],[0,0,2],[0,2,0],[2,0,0],[1,1,0]
+		]; //Minerals, Energy, Food
+		var tileBiomes = [
+			"Volatile",
+			"Toxic",
+			"Tundra",
+			"Desert",
+			"Savanna",
+			"Grassland",
+			"Forest",
+			"Rainforest"
+		];
+		var tileTerrains = [
+			"Ocean",
+			"Plain",
+			"Hill",
+			"Mountain"
+		];	
+			
+		var tileImprovements = [
+			{name: "Mine", output: [1,0,0], cost: [70,0,0], biomeRestrict: null, terrainRestrict: "Land"},
+			{name: "Platform", output: [1,1,0], cost: [100,50,0], biomeRestrict: null, terrainRestrict: "Sea"},
+			{name: "Farm", output: [0,0,1], cost: [50,0,25], biomeRestrict: "Arable", terrainRestrict: "Land"},
+			{name: "Power Plant", output: [0,2,0], cost: [50,50,0], biomeRestrict: null, terrainRestrict: "Land"},
+			{name: "Colony", output: [0,0,3], cost: [250,0,50], biomeRestrict: null, terrainRestrict: "Land"}
+		];
+			
+		function checkIfValidImprovement(tile, impr) {
+			var result = true;
+			if (impr.biomeRestrict != null) {
+				if (impr.biomeRestrict === "Arable") {
+					result = result && (tile.localBiome === "Savanna" || tile.localBiome === "Grassland" || tile.localBiome === "Forest" || tile.localBiome === "Rainforest");
+				}
+				else {
+					result = result && (impr.biomeRestrict === tile.localBiome);
+				}
+			}
+			if (impr.terrainRestrict != null) {
+				if (impr.terrainRestrict === "Land") {
+					result = result && (tile.localTerrain !== "Ocean");
+				}
+				else if (impr.terrainRestrict === "Sea") {
+					result = result && (tile.localTerrain === "Ocean");
+				}
+			}
+			return result;
+		}	
 			
 		for (var i = 0; i < 500; i++) {
 			var size = 0;
@@ -329,11 +368,18 @@
 			
 			var tiles = [];
 			for (var j = 0; j < size; j++) {
+				var rand = Math.round(Math.random() * (tileStarts.length - 1));
+				var tileStart = tileStarts[rand];
+				var biome = Math.round(Math.random() * (tileBiomes.length - 1));
+				var terrain = Math.round(Math.random() * (tileTerrains.length - 1));
+				//console.log(tileStart);
 				var tile = {
 					building: null,
-					minerals: 0,
-					energy: 0,
-					food: 0
+					localBiome: tileBiomes[biome],
+					localTerrain: tileTerrains[terrain],
+					minerals: tileStart[0],
+					energy: tileStart[1],
+					food: tileStart[2]
 				};
 				tiles.push(tile);
 			}
@@ -346,7 +392,8 @@
 				size: size,
 				biome: type,
 				owner: null,
-				tiles: tiles
+				tiles: tiles,
+				food: 0
 			};
 			planets[position] = planet;
 		}		
@@ -407,8 +454,8 @@
 			planetTooltip.transition()		
 				.duration(200)		
 				.style("opacity", 0);		
-			planetTooltip.style("left", "0px")		
-				.style("top", "2000px");	
+			//planetTooltip.style("left", "0px")		
+				//.style("top", "2000px");	
 		}	
 			
 		var svg = d3.select("body").append("svg")
@@ -457,6 +504,8 @@
 				}).on("contextmenu", function(data, index) {
 					d3.event.preventDefault();
 					hideTooltip();
+				}).on("mouseover", function() {
+					
 				});
 
 		
@@ -517,7 +566,17 @@
 					for (var j = 0; j < maxTiles; j++) {
 						var planetTooltipTile = d3.select("#planet-tooltip-tile" + j);
 						if (j < planetClicked.tiles.length) {
-							planetTooltipTile.html("<p>Test"+j+"<img src=\"./minerals.png\"></img></p>");
+							//planetTooltipTile.html("<p>Test"+j+"<img src=\"./minerals.png\"></img></p>");
+							var tile = planetClicked.tiles[j];
+							planetTooltipTile.html("" +
+								"<p>" + 
+								tile.minerals + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;" + 
+								tile.energy + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;" + 
+								tile.food + "<img src=\"./planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+								"</p>" +
+								"<p>" +
+								tile.localBiome + ", " + tile.localTerrain +
+								"</p>");
 						}
 						else {
 							planetTooltipTile.html("");
