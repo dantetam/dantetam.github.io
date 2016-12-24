@@ -374,8 +374,10 @@
 			for (var i = 0; i < data.length; i++) {
 				//console.log();
         var smallBodyName = data[i]["name"];
-        if (smallBodyName !== null && smallBodyName !== "") {
-  				smallBodyData.push(data[i]);
+        if (smallBodyName.length < 10) {
+          if (smallBodyName !== null && smallBodyName !== "") {
+    				smallBodyData.push(data[i]);
+          }
         }
 			}
 			nameAsteroids();
@@ -387,13 +389,14 @@
 
 		var maxTiles = 20;
 
-    var ships = {};
-    ships["Destroyer"] = {strength: 150};
+    var shipTypes = {};
+    shipTypes["Destroyer"] = {strength: 150};
 
     function createFleet(sector, position, owner, shipNames) {
       var ships = [];
       for (var i = 0; i < shipNames.length; i++) {
-        ships.push({name: shipNames[i], owner: owner, strength: ships[shipNames[i]].strength});
+        //console.log(shipNames[i] + " " + shipTypes[shipNames[i]] + " " + shipTypes["Destroyer"]);
+        ships.push({name: shipNames[i], owner: owner, strength: shipTypes[shipNames[i]].strength});
       }
       var fleet = {
         sector: sector,
@@ -404,6 +407,7 @@
       for (var i = 0; i < fleet.ships.length; i++) {
         fleet.ships[i].owner = owner;
       }
+      moveFleet(fleet, sector, position);
       return fleet;
     }
 
@@ -419,6 +423,15 @@
       if (destSector !== null) {
         destSector.fleets.push(fleet);
       }
+    }
+
+    function calcFleetStrength(fleet) {
+      var strength = 0;
+      for (var i = 0; i < fleet.ships.length; i++) {
+        var ship = fleet.ships[i];
+        strength += ship.strength;
+      }
+      return strength;
     }
 
 		var tileStarts = [
@@ -521,7 +534,7 @@
 
 		for (var i = 0; i < numPlanets + numAsteroids; i++) {
 			var size = 0;
-			var type = "";
+			var type = "", typeAbbr = "";
 
 			var rand = Math.random();
 
@@ -545,24 +558,50 @@
   			var rand2 = Math.random();
   			if (rand2 < 1.0/6.0) {
   				type = "Arid";
+          typeAbbr = "A";
   			} else if (rand2 < 2.0/6.0) {
   				type = "Icy";
+          typeAbbr = "I";
   			} else if (rand2 < 3.0/6.0) {
   				type = "Tundra";
+          typeAbbr = "Tu";
   			} else if (rand2 < 4.0/6.0) {
   				type = "Ocean";
+          typeAbbr = "O";
   			} else if (rand2 < 5.0/6.0) {
   				type = "Temperate";
+          typeAbbr = "Te";
   			} else if (rand2 < 6.0/6.0) {
   				type = "Tropical";
+          typeAbbr = "Tr";
   			} else {
   				type = "Toxic";
+          typeAbbr = "Tx";
   			}
-        baseResources = [0,0,0];
       }
       else {
         type = "Asteroid";
         size = 0;
+      }
+
+      var rand3 = Math.random();
+      if (rand3 < 0.6) {
+        baseResources = [0, 0, 0];
+      }
+      else if (rand3 < 0.85) {
+        var amount = Math.round(Math.random()*4);
+        var rand4 = Math.random();
+        if (rand4 < 0.33) {
+          baseResources = [amount, 0, 0];
+        }
+        else if (rand4 < 0.66) {
+          baseResources = [0, amount, 0];
+        }
+        else {
+          baseResources = [Math.round(amount/2), 0, 0];
+        }
+      }
+      else {
         baseResources = [Math.round(Math.random()*4), Math.round(Math.random()*4), 0];
       }
 
@@ -593,6 +632,7 @@
         star: "",
 				size: size,
 				biome: type,
+        biomeAbbr: typeAbbr,
 				owner: null,
 				tiles: tiles,
         tileAssignments: [],
@@ -632,9 +672,9 @@
       }
       else {
         if (Math.random() < 0.1) {
+          civilizations[randCiv].worlds.push(planet);
     			planet.owner = civilizations[randCiv];
           planet.population = 3;
-          var fleet = createFleet(sector, position, owner, shipNames); TODO
           //moveFleet(fleet, destSector, destPosition);
         }
       }
@@ -787,25 +827,46 @@
           var starMapHeight = $("#system-tooltip-main").height();
           for (var planetPos in sector.planets) {
             var planet = planets[sector.planets[planetPos]];
-            var dx = sector.position[0] - planet.position[0];
-            var dy = sector.position[1] - planet.position[1];
+            var dx = planet.position[0] - sector.position[0];
+            var dy = planet.position[1] - sector.position[1];
             //console.log(dx/10 + " " + dy/10);
             //console.log(starMapWidth + " " + starMapHeight);
             var trueX = Math.round((dx/10 + 1.0) / 2.0 * 100);
             var trueY = Math.round((dy/10 + 1.0) / 2.0 * 100);
-            var textOffset = starMapHeight*(trueY/100) + 20;
             var sizePlanet = 15 + Math.round(planet.size / maxTiles * 25);
             if (planet.biome === "Asteroid") {
               sizePlanet = 15;
             }
-            //console.log(trueX + " " + trueY);
+            var textOffsetX = starMapWidth*(trueX/100) - 80;
+            var textOffsetY = starMapHeight*(trueY/100) + sizePlanet;
+
+            var resourceString = "<p>";
+            if (planet.baseResources[0] > 0) {
+              resourceString += planet.baseResources[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+            }
+            if (planet.baseResources[1] > 0) {
+              resourceString += planet.baseResources[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+            }
+            if (planet.baseResources[2] > 0) {
+              resourceString += planet.baseResources[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+            }
+            resourceString += "</p>"
+            if (resourceString === "<p></p>") resourceString = "";
+            var planetInfoString = planet.name;
+            if (planet.biome !== "Asteroid") {
+              planetInfoString += " (" + planet.biomeAbbr + ", " + planet.size + ")";
+            }
+            else {
+              planetInfoString = "";
+            }
+
             systemStarMap.html(
               systemStarMap.html() +
               "<img src=\"./planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
               "onclick=\"javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "])\" " +
-              "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:" + planetPos + ";\" />" +
-              "<div style=\"left:" + trueX + "%; top:" + textOffset + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + planetPos + ";\">" +
-              planet.name +
+              "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:-1;\" />" +
+              "<div style=\"left:" + textOffsetX + "px; top:" + textOffsetY + "px; max-height:200px; max-width:200px; width:100%; pointer-events:none; position:absolute; z-index:-1;\">" +
+              planetInfoString + resourceString +
               "</div>"
             );
             var circle = starMapSvg.append("circle").attr({
@@ -816,6 +877,33 @@
                           stroke: "black"
                         });
             starMapCircleMarkers.push(circle);
+          }
+          for (var i = 0; i < sector.fleets.length; i++) {
+            var fleet = sector.fleets[i];
+            var dx = fleet.position[0] - sector.position[0];
+            var dy = fleet.position[1] - sector.position[1];
+            //console.log(dx/10 + " " + dy/10);
+            //console.log(starMapWidth + " " + starMapHeight);
+            var trueX = Math.round((dx/10 + 1.0) / 2.0 * 100);
+            var trueY = Math.round((dy/10 + 1.0) / 2.0 * 100);
+
+            var textOffsetX = starMapWidth*(trueX/100) - 20;
+            var textOffsetY = starMapHeight*(trueY/100) - 10;
+
+            //console.log(trueX + " " + trueY);
+            var strength = calcFleetStrength(fleet);
+
+            systemStarMap.html(
+              systemStarMap.html() +
+              "<img src=\"./red_ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+              "onclick=\"javascript:test([" + planet.position[0] + "," + planet.position[1] + "])\" " +
+              "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:20px; max-width:20px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\" />" +
+              "<div style=\"left:" + textOffsetX + "px; top:" + textOffsetY + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\">" +
+              strength +
+              "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+              "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\" />" +
+              "</div>"
+            );
           }
 
 				}).on("contextmenu", function(data, index) {
@@ -837,6 +925,10 @@
       d3.event.preventDefault();
     });
 
+    function test(input) {
+
+    }
+
 		/*svg.append("g")
 				.attr("class", "y axis")
 				.call(yAxis);
@@ -852,6 +944,13 @@
 			d3.event.preventDefault();
 			hideTooltip();
 		});
+
+    for (var i = 0; i < civilizations.length; i++) {
+      for (var j = 0; j < civilizations[i].worlds.length; j++) {
+        var world = civilizations[i].worlds[j];
+        var fleet = createFleet(world.sector, world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
+      }
+    }
 
     function displayPlanetFromCoord(position) {
       //console.log(position);
@@ -870,8 +969,17 @@
           .style("opacity", 0.9);
         planetTooltip.style("pointer-events", "auto");
       }
-      var currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + "</h4>" +
-        "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:100%;\"/></p>";
+      var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
+      var currentText = "";
+      console.log(planetSize);
+      if (planetClicked.biome !== "Asteroid") {
+        var currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + "</h4>" +
+          "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
+      }
+      else {
+        var currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "</h4>" +
+          "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
+      }
       //planetTooltipHeader.html(currentText);
       if (planetClicked.owner == null) {
         planetTooltipHeader.html(currentText + "<p>Uncolonized</p>");
@@ -904,8 +1012,10 @@
 		function namePlanets() {
 			for (var key in planets) {
 				var planet = planets[key];
-				var randPlanet = Math.round(Math.random()*(planetData.length - 1));
-				planet.name = planetData[randPlanet]["pl_hostname"] + " " + planetData[randPlanet]["pl_letter"];
+        if (planet.biome === "Asteroid") {
+  				var randPlanet = Math.round(Math.random()*(planetData.length - 1));
+  				planet.name = planetData[randPlanet]["pl_hostname"] + " " + planetData[randPlanet]["pl_letter"];
+        }
 			}
 			/*for (var key in planets) {
 				var planet = planets[key];
@@ -935,10 +1045,23 @@
 		}
 
     function nameAsteroids() {
-
+      for (var key in planets) {
+        var planet = planets[key];
+        if (planet.biome !== "Asteroid") {
+          var randPlanet = Math.round(Math.random()*(smallBodyData.length - 1));
+          planet.name = smallBodyData[randPlanet]["name"].trim();
+        }
+      }
     }
 
-    function evaluateTurn() {
+    function evaluateDay() {
+      //Move all fleets towards destination
+      //Evaluate battles and other actions like excavations
+      //Evaluate construction progress and create new buildings when done
+    }
+
+    function evaluateMonth() {
+      //Evaluate tech progress
       for (var key in planets) {
         var planet = planets[key];
         if (planet.owner !== null) {
@@ -953,9 +1076,31 @@
           planet.owner.minerals += sumMinerals;
           planet.owner.energy += sumEnergy;
           sumFood -= planet.population * 1;
+          planet.food += sumFood;
+          if (planet.food > 50) {
+            planet.population++;
+          }
+          planet.food = Math.round(planet.food / 4);
         }
       }
     }
+
+    /*function requestFullScreen(element) {
+        // Supports most browsers and their versions.
+        var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+
+        if (requestMethod) { // Native full screen.
+            requestMethod.call(element);
+        } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
+            var wscript = new ActiveXObject("WScript.Shell");
+            if (wscript !== null) {
+                wscript.SendKeys("{F11}");
+            }
+        }
+    }
+
+    var elem = document.body; // Make the body go full screen.
+    requestFullScreen(elem);*/
 
 		</script>
 
