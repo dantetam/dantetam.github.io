@@ -387,6 +387,40 @@
 
 		var maxTiles = 20;
 
+    var ships = {};
+    ships["Destroyer"] = {strength: 150};
+
+    function createFleet(sector, position, owner, shipNames) {
+      var ships = [];
+      for (var i = 0; i < shipNames.length; i++) {
+        ships.push({name: shipNames[i], owner: owner, strength: ships[shipNames[i]].strength});
+      }
+      var fleet = {
+        sector: sector,
+        position: position,
+        owner: owner,
+        ships: ships
+      }
+      for (var i = 0; i < fleet.ships.length; i++) {
+        fleet.ships[i].owner = owner;
+      }
+      return fleet;
+    }
+
+    function moveFleet(fleet, destSector, destPosition) {
+      if (fleet.sector !== null) {
+        var indexOfFleet = fleet.sector.fleets.indexOf(fleet);
+        if (indexOfFleet !== -1) {
+          fleet.sector.fleets.splice(indexOfFleet, 1);
+        }
+      }
+      fleet.sector = destSector;
+      fleet.position = destPosition;
+      if (destSector !== null) {
+        destSector.fleets.push(fleet);
+      }
+    }
+
 		var tileStarts = [
 			[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],
 			[0,0,1],[0,1,0],[1,0,0],[0,0,2],[0,2,0],[2,0,0],[1,1,0]
@@ -554,6 +588,7 @@
 
 			var planet = {
 				position: position,
+        sector: null,
 				name: "",
         star: "",
 				size: size,
@@ -599,6 +634,8 @@
         if (Math.random() < 0.1) {
     			planet.owner = civilizations[randCiv];
           planet.population = 3;
+          var fleet = createFleet(sector, position, owner, shipNames); TODO
+          //moveFleet(fleet, destSector, destPosition);
         }
       }
       //planets[planetPositions[i]].owner = civilizations[randCiv];
@@ -626,6 +663,7 @@
     var systemTooltip = d3.select("#system-tooltip-main");
     var systemTooltipHeader = d3.select("#system-tooltip-header");
     var systemStarMap = d3.select("#system-tooltip-starmap");
+    var systemTooltipVisible = false;
 
 		function hideTooltip() {
 			planetTooltip.transition()
@@ -638,6 +676,7 @@
         .style("opacity", 0);
       planetTooltip.style("pointer-events", "none");
       systemTooltip.style("pointer-events", "none");
+      systemTooltipVisible = false;
 		}
 
     var starMapSvg = systemStarMap.append("svg")
@@ -683,13 +722,15 @@
               break;
             }
           }*/
+
           var randomStar = stars[index];
-          var thisSector = {position: [d.x, d.y], star: randomStar, planets: []};
+          var thisSector = {position: [d.x, d.y], star: randomStar, planets: [], fleets: []};
 					d.forEach(function(element) {
 						//console.log(planets[element]);
             //console.log(element);
             thisSector.planets.push(element);
 						var planet = planets[element];
+            planet.sector = thisSector;
 						if (planet.owner == null) {
 
 						}
@@ -701,6 +742,17 @@
 					return returnColor;
 				}).on("click", function(d) {
 					d3.event.preventDefault();
+
+          //console.log("click " + systemTooltipVisible);
+
+          systemTooltipVisible = !systemTooltipVisible;
+          if (!systemTooltipVisible) { //Close the tooltip if it's open, don't open another tooltip for another system
+            hideTooltip();
+            return;
+          }
+
+          planetTooltip.style("pointer-events", "none");
+          systemTooltip.style("pointer-events", "auto");
 
           while (starMapCircleMarkers.length > 0) {
             var circle = starMapCircleMarkers.pop();
@@ -731,8 +783,6 @@
           //var rect = systemStarMap.getBoundingClientRect();
           //console.log(rect.top, rect.right, rect.bottom, rect.left);
 
-          systemTooltip.style("pointer-events", "auto");
-
           var starMapWidth = $("#system-tooltip-main").width();
           var starMapHeight = $("#system-tooltip-main").height();
           for (var planetPos in sector.planets) {
@@ -751,7 +801,7 @@
             //console.log(trueX + " " + trueY);
             systemStarMap.html(
               systemStarMap.html() +
-              "<img src=\"./planet_"+planet.biome.toLowerCase()+".png\" alt=\"Minerals\" width=\"50\" height=\"50\" align=\"center\" " +
+              "<img src=\"./planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
               "onclick=\"javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "])\" " +
               "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:" + planetPos + ";\" />" +
               "<div style=\"left:" + trueX + "%; top:" + textOffset + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + planetPos + ";\">" +
@@ -818,9 +868,10 @@
         planetTooltip.transition()
           .duration(200)
           .style("opacity", 0.9);
+        planetTooltip.style("pointer-events", "auto");
       }
       var currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + "</h4>" +
-        "<p><img src=\"./planet_"+planetClicked.biome.toLowerCase()+".png\" alt=\"Planet\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:100%;\"/></p>";
+        "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:100%;\"/></p>";
       //planetTooltipHeader.html(currentText);
       if (planetClicked.owner == null) {
         planetTooltipHeader.html(currentText + "<p>Uncolonized</p>");
