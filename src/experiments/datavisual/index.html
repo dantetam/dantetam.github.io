@@ -306,9 +306,11 @@
 				width = $(window).width() - margin.left - margin.right,
 				height = $(window).height() - margin.top - margin.bottom;
 
-		var randomX = d3.random.normal(width / 2, 80),
-				randomY = d3.random.normal(height / 2, 80),
-				points = [],
+		var randomX = d3.random.normal(width / 2, 120),
+				randomY = d3.random.normal(height / 2, 120);
+    /*var randomX = d3.randomUniform(width*0.25, width*0.75),
+        randomY = d3.randomUniform(height*0.25, height*0.75);*/
+		var points = [],
         stars = [],
 				planets = [],
         sectors = [],
@@ -336,7 +338,18 @@
 		});
 
     var starData = [];
-    var removeStarNames = ["Hip", "BD+", "BD-"]
+    var removeStarNames = ["Hip", "BD+", "BD-"];
+    var starSpectralClasses = ["O", "B", "A", "F", "G", "K", "M"];
+    function determineStarType(stringy) {
+      for (var i = 0; i < stringy.length; i++) {
+        for (var j = 0; j < starSpectralClasses.length; j++) {
+          if (stringy[i] === starSpectralClasses[j]) {
+            return stringy[i];
+          }
+        }
+      }
+      return "U";
+    }
     d3.csv("./stars-cut.csv", function(data) {
 			//console.log(data);
 			for (var i = 0; i < data.length; i++) {
@@ -346,11 +359,26 @@
         for (var j = 0; j < removeStarNames.length; j++) {
           valid = valid && !starName.includes(removeStarNames[j]);
         }
+        //console.log(data[i]["Spectral Class"][0]);
+        data[i]["Star Type"] = determineStarType(data[i]["Spectral Class"]);
         if (valid) {
   				starData.push(data[i]);
         }
 			}
 			nameStars();
+		});
+
+    var smallBodyData = [];
+    d3.csv("./small-body.csv", function(data) {
+			//console.log(data);
+			for (var i = 0; i < data.length; i++) {
+				//console.log();
+        var smallBodyName = data[i]["name"];
+        if (smallBodyName !== null && smallBodyName !== "") {
+  				smallBodyData.push(data[i]);
+        }
+			}
+			nameAsteroids();
 		});
 
 		var small = d3.random.normal(7, 1.5),
@@ -450,7 +478,7 @@
 				position: position,
 				name: "",
 				size: size,
-        type: type,
+        type: "",
 				owner: null
 			};
       stars.push(star);
@@ -477,6 +505,8 @@
 				size = maxTiles;
 			}
 
+      var baseResources = [];
+
       if (i < numPlanets) {
   			var rand2 = Math.random();
   			if (rand2 < 1.0/6.0) {
@@ -494,9 +524,12 @@
   			} else {
   				type = "Toxic";
   			}
+        baseResources = [0,0,0];
       }
       else {
         type = "Asteroid";
+        size = 0;
+        baseResources = [Math.round(Math.random()*4), Math.round(Math.random()*4), 0];
       }
 
 			var tiles = [];
@@ -529,7 +562,9 @@
 				tiles: tiles,
         tileAssignments: [],
         population: 0,
-				food: 0
+				food: 0,
+        baseResources: baseResources,
+        specialResources: []
 			};
 			planets[position] = planet;
 		}
@@ -556,8 +591,16 @@
 			var randCiv = Math.round(d3.randomUniform(0, civilizations.length - 1)());
       //var planet = planets[planetPositions[randPlanet]];
       var planet = planets[planetPositions[i]];
-			planet.owner = civilizations[randCiv];
-      planet.population = 3;
+      if (planet.biome === "Asteroid") {
+        planet.owner = null;
+        planet.population = 0;
+      }
+      else {
+        if (Math.random() < 0.1) {
+    			planet.owner = civilizations[randCiv];
+          planet.population = 3;
+        }
+      }
       //planets[planetPositions[i]].owner = civilizations[randCiv];
 		}
 
@@ -576,16 +619,6 @@
 		var y = d3.scale.linear()
 				.domain([0, height])
 				.range([height, 0]);
-
-		/*var xAxis = d3.svg.axis()
-				.scale(x)
-				.orient("bottom")
-				.tickSize(6, -height);
-
-		var yAxis = d3.svg.axis()
-				.scale(y)
-				.orient("left")
-				.tickSize(6, -width);*/
 
 		var planetTooltip = d3.select("#planet-tooltip");
 		var planetTooltipHeader = d3.select("#planet-tooltip-header");
@@ -607,6 +640,12 @@
       systemTooltip.style("pointer-events", "none");
 		}
 
+    var starMapSvg = systemStarMap.append("svg")
+        .attr("width", $("#system-tooltip-starmap").width)
+        .attr("height", $("#system-tooltip-starmap").height)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 		var svg = d3.select("body").append("svg")
 				.attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
@@ -621,6 +660,8 @@
 				.attr("height", height);
 
     var usedStars = {};
+
+    var starMapCircleMarkers = [];
 
 		svg.append("g")
 				.attr("clip-path", "url(#clip)")
@@ -660,6 +701,11 @@
 					return returnColor;
 				}).on("click", function(d) {
 					d3.event.preventDefault();
+
+          while (starMapCircleMarkers.length > 0) {
+            var circle = starMapCircleMarkers.pop();
+            circle.remove();
+          }
 					/*planetTooltip.transition()
 						.duration(200)
 						.style("opacity", 0.9);*/
@@ -677,7 +723,8 @@
             .style("opacity", 0.0);
 
           var sector = sectors[[d.x, d.y]];
-          systemTooltipHeader.html("<h3>Sector: " + sector.star.name + "</h3>");
+          systemTooltipHeader.html("<h3>Sector: " + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
+          "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/></h3>");
 
           systemStarMap.html("");
 
@@ -697,7 +744,7 @@
             var trueX = Math.round((dx/10 + 1.0) / 2.0 * 100);
             var trueY = Math.round((dy/10 + 1.0) / 2.0 * 100);
             var textOffset = starMapHeight*(trueY/100) + 20;
-            var sizePlanet = 10 + Math.round(planet.size / maxTiles * 25);
+            var sizePlanet = 15 + Math.round(planet.size / maxTiles * 25);
             if (planet.biome === "Asteroid") {
               sizePlanet = 15;
             }
@@ -707,10 +754,18 @@
               "<img src=\"./planet_"+planet.biome.toLowerCase()+".png\" alt=\"Minerals\" width=\"50\" height=\"50\" align=\"center\" " +
               "onclick=\"javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "])\" " +
               "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:" + planetPos + ";\" />" +
-              "<div style=\"left:" + trueX + "%; top:" + textOffset + "px; max-height:20px; max-width:100px; width:100%; position:absolute; z-index:" + planetPos + ";\">" +
+              "<div style=\"left:" + trueX + "%; top:" + textOffset + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + planetPos + ";\">" +
               planet.name +
               "</div>"
             );
+            var circle = starMapSvg.append("circle").attr({
+                          cx: starMapWidth*(trueX/100),
+                          cy: starMapHeight*(trueY/100),
+                          r: 30,
+                          fill: "none",
+                          stroke: "black"
+                        });
+            starMapCircleMarkers.push(circle);
           }
 
 				}).on("contextmenu", function(data, index) {
@@ -727,10 +782,6 @@
         systemTooltip.on("click", function() {
           d3.event.preventDefault();
         });
-
-    function test(input) {
-      console.log(input);
-    }
 
     d3.select("#system-tooltip-main").on("click", function() {
       d3.event.preventDefault();
@@ -814,7 +865,7 @@
     function nameStars() {
 			for (var key in stars) {
 				var star = stars[key];
-				var randStar = Math.round(Math.random()*starData.length);
+				var randStar = Math.round(Math.random()*(starData.length - 1));
         var displayName = starData[randStar]["Display Name"];
         var displayName2 = starData[randStar]["BayerFlamsteed"];
         if (displayName === displayName2) {
@@ -823,12 +874,18 @@
         else {
   				star.name = starData[randStar]["Display Name"] + " " + starData[randStar]["BayerFlamsteed"];
         }
+        star.type = starData[randStar]["Star Type"];
+        //console.log(">>>" + star.type);
 			}
 			/*for (var key in planets) {
 				var planet = planets[key];
 				console.log(planet.name);
 			}*/
 		}
+
+    function nameAsteroids() {
+
+    }
 
     function evaluateTurn() {
       for (var key in planets) {
