@@ -358,6 +358,16 @@
 
     </div>
 
+    <div id="fleet-tooltip-main">
+      <div id="fleet-tooltip-header">
+				<h1>Test</h1>
+			</div>
+
+      <div id="fleet-tooltip-options">
+
+      </div>
+    </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -457,20 +467,30 @@
 		var maxTiles = 20;
 
     var shipTypes = {};
-    shipTypes["Destroyer"] = {strength: 150};
+    shipTypes["Destroyer"] = {strength: 150, maxHealth: 50};
 
-    function createFleet(sector, position, owner, shipNames) {
+    function createFleet(sector, name, position, owner, shipNames) {
       var ships = [];
       for (var i = 0; i < shipNames.length; i++) {
         //console.log(shipNames[i] + " " + shipTypes[shipNames[i]] + " " + shipTypes["Destroyer"]);
-        ships.push({name: shipNames[i], owner: owner, strength: shipTypes[shipNames[i]].strength});
+        ships.push({
+          name: shipNames[i],
+          owner: owner,
+          strength: shipTypes[shipNames[i]].strength,
+          health: shipTypes[shipNames[i]].maxHealth,
+          maxHealth: shipTypes[shipNames[i]].maxHealth
+        });
       }
+      var theId = Object.keys(owner.fleets).length;
       var fleet = {
         sector: sector,
         position: position,
         owner: owner,
-        ships: ships
+        name: name,
+        ships: ships,
+        id: theId
       }
+      owner.fleets["Fleet" + theId] = fleet;
       for (var i = 0; i < fleet.ships.length; i++) {
         fleet.ships[i].owner = owner;
       }
@@ -523,11 +543,11 @@
 		];
 
 		var tileImprovements = [
-			{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"},
-			{name: "Platform", output: [1,1,0], cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Sea"},
+			{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Platform", output: [1,1,0], cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Sea"},
 			{name: "Farm", output: [0,0,2], cost: [50,0,25], maintenance: [0,-1,0], biomeRestrict: "Arable", terrainRestrict: "Land"},
-			{name: "Power Plant", output: [0,2,0], cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: null, terrainRestrict: "Land"},
-			{name: "Colony", output: [0,0,3], cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: null, terrainRestrict: "Land"}
+			{name: "Power Plant", output: [0,2,0], cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Colony", output: [0,0,3], cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"}
 		];
 
 		function checkIfValidImprovement(tile, impr) {
@@ -536,6 +556,9 @@
 				if (impr.biomeRestrict === "Arable") {
 					result = result && (tile.localBiome === "Savanna" || tile.localBiome === "Grassland" || tile.localBiome === "Forest" || tile.localBiome === "Rainforest");
 				}
+        else if (impr.biomeRestrict === "NotToxic") {
+          result = result && (tile.localBiome !== "Toxic");
+        }
 				else {
 					result = result && (impr.biomeRestrict === tile.localBiome);
 				}
@@ -546,6 +569,9 @@
 				}
 				else if (impr.terrainRestrict === "Sea") {
 					result = result && (tile.localTerrain === "Ocean");
+				}
+        else {
+					result = result && (impr.terrainRestrict === tile.localTerrain);
 				}
 			}
 			return result;
@@ -727,9 +753,10 @@
 				.interpolate(d3.interpolateLab);
 			var civilization = {
 				name: "Civilization" + i,
+        id: i,
 				color: color,
 				worlds: [],
-				armies: [],
+				fleets: {},
 				minerals: 150,
 				energy: 50
 			};
@@ -781,6 +808,9 @@
     var systemStarMap = d3.select("#system-tooltip-starmap");
     var systemTooltipVisible = false;
 
+    var fleetTooltip = d3.select("#fleet-tooltip-main");
+    var fleetTooltipVisible = false, planetTooltipVisible = false;
+
 		function hideTooltip() {
 			planetTooltip.transition()
 				.duration(200)
@@ -790,9 +820,16 @@
       systemTooltip.transition()
         .duration(200)
         .style("opacity", 0);
+      fleetTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
       planetTooltip.style("pointer-events", "none");
       systemTooltip.style("pointer-events", "none");
+      fleetTooltip.style("pointer-events", "none");
+
       systemTooltipVisible = false;
+      planetTooltipVisible = false;
+      fleetTooltipVisible = false;
 
       var buildMenu = d3.select("#planet-build-main");
       buildMenu.style("pointer-events", "none");
@@ -976,15 +1013,19 @@
             //console.log(trueX + " " + trueY);
             var strength = calcFleetStrength(fleet);
 
+// displayFleet(civId, fleetId)
             systemStarMap.html(
               systemStarMap.html() +
               "<img src=\"./red_ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-              "onclick=\"javascript:test([" + planet.position[0] + "," + planet.position[1] + "])\" " +
-              "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:20px; max-width:20px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\" />" +
+              "onclick=\"javascript:displayFleetFromId(" + fleet.owner.id + "," + fleet.id + ");\" " +
+              "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:20px; max-width:20px; width:100%; position:absolute; z-index:" + i + ";\" />" +
               "<div style=\"left:" + textOffsetX + "px; top:" + textOffsetY + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\">" +
               strength +
               "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-              "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\" />" +
+              "style=\"max-height:10px; max-width:10px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;" +
+              fleet.ships.length +
+              "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+              "style=\"max-height:10px; max-width:10px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
               "</div>"
             );
           }
@@ -1024,13 +1065,6 @@
 			hideTooltip();
 		});
 
-    for (var i = 0; i < civilizations.length; i++) {
-      for (var j = 0; j < civilizations[i].worlds.length; j++) {
-        var world = civilizations[i].worlds[j];
-        var fleet = createFleet(world.sector, world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
-      }
-    }
-
     function displayTileBuildMenu(planetPosition, tileNum) {
       var planet = planets[planetPosition];
       var tile = planet.tiles[tileNum];
@@ -1056,6 +1090,14 @@
       }
     }
 
+    function hideFleetTooltip() {
+      //var fleetTooltip = d3.select("#fleet-tooltip-main");
+      fleetTooltip.style("pointer-events", "none");
+      fleetTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+    }
+
     function hideBuildMenu() {
       var buildMenu = d3.select("#planet-build-main");
       buildMenu.style("pointer-events", "none");
@@ -1074,6 +1116,58 @@
       if (impr !== null) {
         var tile = planets[planetPosition].tiles[tileNum];
         tile.building = {name: impr.name, output: impr.output, maintenance: impr.maintenance};
+      }
+    }
+
+    function displayFleetFromId(civId, fleetId) {
+      //console.log(civId + " " + fleetId + " " + civilizations[civId] + " " + civilizations[civId].fleets[fleetId]);
+      var fleet = civilizations[civId].fleets["Fleet" + fleetId];
+      displayFleet(fleet);
+    }
+
+    function displayFleet(fleet) {
+      if (fleet === null) {
+        hideTooltip();
+      }
+      else {
+        fleetTooltip.transition()
+          .duration(200)
+          .style("opacity", 1);
+        fleetTooltip.style("pointer-events", "auto");
+        fleetTooltipVisible = true;
+        if (planetTooltipVisible) {
+          planetTooltipVisible = false;
+          planetTooltip.transition()
+            .duration(200)
+            .style("opacity", 0);
+          planetTooltip.style("pointer-events", "none");
+        }
+      }
+
+      var fleetStrength = calcFleetStrength(fleet);
+      fleetTooltip.html(
+        "<h4>" + fleet.name + "&emsp;" +
+        fleetStrength + "&nbsp;" +
+        "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
+        fleet.ships.length + "&nbsp;" +
+        "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
+        + "</h4>"
+      );
+      for (var i = 0; i < fleet.ships.length; i++) {
+        var ship = fleet.ships[i];
+        var health = Math.ceil(ship.health / ship.maxHealth * 100);
+        fleetTooltip.html(
+          fleetTooltip.html() + "<p>" + ship.name + "&emsp;" +
+          ship.strength + "&nbsp;" +
+          "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
+          health + "% &nbsp;" +
+          "<img src=\"./health.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
+          "</p>"
+        );
       }
     }
 
@@ -1096,6 +1190,14 @@
           .duration(200)
           .style("opacity", 0.9);
         planetTooltip.style("pointer-events", "auto");
+        planetTooltipVisible = true;
+        if (fleetTooltipVisible) {
+          fleetTooltipVisible = false;
+          fleetTooltip.transition()
+            .duration(200)
+            .style("opacity", 0);
+          fleetTooltip.style("pointer-events", "none");
+        }
       }
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
       var currentText = "";
@@ -1234,6 +1336,13 @@
           }
           planet.food = Math.round(planet.food / 4);
         }
+      }
+    }
+
+    for (var i = 0; i < civilizations.length; i++) {
+      for (var j = 0; j < civilizations[i].worlds.length; j++) {
+        var world = civilizations[i].worlds[j];
+        var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
       }
     }
 
