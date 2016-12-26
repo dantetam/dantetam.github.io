@@ -275,6 +275,7 @@
         <button type="button" onclick="javascript:setGameSpeed(&quot;Slow&quot;)">Slow</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Fast&quot;)">Fast</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Fastest&quot;)">Fastest</button>
+        <div id="player-hud-time"></div>
       </p>
 		</div>
     <div id="tutorial">
@@ -392,6 +393,9 @@
 				randomY = d3.random.normal(height / 2, 120);
     /*var randomX = d3.randomUniform(width*0.25, width*0.75),
         randomY = d3.randomUniform(height*0.25, height*0.75);*/
+
+    var frames = 0, days = 0, currentDate = new Date("2100-01-01");
+
 		var points = [],
         stars = [],
 				planets = [],
@@ -600,8 +604,8 @@
       for (var i = 0; i < tiles.length; i++) {
         scores[i] = tiles[i].minerals * weights[0] + tiles[i].energy * weights[1] + tiles[i].food * weights[2];
       }
-      var sorted = Object.keys(data).sort(function(a, b) {
-        return data[b] - data[a];
+      var sorted = Object.keys(scores).sort(function(a, b) {
+        return scores[b] - scores[a];
       });
       var result = [];
       for (var i = 0; i < population; i++) {
@@ -816,6 +820,8 @@
 
     var fleetTooltip = d3.select("#fleet-tooltip-main");
     var fleetTooltipVisible = false, planetTooltipVisible = false;
+
+    var timeTooltip = d3.select("#player-hud-time");
 
 		function hideTooltip() {
 			planetTooltip.transition()
@@ -1366,8 +1372,8 @@
         if (planet.owner !== null) {
           planet.tileAssignments = calculateAssignmentPlanet(planet);
           var sumMinerals = 0, sumEnergy = 0, sumFood = 0;
-          for (var i = 0; i < tileAssignments.length; i++) {
-            var tile = planet.tiles[tileAssignments[i]];
+          for (var i = 0; i < planet.tileAssignments.length; i++) {
+            var tile = planet.tiles[planet.tileAssignments[i]];
             sumMinerals += tile.minerals;
             sumEnergy += tile.energy;
             sumFood += tile.food;
@@ -1408,14 +1414,24 @@
     var elem = document.body; // Make the body go full screen.
     requestFullScreen(elem);*/
 
-    function setGameSpeed(newMode) {
-      gameMode = newMode;
+    function displayTime() {
+      timeTooltip.html(
+        currentDate.getFullYear() + "." +
+        (currentDate.getMonth()+1) + "." +
+        currentDate.getDate() + "&emsp;" +
+        gameMode
+      );
     }
 
-    var frames = 0;
+    function setGameSpeed(newMode) {
+      gameMode = newMode;
+      displayTime();
+    }
+
     var timer = d3.interval(function(elapsed) {
       frames++;
-      if (frames >= 24) {
+      var advanceDay = false;
+      if (frames >= 8) {
         frames = 0;
       }
       if (gameMode === "Paused") {
@@ -1423,18 +1439,35 @@
       }
       else if (gameMode === "Slow") {
         if (frames % 8 == 0) {
-          console.log(elapsed);
+          advanceDay = true;
         }
       }
       else if (gameMode === "Fast") {
         if (frames % 4 == 0) {
-          console.log(elapsed);
+          advanceDay = true;
         }
       }
       else if (gameMode === "Fastest") {
         if (frames % 2 == 0) {
-          console.log(elapsed);
+          advanceDay = true;
         }
+      }
+      if (advanceDay) {
+        var currentMonth = currentDate.getMonth();
+        currentDate.setDate(currentDate.getDate() + 1);
+        var newMonth = currentDate.getMonth();
+        if (currentMonth !== newMonth) {
+          //Advance a month
+          evaluateMonth();
+        }
+        //console.log(currentDate);
+
+        days++;
+        if (days >= 365) {
+          days = 0;
+        }
+        evaluateDay();
+        displayTime();
       }
     }, 250, 0);
 
