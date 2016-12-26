@@ -406,6 +406,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
+    var constructionOrders = [];
 
 		var planetData = [];
     var removePlanetNames = [];
@@ -554,12 +555,16 @@
 		];
 
 		var tileImprovements = [
-			{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
-			{name: "Platform", output: [1,1,0], cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Sea"},
-			{name: "Farm", output: [0,0,2], cost: [50,0,25], maintenance: [0,-1,0], biomeRestrict: "Arable", terrainRestrict: "Land"},
-			{name: "Power Plant", output: [0,2,0], cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
-			{name: "Colony", output: [0,0,3], cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"}
+			{name: "Mine", output: [1,0,0], buildTime: 70, cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Platform", output: [1,1,0], buildTime: 100, cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Sea"},
+			{name: "Farm", output: [0,0,2], buildTime: 70, cost: [50,0,25], maintenance: [0,-1,0], biomeRestrict: "Arable", terrainRestrict: "Land"},
+			{name: "Power Plant", output: [0,2,0], buildTime: 70, cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Colony", output: [0,0,3], buildTime: 250, cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"}
 		];
+
+    var planetSatellites = [
+      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null},
+    ];
 
 		function checkIfValidImprovement(tile, impr) {
 			var result = true;
@@ -749,6 +754,7 @@
 				owner: null,
 				tiles: tiles,
         tileAssignments: [],
+        satelliteBuilding: null,
         population: 0,
 				food: 0,
         baseResources: baseResources,
@@ -788,6 +794,8 @@
           civilizations[randCiv].worlds.push(planet);
     			planet.owner = civilizations[randCiv];
           planet.population = 3;
+          var spaceport = planetSatellites[0];
+          planet.satelliteBuilding = {name: spaceport.name};
           //moveFleet(fleet, destSector, destPosition);
         }
       }
@@ -822,6 +830,8 @@
     var fleetTooltipVisible = false, planetTooltipVisible = false;
 
     var timeTooltip = d3.select("#player-hud-time");
+
+    var foodNeededToGrow = 50;
 
 		function hideTooltip() {
 			planetTooltip.transition()
@@ -946,7 +956,7 @@
             .style("opacity", 0.0);
 
           var sector = sectors[[d.x, d.y]];
-          systemTooltipHeader.html("<h3>Sector: " + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
+          systemTooltipHeader.html("<h3>" + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
           "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/></h3>");
 
           systemStarMap.html("");
@@ -1146,8 +1156,18 @@
         for (var i = 0; i < cost.length; i++) {
           civRes[i] -= cost[i];
         }
-        buildImprOnTile(planetPosition, tileNum, impr);
+        queueImprOrderOnTile(planetPosition, tileNum, impr);
+        //buildImprOnTile(planetPosition, tileNum, impr);
       }
+    }
+
+    function queueImprOrderOnTile(planetPosition, tileNum, impr) {
+      constructionOrders.add({
+        timeRemaining: impr.buildTime,
+        planetPosition: planetPosition,
+        tileNum: tileNum,
+        impr: impr
+      });
     }
 
     function buildImprOnTile(planetPosition, tileNum, impr) {
@@ -1208,13 +1228,13 @@
       );
       for (var i = 0; i < fleet.ships.length; i++) {
         var ship = fleet.ships[i];
-        var health = Math.ceil(ship.health / ship.maxHealth * 100);
+        //var health = Math.ceil(ship.health / ship.maxHealth * 100);
         fleetTooltip.html(
           fleetTooltip.html() + "<p>" + ship.name + "&emsp;" +
           ship.strength + "&nbsp;" +
           "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
-          health + "% &nbsp;" +
+          ship.health + "/" + ship.maxHealth + "&nbsp;" +
           "<img src=\"./health.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
           "</p>"
@@ -1260,13 +1280,36 @@
         currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "</h4>" +
           "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
       }
-      //planetTooltipHeader.html(currentText);
-      if (planetClicked.owner == null) {
-        planetTooltipHeader.html(currentText + "<p>Uncolonized</p>");
+
+      if (planetClicked.owner === null) {
+        currentText += "<h4>Uncolonized";
       }
       else {
-        planetTooltipHeader.html(currentText + "<p>" + planetClicked.owner.name + ", " + planetClicked.population + "<img src=\"./population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/> </p>");
+        currentText += "<h4>" + planetClicked.owner.name + ", " +
+        planetClicked.population + "<img src=\"./population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>, " +
+        planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
       }
+      if (planetClicked.satelliteBuilding === null) {
+        currentText += ", No Satellite&nbsp;" +
+        "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+        "onclick=\"javascript:displaySatelliteBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+        "/>" +
+        "</h4>";
+      }
+      else {
+        currentText += ", Satellite: " + planetClicked.satelliteBuilding.name + "&nbsp;" +
+        "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+        "onclick=\"javascript:displaySatelliteBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+        "/>";
+        if (planetClicked.satelliteBuilding.name === "Spaceport") {
+          currentText += "&nbsp;<img src=\"hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+          "onclick=\"javascript:displaySpaceportBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+          "/>";
+        }
+        currentText += "</h4>";
+      }
+
+      planetTooltipHeader.html(currentText);
       //console.log(planetClicked.tiles.length);
       for (var j = 0; j < maxTiles; j++) {
         var planetTooltipTile = d3.select("#planet-tooltip-tile" + j);
@@ -1363,6 +1406,14 @@
       //Move all fleets towards destination
       //Evaluate battles and other actions like excavations
       //Evaluate construction progress and create new buildings when done
+      for (var i = constructionOrders.length; i >= 0; i--) {
+        var order = constructionOrders[i];
+        order.buildTime--;
+        if (order.buildTime <= 0) {
+          buildImprOnTile(order.planetPosition, order.tileNum, order.impr);
+          constructionOrders.splice(i, 1);
+        }
+      }
     }
 
     function evaluateMonth() {
@@ -1382,7 +1433,7 @@
           planet.owner.energy += sumEnergy;
           sumFood -= planet.population * 1;
           planet.food += sumFood;
-          if (planet.food > 50) {
+          if (planet.food > foodNeededToGrow) {
             planet.population++;
           }
           planet.food = Math.round(planet.food / 4);
@@ -1429,6 +1480,9 @@
     }
 
     var timer = d3.interval(function(elapsed) {
+      if (frames === 0) {
+        displayTime();
+      }
       frames++;
       var advanceDay = false;
       if (frames >= 8) {
