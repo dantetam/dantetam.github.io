@@ -118,7 +118,7 @@
     background: lightsteelblue;
     border: 0px;
     border-radius: 8px;
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 
 #tutorial {
@@ -191,6 +191,7 @@
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 		<script src="d3.hexbin.min.js"></script>
 		<script src="https://d3js.org/d3-random.v1.min.js"></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
 
   </head>
 
@@ -270,7 +271,11 @@
 				Minerals<img src="./minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
 				Energy&emsp;<img src="./energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
 				Planets&emsp;<img src="./planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
-			</p>
+        <button type="button" onclick="javascript:setGameSpeed(&quot;Paused&quot;)">Pause</button>
+        <button type="button" onclick="javascript:setGameSpeed(&quot;Slow&quot;)">Slow</button>
+        <button type="button" onclick="javascript:setGameSpeed(&quot;Fast&quot;)">Fast</button>
+        <button type="button" onclick="javascript:setGameSpeed(&quot;Fastest&quot;)">Fastest</button>
+      </p>
 		</div>
     <div id="tutorial">
 			<p>
@@ -395,6 +400,8 @@
 				//points = d3.range(2000).map(function() { return [randomX(), randomY()]; });
 
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
+
+    var gameMode = "Paused";
 
 		var planetData = [];
     var removePlanetNames = [];
@@ -757,8 +764,7 @@
 				color: color,
 				worlds: [],
 				fleets: {},
-				minerals: 150,
-				energy: 50
+			  baseResources: [150, 50, 0]
 			};
 			civilizations.push(civilization);
 		}
@@ -1065,6 +1071,15 @@
 			hideTooltip();
 		});
 
+    fleetTooltip.on("contextmenu", function() {
+      d3.event.preventDefault();
+      fleetTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      fleetTooltip.style("pointer-events", "none");
+      fleetTooltipVisible = false;
+    });
+
     function displayTileBuildMenu(planetPosition, tileNum) {
       var planet = planets[planetPosition];
       var tile = planet.tiles[tileNum];
@@ -1081,7 +1096,7 @@
         var impr = validImprovements[i];
         buildMenu.html(buildMenu.html() +
           "<p>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:buildImprOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name +"&quot;); " +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:buildImprOnTileByName([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name +"&quot;); " +
           "javascript:hideBuildMenu(); " +
           "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
@@ -1106,7 +1121,37 @@
         .style("opacity", 0);
     }
 
-    function buildImprOnTile(planetPosition, tileNum, imprName) {
+    function requestImprOnTile(planetPosition, tileNum, imprName, owner) {
+      var impr = null;
+      for (var i = 0; i < tileImprovements.length; i++) {
+        if (tileImprovements[i].name === imprName) {
+          impr = tileImprovements[i];
+        }
+      }
+      if (impr !== null) {
+        var cost = impr.cost;
+        var civRes = owner.baseResources;
+        for (var i = 0; i < cost.length; i++) {
+          if (cost[i] < civRes[i]) {
+            //Not enough resources to build the improvement
+            return;
+          }
+        }
+        for (var i = 0; i < cost.length; i++) {
+          civRes[i] -= cost[i];
+        }
+        buildImprOnTile(planetPosition, tileNum, impr);
+      }
+    }
+
+    function buildImprOnTile(planetPosition, tileNum, impr) {
+      if (impr !== null) {
+        var tile = planets[planetPosition].tiles[tileNum];
+        tile.building = {name: impr.name, output: impr.output, maintenance: impr.maintenance};
+      }
+    }
+
+    function buildImprOnTileByName(planetPosition, tileNum, imprName) {
       var impr = null;
       for (var i = 0; i < tileImprovements.length; i++) {
         if (tileImprovements[i].name === imprName) {
@@ -1362,6 +1407,36 @@
 
     var elem = document.body; // Make the body go full screen.
     requestFullScreen(elem);*/
+
+    function setGameSpeed(newMode) {
+      gameMode = newMode;
+    }
+
+    var frames = 0;
+    var timer = d3.interval(function(elapsed) {
+      frames++;
+      if (frames >= 24) {
+        frames = 0;
+      }
+      if (gameMode === "Paused") {
+
+      }
+      else if (gameMode === "Slow") {
+        if (frames % 8 == 0) {
+          console.log(elapsed);
+        }
+      }
+      else if (gameMode === "Fast") {
+        if (frames % 4 == 0) {
+          console.log(elapsed);
+        }
+      }
+      else if (gameMode === "Fastest") {
+        if (frames % 2 == 0) {
+          console.log(elapsed);
+        }
+      }
+    }, 250, 0);
 
 		</script>
 
