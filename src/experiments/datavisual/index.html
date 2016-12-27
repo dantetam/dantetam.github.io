@@ -503,7 +503,7 @@
 		];
 
     var planetSatellites = [
-      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null, order: null},
+      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null, orders: []},
     ];
 
     var shipTypes = {};
@@ -552,6 +552,75 @@
       if (destSector !== null) {
         destSector.fleets.push(fleet);
       }
+    }
+
+    function removeFleet(fleet) {
+      if (fleet.sector !== null) {
+        var indexOfFleet = fleet.sector.fleets.indexOf(fleet);
+        if (indexOfFleet !== -1) {
+          fleet.sector.fleets.splice(indexOfFleet, 1);
+        }
+      }
+      fleet.ships = [];
+      fleet.sector = null;
+    }
+
+    /*function mergeFleets(fleets) {
+      //var thisSector = {position: [d.x, d.y], star: randomStar, planets: [], fleets: []};
+      var sectorsByPosition = {};
+      var shipsBySector = {};
+      for (var i = 0; i < fleets.length; i++) {
+        var foundSector = false;
+        for (var key in shipsBySector) {
+          var dx = fleets.position[0] - key[0];
+          var dy = fleets.position[1] - key[1];
+          if (fleets.sector.position[0] === key[0] && fleets.sector.position[1] === key[1]) {
+            foundSector = true;
+
+            shipsBySector[key].push()
+          }
+        }
+
+      }
+    }*/
+
+    //createFleet(sector, name, position, owner, shipNames)
+    /*var fleet = {
+      sector: sector,
+      position: position,
+      owner: owner,
+      name: name,
+      ships: ships,
+      id: theId
+    }*/
+    function mergeFleet(fleets) {
+      if (fleets === null) return;
+      if (fleets.length === 0) return;
+      var firstSector = fleets[0].sector, firstPosition = fleets[0].position;
+      var firstOwner = fleets[0].owner; //, firstName = fleets[0].name;
+      var theId = Object.keys(owner.fleets).length;
+      var newFleet = {
+        sector: fleets[0].sector,
+        position: fleets[0].position,
+        owner: fleets[0].owner,
+        name: fleets[0].name,
+        ships: [],
+        id: theId
+      }
+      var shipNames = [];
+      for (var i = 0; i < fleets.length; i++) {
+        if (fleets[i].sector === firstSector && fleets[i].owner.civId === firstOwner.civId) {
+          for (var j = 0; j < fleets[i].ships; j++) {
+            newFleet.ships.push(fleets[i].ships[j]);
+          }
+          removeFleet(fleets[i]);
+        }
+      }
+      owner.fleets["Fleet" + theId] = fleet;
+      for (var i = 0; i < fleet.ships.length; i++) {
+        fleet.ships[i].owner = owner;
+      }
+      moveFleet(fleet, firstSector, firstPosition);
     }
 
     function calcFleetStrength(fleet) {
@@ -1161,7 +1230,7 @@
         spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
           "<p>" +
           "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueUnitOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
-          "javascript:hideBuildMenu(); " +
+          "javascript:hideSpaceportMenu(); " +
           "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
           "</p><br>"
@@ -1208,6 +1277,13 @@
         .style("opacity", 0);
     }
 
+    function hideSpaceportMenu() {
+      spaceportBuildTooltip.style("pointer-events", "none");
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+    }
+
     function hideBuildMenu() {
       var buildMenu = d3.select("#planet-build-main");
       buildMenu.style("pointer-events", "none");
@@ -1237,14 +1313,24 @@
     }
 
     function queueUnitOrderOnPosition(planetPosition, unit, owner) {
+      var spaceport = planets[planetPosition].satelliteBuilding;
       var order = {
         timeRemaining: unit.buildTime,
+        owner: owner,
         planetPosition: planetPosition,
+        spaceport: spaceport,
         unit: unit
       };
-      var spaceport = planets[planetPosition].building;
-      spaceport.order = order;
+      spaceport.orders.push(order);
       unitOrders.push(order);
+    }
+
+    function bulidUnitOnSpaceport(owner, planetPosition, spaceport, unit) {
+      var planet = planets[planetPosition];
+      if (unit !== null) {
+        var fleet = createFleet(planet.sector, planet.name + " Fleet", planetPosition, owner, [unit.name]);
+      }
+      spaceport.orders.splice(0, 1);
     }
 
     function requestImprOnTile(planetPosition, tileNum, imprName, ownerId) {
@@ -1544,7 +1630,7 @@
         order.timeRemaining--;
         if (order.timeRemaining <= 0) {
           //TODO: Create new fleet, merge if another fleet nearby
-          TODO
+          bulidUnitOnSpaceport(order.owner, order.planetPosition, order.spaceport, order.unit);
           unitOrders.splice(i, 1);
         }
       }
