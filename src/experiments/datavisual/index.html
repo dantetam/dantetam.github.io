@@ -64,7 +64,7 @@
   pointer-events: none;
 }
 
-#planet-build-main {
+#planet-build-main, #spaceport-build-main {
   position: absolute;
   text-align: center;
   left: 50%;
@@ -364,6 +364,18 @@
 
     </div>
 
+    <div id="spaceport-build-main">
+
+      <div id="spaceport-build-header">
+				<h1>Test</h1>
+			</div>
+
+      <div id="spaceport-build-options">
+
+      </div>
+
+    </div>
+
     <div id="fleet-tooltip-main">
       <div id="fleet-tooltip-header">
 				<h1>Test</h1>
@@ -407,6 +419,10 @@
 
     var gameMode = "Paused";
     var constructionOrders = [];
+
+    var currentSectorSelected = null; //TODO:
+    var currentPlanetSelected = null;
+    var currentFleetSelected = null;
 
 		var planetData = [];
     var removePlanetNames = [];
@@ -478,8 +494,22 @@
 
 		var maxTiles = 20;
 
+    var tileImprovements = [
+			{name: "Mine", output: [1,0,0], buildTime: 70, cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Platform", output: [1,1,0], buildTime: 100, cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Sea"},
+			{name: "Farm", output: [0,0,2], buildTime: 70, cost: [50,0,25], maintenance: [0,-1,0], biomeRestrict: "Arable", terrainRestrict: "Land"},
+			{name: "Power Plant", output: [0,2,0], buildTime: 70, cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
+			{name: "Colony", output: [0,0,3], buildTime: 250, cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"}
+		];
+
+    var planetSatellites = [
+      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null},
+    ];
+
     var shipTypes = {};
-    shipTypes["Destroyer"] = {strength: 150, maxHealth: 50};
+    shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1},
+    shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2},
+    shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3}
 
     function createFleet(sector, name, position, owner, shipNames) {
       var ships = [];
@@ -554,18 +584,6 @@
 			"Mountain"
 		];
 
-		var tileImprovements = [
-			{name: "Mine", output: [1,0,0], buildTime: 70, cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
-			{name: "Platform", output: [1,1,0], buildTime: 100, cost: [100,50,0], maintenance: [0,-1,0], biomeRestrict: "NotToxic", terrainRestrict: "Sea"},
-			{name: "Farm", output: [0,0,2], buildTime: 70, cost: [50,0,25], maintenance: [0,-1,0], biomeRestrict: "Arable", terrainRestrict: "Land"},
-			{name: "Power Plant", output: [0,2,0], buildTime: 70, cost: [50,50,0], maintenance: [0,0,-1], biomeRestrict: "NotToxic", terrainRestrict: "Land"},
-			{name: "Colony", output: [0,0,3], buildTime: 250, cost: [250,0,50], maintenance: [-3,-3,0], biomeRestrict: "NotToxic", terrainRestrict: "Land"}
-		];
-
-    var planetSatellites = [
-      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null},
-    ];
-
 		function checkIfValidImprovement(tile, impr) {
 			var result = true;
 			if (impr.biomeRestrict != null) {
@@ -603,6 +621,16 @@
 			}
 			return result;
 		}
+
+    function getValidSpaceportQueue(spaceport) {
+      var result = [];
+      var shipNames = Object.keys(shipTypes);
+      for (var i = 0; i < shipNames.length; i++) {
+        var ship = shipTypes[shipNames[i]];
+        result.push(ship);
+      }
+      return result;
+    }
 
     function calculateAssignment(tiles, population, weights=[2,1,4]) {
       var scores = {};
@@ -735,7 +763,8 @@
 					localTerrain: tileTerrains[terrain],
 					minerals: tileStart[0],
 					energy: tileStart[1],
-					food: tileStart[2]
+					food: tileStart[2],
+          order: null
 				};
 				tiles.push(tile);
 			}
@@ -829,6 +858,9 @@
     var fleetTooltip = d3.select("#fleet-tooltip-main");
     var fleetTooltipVisible = false, planetTooltipVisible = false;
 
+    var planetBuildTooltip = d3.select("#planet-build-main");
+    var spaceportBuildTooltip = d3.select("#spaceport-build-main");
+
     var timeTooltip = d3.select("#player-hud-time");
 
     var foodNeededToGrow = 50;
@@ -858,6 +890,15 @@
       buildMenu.transition()
         .duration(200)
         .style("opacity", 0);
+
+      spaceportBuildTooltip.style("pointer-events", "none");
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      currentPlanetSelected = null;
+      currentFleetSelected = null;
+      currentSectorSelected = null;
 		}
 
     var starMapSvg = systemStarMap.append("svg")
@@ -1096,23 +1137,61 @@
       fleetTooltipVisible = false;
     });
 
+    function displaySpaceportBuildMenu(planetPosition) {
+      var planet = planets[planetPosition];
+      var port = planet.building;
+      if (port === null) return;
+
+      spaceportBuildTooltip.style("pointer-events", "auto");
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 1);
+
+      planetBuildTooltip.style("pointer-events", "none");
+      planetBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      var validQueue = getValidSpaceportQueue(port);
+      spaceportBuildTooltip.html("<h4>Spaceport Queue</h4>");
+      //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
+      //<button type="button" class="button" onclick="alert('Hello world!')">Click Me!</button>
+      for (var i = 0; i < validQueue.length; i++) {
+        var impr = validQueue[i];
+        spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
+          "<p>" +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
+          "javascript:hideBuildMenu(); " +
+          "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
+          "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
+          "</p><br>"
+        );
+      }
+    }
+
     function displayTileBuildMenu(planetPosition, tileNum) {
       var planet = planets[planetPosition];
       var tile = planet.tiles[tileNum];
-      var buildMenu = d3.select("#planet-build-main");
-      buildMenu.style("pointer-events", "auto");
-      buildMenu.transition()
+      //var buildMenu = d3.select("#planet-build-main");
+      planetBuildTooltip.style("pointer-events", "auto");
+      planetBuildTooltip.transition()
         .duration(200)
         .style("opacity", 1);
+
+      spaceportBuildTooltip.style("pointer-events", "none");
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
       var validImprovements = getValidImprovements(tile);
-      buildMenu.html("<h4>Build Improvement</h4>");
+      planetBuildTooltip.html("<h4>Build Improvement</h4>");
       //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
       //<button type="button" class="button" onclick="alert('Hello world!')">Click Me!</button>
       for (var i = 0; i < validImprovements.length; i++) {
         var impr = validImprovements[i];
-        buildMenu.html(buildMenu.html() +
+        planetBuildTooltip.html(planetBuildTooltip.html() +
           "<p>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:buildImprOnTileByName([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name +"&quot;); " +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestImprOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
           "javascript:hideBuildMenu(); " +
           "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
@@ -1137,7 +1216,7 @@
         .style("opacity", 0);
     }
 
-    function requestImprOnTile(planetPosition, tileNum, imprName, owner) {
+    function requestImprOnTile(planetPosition, tileNum, imprName, ownerId) {
       var impr = null;
       for (var i = 0; i < tileImprovements.length; i++) {
         if (tileImprovements[i].name === imprName) {
@@ -1146,9 +1225,10 @@
       }
       if (impr !== null) {
         var cost = impr.cost;
+        var owner = civilizations[ownerId];
         var civRes = owner.baseResources;
         for (var i = 0; i < cost.length; i++) {
-          if (cost[i] < civRes[i]) {
+          if (cost[i] > civRes[i]) {
             //Not enough resources to build the improvement
             return;
           }
@@ -1162,17 +1242,21 @@
     }
 
     function queueImprOrderOnTile(planetPosition, tileNum, impr) {
-      constructionOrders.add({
+      var order = {
         timeRemaining: impr.buildTime,
         planetPosition: planetPosition,
         tileNum: tileNum,
         impr: impr
-      });
+      };
+      var tile = planets[planetPosition].tiles[tileNum];
+      tile.order = order;
+      constructionOrders.push(order);
     }
 
     function buildImprOnTile(planetPosition, tileNum, impr) {
       if (impr !== null) {
         var tile = planets[planetPosition].tiles[tileNum];
+        tile.order = null;
         tile.building = {name: impr.name, output: impr.output, maintenance: impr.maintenance};
       }
     }
@@ -1184,10 +1268,7 @@
           impr = tileImprovements[i];
         }
       }
-      if (impr !== null) {
-        var tile = planets[planetPosition].tiles[tileNum];
-        tile.building = {name: impr.name, output: impr.output, maintenance: impr.maintenance};
-      }
+      buildImprOnTile(planetPosition, tileNum, impr);
     }
 
     function displayFleetFromId(civId, fleetId) {
@@ -1197,6 +1278,7 @@
     }
 
     function displayFleet(fleet) {
+      currentFleetSelected = fleet;
       if (fleet === null) {
         hideTooltip();
       }
@@ -1212,6 +1294,7 @@
             .duration(200)
             .style("opacity", 0);
           planetTooltip.style("pointer-events", "none");
+          currentPlanetSelected = null;
         }
       }
 
@@ -1250,6 +1333,7 @@
     }
 
     function displayPlanet(planetClicked) {
+      currentPlanetSelected = planetClicked;
       d3.select("#system-tutorial").transition()
 				.duration(200)
 				.style("opacity", 0);
@@ -1268,6 +1352,7 @@
             .duration(200)
             .style("opacity", 0);
           fleetTooltip.style("pointer-events", "none");
+          currentFleetSelected = null;
         }
       }
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
@@ -1350,6 +1435,12 @@
             planetTooltipTile.html(planetTooltipTile.html() +
               "<p>" + tile.building.name + "</p>");
           }
+          if (tile.order !== null) {
+            planetTooltipTile.html(planetTooltipTile.html() +
+              "<p>Queue: " + tile.order.impr.name + ", " +
+              tile.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+              "</p>");
+          }
         }
         else {
           planetTooltipTile.html("");
@@ -1406,13 +1497,22 @@
       //Move all fleets towards destination
       //Evaluate battles and other actions like excavations
       //Evaluate construction progress and create new buildings when done
-      for (var i = constructionOrders.length; i >= 0; i--) {
+      for (var i = constructionOrders.length - 1; i >= 0; i--) {
         var order = constructionOrders[i];
-        order.buildTime--;
-        if (order.buildTime <= 0) {
+        order.timeRemaining--;
+        if (order.timeRemaining <= 0) {
           buildImprOnTile(order.planetPosition, order.tileNum, order.impr);
           constructionOrders.splice(i, 1);
         }
+      }
+      if (currentPlanetSelected !== null) {
+        displayPlanet(currentPlanetSelected);
+      }
+      if (currentFleetSelected !== null) {
+        displayFleet(currentFleetSelected);
+      }
+      if (currentSectorSelected !== null) {
+        //TODO: Display updated sector
       }
     }
 
@@ -1521,8 +1621,8 @@
           days = 0;
         }
         evaluateDay();
-        displayTime();
       }
+      displayTime();
     }, 250, 0);
 
 		</script>
