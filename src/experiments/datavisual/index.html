@@ -418,7 +418,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
-    var constructionOrders = [];
+    var constructionOrders = [], unitOrders = [];
 
     var currentSectorSelected = null; //TODO:
     var currentPlanetSelected = null;
@@ -503,7 +503,7 @@
 		];
 
     var planetSatellites = [
-      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null},
+      {name: "Spaceport", output: [0,0,0], buildTime: 400, cost: [250,0,0], maintenance: [0,-3,-2], biomeRestrict: "NotAsteroid", starRestrict: null, order: null},
     ];
 
     var shipTypes = {};
@@ -1160,7 +1160,7 @@
         var impr = validQueue[i];
         spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
           "<p>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueUnitOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
           "javascript:hideBuildMenu(); " +
           "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
@@ -1214,6 +1214,37 @@
       buildMenu.transition()
         .duration(200)
         .style("opacity", 0);
+    }
+
+    function requestQueueUnitOnTile(planetPosition, shipName, ownerId) {
+      var impr = shipTypes[shipName];
+      if (impr !== null) {
+        var cost = impr.cost;
+        var owner = civilizations[ownerId];
+        var civRes = owner.baseResources;
+        for (var i = 0; i < cost.length; i++) {
+          if (cost[i] > civRes[i]) {
+            //Not enough resources to build the improvement
+            return;
+          }
+        }
+        for (var i = 0; i < cost.length; i++) {
+          civRes[i] -= cost[i];
+        }
+        queueUnitOrderOnPosition(planetPosition, impr, owner);
+        //buildImprOnTile(planetPosition, tileNum, impr);
+      }
+    }
+
+    function queueUnitOrderOnPosition(planetPosition, unit, owner) {
+      var order = {
+        timeRemaining: unit.buildTime,
+        planetPosition: planetPosition,
+        unit: unit
+      };
+      var spaceport = planets[planetPosition].building;
+      spaceport.order = order;
+      unitOrders.push(order);
     }
 
     function requestImprOnTile(planetPosition, tileNum, imprName, ownerId) {
@@ -1390,6 +1421,9 @@
           currentText += "&nbsp;<img src=\"hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
           "onclick=\"javascript:displaySpaceportBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
           "/>";
+          if (planetClicked.order !== null) {
+
+          }
         }
         currentText += "</h4>";
       }
@@ -1503,6 +1537,15 @@
         if (order.timeRemaining <= 0) {
           buildImprOnTile(order.planetPosition, order.tileNum, order.impr);
           constructionOrders.splice(i, 1);
+        }
+      }
+      for (var i = unitOrders.length - 1; i >= 0; i--) {
+        var order = unitOrders[i];
+        order.timeRemaining--;
+        if (order.timeRemaining <= 0) {
+          //TODO: Create new fleet, merge if another fleet nearby
+          TODO
+          unitOrders.splice(i, 1);
         }
       }
       if (currentPlanetSelected !== null) {
