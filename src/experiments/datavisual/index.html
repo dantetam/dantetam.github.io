@@ -213,6 +213,7 @@
 		<script src="d3.hexbin.min.js"></script>
 		<script src="https://d3js.org/d3-random.v1.min.js"></script>
     <script src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script src="https://d3js.org/d3-array.v1.min.js"></script>
 
   </head>
 
@@ -539,6 +540,9 @@
     ];
 
     var shipTypes = {};
+    shipTypes["Explorer"] = {name: "Explorer", strength: 30, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, action: "Survey"},
+    shipTypes["Constructor"] = {name: "Constructor", strength: 40, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, action: "Build"},
+    shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, maxHealth: 100, buildTime: 250, cost: [250,0,40], maintenance: [0,-1,0], levelRestrict: 1, action: "Colonize"},
     shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1},
     shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2},
     shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3}
@@ -757,6 +761,37 @@
     }
     function calculateAssignmentPlanet(planet, weights=[2,1,4]) {
       return calculateAssignment(planet.tiles, planet.population, weights);
+    }
+
+    function calcTileToBuildOn(tiles, weights=[2,1,4], overwriteBuilding=false) {
+      var scores = {};
+      for (var i = 0; i < tiles.length; i++) {
+        if (overwriteBuilding && tiles[i].building !== null) {
+          continue;
+        }
+        scores[i] = tiles[i].minerals * weights[0] + tiles[i].energy * weights[1] + tiles[i].food * weights[2];
+      }
+      var max = d3.entries(scores)
+        // sort by value descending
+        .sort(function(a, b) { return d3.descending(a.value, b.value); })
+        // take the first option
+        [0];
+      return max.key;
+    }
+
+    function calcImprToBuild(tile, weights=[2,1,4]) {
+      var scores = {};
+      var validImpr = getValidImprovements(tile);
+      for (var i = 0; i < validImpr.length; i++) {
+        var impr = validImpr[i];
+        scores[impr.name] = impr.output[0] * weights[0] + impr.output[1] * weights[1] + impr.output[2] * weights[2];
+      }
+      var max = d3.entries(scores)
+        // sort by value descending
+        .sort(function(a, b) { return d3.descending(a.value, b.value); })
+        // take the first option
+        [0];
+      return impr.key;
     }
 
     var numStars = 500;
