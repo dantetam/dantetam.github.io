@@ -80,6 +80,10 @@
   pointer-events: none;
 }
 
+#system-tooltip-header {
+
+}
+
 #system-tooltip-starmap {
 
 }
@@ -87,8 +91,8 @@
 #fleet-tooltip-main {
   position: absolute;
   text-align: center;
-  left: 50%;
-  top: 25%;
+  left: 10%;
+  top: 65%;
   width: 20%;
   height: 30%;
   padding: 2px;
@@ -146,7 +150,7 @@
   height: 5%;
   padding: 2px;
   font: 12px sans-serif;
-  background: lightsteelblue;
+  background: rgba(255, 255, 255, 0);
   border: 0px;
   border-radius: 8px;
   opacity: 1;
@@ -423,8 +427,8 @@
 				width = $(window).width() - margin.left - margin.right,
 				height = $(window).height() - margin.top - margin.bottom;
 
-		var randomX = d3.random.normal(width / 2, 120),
-				randomY = d3.random.normal(height / 2, 120);
+		var randomX = d3.random.normal(width / 2, 80),
+				randomY = d3.random.normal(height / 2, 80);
     /*var randomX = d3.randomUniform(width*0.25, width*0.75),
         randomY = d3.randomUniform(height*0.25, height*0.75);*/
 
@@ -440,7 +444,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
-    var constructionOrders = [], unitOrders = [];
+    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [];
 
     var currentSectorSelected = null;
     var currentPlanetSelected = null;
@@ -813,6 +817,21 @@
 			//stars[position] = star;
     }
 
+    var biomeDesc = {};
+    biomeDesc["Arid"] = "Dry and nearly barren, this planet is harsh for many forms of higher life.";
+    biomeDesc["Icy"] = "Cold and frozen over, this planet preserves little life and biodiversity.";
+    biomeDesc["Tundra"] = "Mostly grasses and patches of ice, this planet is tough to live off of.";
+    biomeDesc["Ocean"] = "This planet has a wet, warm climate and a thick atmosphere which led to the formation of large bodies of water.";
+    biomeDesc["Temperate"] = "This planet has seasonal, normal weather supporting a somewhat diverse ecosystem.";
+    biomeDesc["Tropical"] = "Hot and humid, this planet is home to all types of life.";
+    biomeDesc["Gaia"] = "This planet is a monument and living museum to all the biodiversity imaginable within the universe.";
+    biomeDesc["Toxic"] = "Magma flowing in rivers, noxious gases in the air, and jagged, hostile terrain render this planet unbearable and unlivable.";
+    biomeDesc["Ice Cream"] = "This planet is very peculiar — the frozen surface preserves a massive sea, almost like a cosmic slushie of water, sugar, and lactating bacteria.";
+    biomeDesc["Barren"] = "This planet has no atmosphere and all its life has passed away ages ago.";
+    biomeDesc["Gas Giant"] = "This planet is a swirling sphere of gases.";
+    biomeDesc["Primordial"] = "This planet is newly formed and still undergoes the stress of its own gravity.";
+    biomeDesc["Asteroid"] = "Anywhere from a small piece of space debris to a large space base, this object can only support small satellites.";
+
 		for (var i = 0; i < numPlanets + numAsteroids; i++) {
 			var size = 0;
 			var type = "", typeAbbr = "";
@@ -862,11 +881,13 @@
   				type = "Tropical";
           typeAbbr = "Tr";
           habitability = 0.6;
-  			} else {
+  			} else if (rand2 < 7.0/7.0){
   				type = "Toxic";
           typeAbbr = "Tx";
           habitability = 0;
-  			}
+  			} else {
+
+        }
       }
       else {
         type = "Asteroid";
@@ -1086,7 +1107,7 @@
 				.style("fill", function(d) {
 					var returnColor = null;
           //console.log("-----");
-          //console.log(d.x + " " + d.y);
+          console.log(Math.round(d.x) + " " + Math.round(d.y));
           var index = Math.round(Math.random()*(stars.length - 1));
           /*while (true) {
             index = Math.round(Math.random()*(stars.length - 1));
@@ -1157,15 +1178,19 @@
 
           var sector = sectors[[d.x, d.y]];
           systemTooltipHeader.html("<h3>" + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
-          "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/></h3>");
-
-          systemStarMap.html("");
+          "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&emsp;" +
+          "<button type=\"button\" onclick=\"javascript:hideSystemMap();\">Close System Map</button>" +
+          "</h3>");
 
           //var rect = systemStarMap.getBoundingClientRect();
           //console.log(rect.top, rect.right, rect.bottom, rect.left);
 
           var starMapWidth = $("#system-tooltip-main").width();
           var starMapHeight = $("#system-tooltip-main").height();
+          systemStarMap.html(
+            "<img src=\"./blank.png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
+            "style=\"left:0%; top:0%; max-height:" + starMapHeight + "px; max-width:" + starMapWidth + "px; width:100%; height:100%; position:absolute; z-index:-1;\" />"
+          );
           for (var planetPos in sector.planets) {
             var planet = planets[sector.planets[planetPos]];
             var dx = planet.position[0] - sector.position[0];
@@ -1261,31 +1286,42 @@
 
 				});
 
-        systemStarMap.on("click", function() {
-          d3.event.preventDefault();
-        });
+    systemStarMap.on("click", function() {
+      d3.event.preventDefault();
+      console.log("yes000");
+      d3.event.stopPropagation();
+    });
 
-        systemTooltip.on("click", function() {
-          d3.event.preventDefault();
-        });
+    systemStarMap.on("contextmenu", function() {
+      d3.event.preventDefault();
+      var click = d3.mouse(this);
+      console.log(click + " " + $("#system-tooltip-starmap").width() + " " + ($("#system-tooltip-main").height()*0.8));
+      if (currentFleetSelected !== null) {
+        d3.event.stopPropagation();
+        if (currentFleetSelected.sector === currentSectorSelected) {
+          //Move a ship within the same sector by an order
+        }
+        else {
+          //Create an order to move a ship from its sector to the current sector selected
+          //Move the same ship within the sector through an order as above
+        }
+      }
+    });
+
+    systemTooltip.on("click", function() {
+      d3.event.preventDefault();
+      console.log("yes222");
+    });
 
     d3.select("#system-tooltip-main").on("click", function() {
       d3.event.preventDefault();
     });
 
-		/*svg.append("g")
-				.attr("class", "y axis")
-				.call(yAxis);
-
-		svg.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(0," + height + ")")
-				.call(xAxis);*/
-
 		d3.select("body").style("background-color", "#326EFF");
 
     d3.select("body").on("contextmenu", function() {
 			d3.event.preventDefault();
+      console.log("yes");
 			hideTooltip();
 		});
 
@@ -1407,6 +1443,20 @@
         .style("opacity", 0);
     }
 
+    function hideSystemMap() {
+      systemTooltip.style("pointer-events", "none");
+      systemTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      planetTooltip.style("pointer-events", "none");
+      planetTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      currentSectorSelected = null;
+      currentPlanetSelected = null;
+      systemTooltipVisible = false;
+    }
+
     function requestQueueUnitOnTile(planetPosition, shipName, ownerId) {
       var impr = shipTypes[shipName];
       if (impr !== null) {
@@ -1430,6 +1480,7 @@
     function queueUnitOrderOnPosition(planetPosition, unit, owner) {
       var spaceport = planets[planetPosition].satelliteBuilding;
       var order = {
+        orderType: "buildUnit",
         timeRemaining: unit.buildTime,
         owner: owner,
         planetPosition: planetPosition,
@@ -1475,6 +1526,7 @@
 
     function queueImprOrderOnTile(planetPosition, tileNum, impr) {
       var order = {
+        orderType: "buildTileImpr",
         timeRemaining: impr.buildTime,
         planetPosition: planetPosition,
         tileNum: tileNum,
@@ -1501,6 +1553,15 @@
         }
       }
       buildImprOnTile(planetPosition, tileNum, impr);
+    }
+
+    function queueFleetOrder(fleet, positionInSameSector) {
+      var order = {
+        orderType: "moveFleetInSector",
+        fleet: fleet,
+        destination: positionInSameSector
+      };
+      moveWithinSectorOrders.push(order);
     }
 
     function displayFleetFromId(civId, fleetId) {
@@ -1760,6 +1821,14 @@
           //TODO: Create new fleet, merge if another fleet nearby
           bulidUnitOnSpaceport(order.owner, order.planetPosition, order.spaceport, order.unit);
           unitOrders.splice(i, 1);
+        }
+      }
+      for (var i = moveWithinSectorOrders.length - 1; i >= 0; i--) {
+        var order = moveWithinSectorOrders[i];
+        //TODO: Move fleet linearly towards its destination
+        if (TODO //check if ship is near destination)
+          //bulidUnitOnSpaceport(order.owner, order.planetPosition, order.spaceport, order.unit);
+          moveWithinSectorOrders.splice(i, 1);
         }
       }
       if (currentPlanetSelected !== null) {
