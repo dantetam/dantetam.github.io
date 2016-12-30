@@ -570,7 +570,8 @@
         owner: owner,
         name: name,
         ships: ships,
-        id: theId
+        id: theId,
+        orders: []
       }
       owner.fleets["Fleet" + theId] = fleet;
       for (var i = 0; i < fleet.ships.length; i++) {
@@ -1295,11 +1296,24 @@
     systemStarMap.on("contextmenu", function() {
       d3.event.preventDefault();
       var click = d3.mouse(this);
-      console.log(click + " " + $("#system-tooltip-starmap").width() + " " + ($("#system-tooltip-main").height()*0.8));
+      console.log(click + " " + $("#system-tooltip-starmap").width() + " " + );
+      var width = $("#system-tooltip-starmap").width();
+      var height = $("#system-tooltip-main").height()*0.8;
       if (currentFleetSelected !== null) {
         d3.event.stopPropagation();
+        var percentX = click[0] / width * 2 - 1;
+        var percentY = click[1] / height * 2 - 1;
         if (currentFleetSelected.sector === currentSectorSelected) {
           //Move a ship within the same sector by an order
+          var sector = currentFleetSelected.sector;
+          var newPosition = [sector.position[0] + sectorRadius * percentX, sector.position[1] + sectorRadius * percentY];
+          var order = {
+            orderType: "MoveWithinSector",
+            fleet: currentFleetSelected,
+            destination: newPosition
+          };
+          ship.orders.push(order);
+          moveWithinSectorOrders.push(currentFleetSelected);
         }
         else {
           //Create an order to move a ship from its sector to the current sector selected
@@ -1555,14 +1569,14 @@
       buildImprOnTile(planetPosition, tileNum, impr);
     }
 
-    function queueFleetOrder(fleet, positionInSameSector) {
+    /*function queueFleetOrder(fleet, positionInSameSector) {
       var order = {
         orderType: "moveFleetInSector",
         fleet: fleet,
         destination: positionInSameSector
       };
       moveWithinSectorOrders.push(order);
-    }
+    }*/
 
     function displayFleetFromId(civId, fleetId) {
       //console.log(civId + " " + fleetId + " " + civilizations[civId] + " " + civilizations[civId].fleets[fleetId]);
@@ -1824,12 +1838,23 @@
         }
       }
       for (var i = moveWithinSectorOrders.length - 1; i >= 0; i--) {
-        var order = moveWithinSectorOrders[i];
-        //TODO: Move fleet linearly towards its destination
-        if (TODO //check if ship is near destination)
-          //bulidUnitOnSpaceport(order.owner, order.planetPosition, order.spaceport, order.unit);
+        var fleet = moveWithinSectorOrders[i];
+        if (fleet.orders.length <= 0) {
           moveWithinSectorOrders.splice(i, 1);
+          continue;
         }
+        var order = fleet.orders[0];
+        //TODO: Move fleet linearly towards its destination
+        var shipPos = fleet.position, shipDes = order.destination;
+        var dir = [shipDes[0] - shipPos[0], shipDes[1] - shipPos[1]];
+        var len = Math.sqrt(dir[0]*dir[0] + dir[1]*dir[1]);
+        if (len <= speed) {
+          fleet.position = shipDes;
+          moveWithinSectorOrders.splice(i, 1);
+          continue;
+        }
+        dir[0] /= len; dir[1] /= len;
+        fleet.position = [shipPos[0] + speed*dir[0], shipPos[1] + speed*dir[1]];
       }
       if (currentPlanetSelected !== null) {
         displayPlanet(currentPlanetSelected);
