@@ -444,7 +444,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
-    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [];
+    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [], shipRecoverFTL = [];
 
     var currentSectorSelected = null;
     var currentPlanetSelected = null;
@@ -544,12 +544,12 @@
     ];
 
     var shipTypes = {};
-    shipTypes["Explorer"] = {name: "Explorer", strength: 30, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, action: "Survey"},
-    shipTypes["Constructor"] = {name: "Constructor", strength: 40, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, action: "Build"},
-    shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, maxHealth: 100, buildTime: 250, cost: [250,0,40], maintenance: [0,-1,0], levelRestrict: 1, action: "Colonize"},
-    shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1},
-    shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2},
-    shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3}
+    shipTypes["Explorer"] = {name: "Explorer", strength: 30, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Survey"},
+    shipTypes["Constructor"] = {name: "Constructor", strength: 40, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Build"},
+    shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, maxHealth: 100, buildTime: 250, cost: [250,0,40], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Colonize"},
+    shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30},
+    shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2, ftl: 30, maxFtl: 30},
+    shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3, ftl: 30, maxFtl: 30}
 
     function createFleet(sector, name, position, owner, shipNames) {
       var ships = [];
@@ -1149,7 +1149,8 @@
           //console.log("click " + systemTooltipVisible);
 
           if (currentFleetSelected !== null) {
-            queueShipOrdersToSector(currentFleetSelected, thisSector);
+            queueShipOrdersToSector(currentFleetSelected, sectors[[d.x, d.y]]);
+            displayFleet(currentFleetSelected);
             return;
           }
 
@@ -1187,7 +1188,7 @@
       var width = $("#system-tooltip-starmap").width();
       var height = $("#system-tooltip-main").height()*0.8;
       if (currentFleetSelected !== null) {
-        d3.event.stopPropagation();
+        d3.event.stopPropagation(); //Do not click the body. Events propagate up the hierachy.
         var percentX = click[0] / width * 2 - 1;
         var percentY = click[1] / height * 2 - 1;
         //console.log(percentX + " " + percentY);
@@ -1199,7 +1200,8 @@
           var order = {
             orderType: "MoveWithinSector",
             fleet: currentFleetSelected,
-            destination: newPosition
+            destination: newPosition,
+            desc: "Cruise in " + destSector.star.name
           };
           currentFleetSelected.orders = [order];
           moveWithinSectorOrders.push(currentFleetSelected);
@@ -1209,6 +1211,7 @@
           //Move the same ship within the sector through an order as above
           queueShipOrdersToSector(currentFleetSelected, currentSectorSelected, newPosition);
         }
+        displayFleet(currentFleetSelected);
       }
     });
 
@@ -1644,7 +1647,8 @@
           orderType: "MoveToSector",
           fleet: currentFleetSelected,
           destSector: path[i],
-          destination: path[i].position
+          destination: path[i].position,
+          desc: "Move to " + destSector.star.name
         };
         fleet.orders.push(order);
       }
@@ -1667,14 +1671,22 @@
       return Math.sqrt(dx*dx + dy*dy) / 20;
     }
 
+    /*
+    Given a query [startSector, endSector], with function heuristic(inspect, goal),
+    where the optimal path is [startSector, sector1, sector2, ..., sectorN, endSector],
+    and the nodes are expanded with lowest priority first (priority = total cost + heuristic cost),
+    return [sector1, sector2, ..., sectorN, endSector].
+    */
     function aStarSearch(startSector, endSector, heuristic=defaultEuclideanHeuristic) {
+      if (startSector == endSector) return [];
+
       var closedPositions = new Set();
       var fringe = [];
       fringe.push([startSector, [], 0, 0]);
 
       while (true) {
         if (fringe.length === 0) {
-          console.log("Path not found");
+          //console.log("Path not found");
           return null;
         }
         var node = null, minIndex = 0, minCost = 0;
@@ -1687,10 +1699,9 @@
         }
         fringe.splice(minIndex, 1);
         if (endSector === node[0]) {
-          node[1].push(endSector);
-          console.log("-----");
-          console.log(startSector.position + " " + endSector.position);
-          console.log(node[1]);
+          //node[1].push(endSector);
+          //console.log(startSector.position + " " + endSector.position);
+          //console.log(node[1]);
           return node[1];
         }
         if (!closedPositions.has(node[0].position)) {
@@ -1698,11 +1709,9 @@
           for (var i = 0; i < node[0].neighborPositions.length; i++) {
             var successor = sectors[node[0].neighborPositions[i]];
             var newList = node[1].slice(0);
-            //console.log(">>>>>" + newList);
-            newList.push(node[0]);
+            newList.push(successor);
             fringe.push([successor, newList, node[2] + 1, node[2] + 1 + heuristic(successor, endSector)]);
           }
-          //console.log(">>>" + fringe.length);
         }
       }
 
@@ -1738,16 +1747,33 @@
       }
 
       var fleetStrength = calcFleetStrength(fleet);
-      fleetTooltip.html(
-        "<h4>" + fleet.name + "&emsp;" +
-        fleetStrength + "&nbsp;" +
-        "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
-        fleet.ships.length + "&nbsp;" +
-        "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
-        + "</h4>"
-      );
+      var fleetStringy = "<h4>" + fleet.name + "&emsp;" +
+      fleetStrength + "&nbsp;" +
+      "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+      "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
+      fleet.ships.length + "&nbsp;" +
+      "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+      "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
+      + "</h4>";
+      if (fleet.orders.length === 0) {
+        fleetStringy += "<p>Idle</p>";
+      }
+      else {
+        var firstOrder = fleet.orders[0];
+        fleetStringy += "<p>";
+        fleetStringy += firstOrder.desc;
+        if (fleet.orders.length > 1) {
+          fleetStringy += "&nbsp;(" + (fleet.orders.length - 1) + " more";
+          if (fleet.orders.length === 2) {
+            fleetStringy += " order)";
+          }
+          else {
+            fleetStringy += " orders)";
+          }
+        }
+        fleetStringy += "</p>";
+      }
+      fleetTooltip.html(fleetStringy);
       for (var i = 0; i < fleet.ships.length; i++) {
         var ship = fleet.ships[i];
         //var health = Math.ceil(ship.health / ship.maxHealth * 100);
@@ -1986,6 +2012,48 @@
         }
         dir[0] /= len; dir[1] /= len;
         fleet.position = [shipPos[0] + fleet.speed*dir[0], shipPos[1] + fleet.speed*dir[1]];
+      }
+      for (var i = moveToSectorOrders.length - 1; i >= 0; i--) {
+        var fleet = moveToSectorOrders[i];
+        var canFtlTravel = true;
+        for (var j = 0; j < fleet.ships.length; j++) {
+          var ship = fleet.ships[i];
+          if (ship.ftl !== ship.maxFtl) {
+            canFtlTravel = false;
+            break;
+          }
+        }
+        if (fleet.orders.length > 0) {
+          var firstOrder = fleet.orders[0];
+          if (canFtlTravel && firstOrder.orderType === "MoveToSector") {
+            moveFleet(fleet, destSector, destPosition)
+            moveFleet(fleet, firstOrder.destSector, firstOrder.destination);
+            for (var j = 0; j < fleet.ships.length; j++) {
+              var ship = fleet.ships[i];
+              ship.ftl = 0;
+            }
+            shipRecoverFTL.push(fleet);
+          }
+        }
+      }
+      for (var i = shipRecoverFTL.length - 1; i >= 0; i--) {
+        var fleet = shipRecoverFTL[i];
+        var needsToRecover = false;
+        for (var j = 0; j < fleet.ships.length; j++) {
+          var ship = fleet.ships[j];
+          if (ship.ftl < ship.maxFtl) {
+            ship.ftl++;
+          }
+          if (ship.ftl >= ship.maxFtl) {
+            ship.ftl = ship.maxFtl;
+          }
+          else {
+            needsToRecover = true;
+          }
+        }
+        if (!needsToRecover) {
+          shipRecoverFTL.splice(i, 1);
+        }
       }
       if (currentPlanetSelected !== null) {
         displayPlanet(currentPlanetSelected);
