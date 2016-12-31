@@ -1,0 +1,16 @@
+.container {
+    font-family: 'PT Serif', Georgia, Times, 'Times New Roman', serif;
+    line-height: 1.5em;
+    color: #333;
+}
+
+body {
+    margin: 0 auto;
+    font-family: 'PT Serif', Georgia, Times, 'Times New Roman', serif;
+    line-height: 1.5em;
+    color: #333;
+    background: #fefefe;
+    left: 0%;
+    width: 60%;
+    position: relative;
+}
