@@ -1633,6 +1633,43 @@
       moveWithinSectorOrders.push(order);
     }*/
 
+    function defaultHeuristic(inspectSector, destSector) {
+      var dx = inspectSector.position[0] - destSector.position[0];
+      var dy = inspectSector.position[1] - destSector.position[1];
+
+    }
+
+    function aStarSearch(startSector, endSector, heuristic=defaultHeuristic) {
+      var closedPositions = new Set();
+      var fringe = [];
+      fringe.push([startSector, [], 0, 0]);
+
+      while (true) {
+        if (fringe.length() == 0) return null;
+        var node = null, minCost = 0;
+        for (var i = 0; i < fringe.length; i++) {
+          if (fringe[i][3] < minCost || node === null) {
+            node = fringe[i];
+            minCost = fringe[i][3];
+          }
+        }
+        if (endSector === node[0]) {
+          return node[1];
+        }
+        if (closed.has(node[0].position)) {
+          closed.add(node[0].position);
+          for (var i = 0; i < node[0].neighborPositions; i++) {
+            var successor = sectors[node[0].neighborPositions[i]];
+            var newList = node[1].slice(0);
+            newList.push(node[0]);
+            fringe.push([successor, newList, node[2] + 1, node[2] + 1 + heuristic(successor)]);
+          }
+        }
+      }
+
+      return null;
+    }
+
     function displayFleetFromId(civId, fleetId) {
       //console.log(civId + " " + fleetId + " " + civilizations[civId] + " " + civilizations[civId].fleets[fleetId]);
       var fleet = civilizations[civId].fleets["Fleet" + fleetId];
