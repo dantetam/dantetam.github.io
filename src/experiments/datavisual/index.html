@@ -444,7 +444,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
-    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [];
+    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [];
 
     var currentSectorSelected = null;
     var currentPlanetSelected = null;
@@ -1119,7 +1119,7 @@
           }*/
 
           var randomStar = stars[index];
-          var thisSector = {position: [d.x, d.y], star: randomStar, planets: [], fleets: [], neighborPositions: []};
+          var thisSector = {position: [d.x, d.y], posX: d.x, posY: d.y, star: randomStar, planets: [], fleets: [], neighborPositions: []};
 					d.forEach(function(element) {
 						//console.log(planets[element]);
             //console.log(element);
@@ -1147,6 +1147,11 @@
 					d3.event.preventDefault();
 
           //console.log("click " + systemTooltipVisible);
+
+          if (currentFleetSelected !== null) {
+            queueShipOrdersToSector(currentFleetSelected, thisSector);
+            return;
+          }
 
           systemTooltipVisible = !systemTooltipVisible;
           if (!systemTooltipVisible) { //Close the tooltip if it's open, don't open another tooltip for another system
@@ -1185,12 +1190,12 @@
         d3.event.stopPropagation();
         var percentX = click[0] / width * 2 - 1;
         var percentY = click[1] / height * 2 - 1;
-        console.log(percentX + " " + percentY);
+        //console.log(percentX + " " + percentY);
+        var destSector = currentSectorSelected;
+        var newPosition = [destSector.position[0] + sectorRadius * percentX, destSector.position[1] + sectorRadius * percentY];
         if (currentFleetSelected.sector === currentSectorSelected) {
-          console.log("Success");
+          //console.log("Success");
           //Move a ship within the same sector by an order
-          var sector = currentFleetSelected.sector;
-          var newPosition = [sector.position[0] + sectorRadius * percentX, sector.position[1] + sectorRadius * percentY];
           var order = {
             orderType: "MoveWithinSector",
             fleet: currentFleetSelected,
@@ -1202,6 +1207,7 @@
         else {
           //Create an order to move a ship from its sector to the current sector selected
           //Move the same ship within the sector through an order as above
+          queueShipOrdersToSector(currentFleetSelected, currentSectorSelected, newPosition);
         }
       }
     });
@@ -1263,21 +1269,23 @@
         //console.log(">>>>" + typeof pos + " " + typeof pos2);
         //pos = pos.split(",");
         //pos2 = pos2.split(",");
-        var split = pos.split(",");
+        /*var split = pos.split(",");
         var split2 = pos2.split(",");
-        var dx = (+split[0]) - (+split2[0]), dy = (+split[1]) - (+split2[1]);
+        var dx = (+split[0]) - (+split2[0]), dy = (+split[1]) - (+split2[1]);*/
+        var otherSector = sectors[pos2];
+        var dx = thisSector.posX - otherSector.posX, dy = thisSector.posY - otherSector.posY;
         var dist = Math.sqrt(dx*dx + dy*dy);
         //console.log(split + " " + split2 + " " + dx + " " + dy + " " + dist);
         if (dist < 20) {
           thisSector.neighborPositions.push(pos2);
-          //console.log("Success: " + split + " " + split2 + " " + dx + " " + dy + " " + dist);
+          //console.log("Success: " + dx + " " + dy + " " + dist);
         }
       }
     }
 
-    for (var pos in sectors) {
+    //for (var pos in sectors) {
       //console.log(sectors[pos].neighborPositions.length);
-    }
+    //}
 
     function displaySector(sector) {
       while (starMapCircleMarkers.length > 0) {
@@ -1624,6 +1632,26 @@
       buildImprOnTile(planetPosition, tileNum, impr);
     }
 
+    function queueShipOrdersToSector(fleet, destSector, newPosition=null) {
+      fleet.orders = [];
+      if (newPosition === null) {
+        newPosition = fleet.position;
+      }
+      var path = aStarSearch(fleet.sector, destSector);
+      if (path === null) return;
+      for (var i = 0; i < path.length; i++) {
+        var order = {
+          orderType: "MoveToSector",
+          fleet: currentFleetSelected,
+          destSector: path[i],
+          destination: path[i].position
+        };
+        fleet.orders.push(order);
+      }
+      if (moveToSectorOrders.indexOf(fleet) === -1) {
+        moveToSectorOrders.push(fleet);
+      }
+    }
     /*function queueFleetOrder(fleet, positionInSameSector) {
       var order = {
         orderType: "moveFleetInSector",
@@ -1633,37 +1661,48 @@
       moveWithinSectorOrders.push(order);
     }*/
 
-    function defaultHeuristic(inspectSector, destSector) {
+    function defaultEuclideanHeuristic(inspectSector, destSector) {
       var dx = inspectSector.position[0] - destSector.position[0];
       var dy = inspectSector.position[1] - destSector.position[1];
-
+      return Math.sqrt(dx*dx + dy*dy) / 20;
     }
 
-    function aStarSearch(startSector, endSector, heuristic=defaultHeuristic) {
+    function aStarSearch(startSector, endSector, heuristic=defaultEuclideanHeuristic) {
       var closedPositions = new Set();
       var fringe = [];
       fringe.push([startSector, [], 0, 0]);
 
       while (true) {
-        if (fringe.length() == 0) return null;
-        var node = null, minCost = 0;
+        if (fringe.length === 0) {
+          console.log("Path not found");
+          return null;
+        }
+        var node = null, minIndex = 0, minCost = 0;
         for (var i = 0; i < fringe.length; i++) {
           if (fringe[i][3] < minCost || node === null) {
             node = fringe[i];
+            minIndex = i;
             minCost = fringe[i][3];
           }
         }
+        fringe.splice(minIndex, 1);
         if (endSector === node[0]) {
+          node[1].push(endSector);
+          console.log("-----");
+          console.log(startSector.position + " " + endSector.position);
+          console.log(node[1]);
           return node[1];
         }
-        if (closed.has(node[0].position)) {
-          closed.add(node[0].position);
-          for (var i = 0; i < node[0].neighborPositions; i++) {
+        if (!closedPositions.has(node[0].position)) {
+          closedPositions.add(node[0].position);
+          for (var i = 0; i < node[0].neighborPositions.length; i++) {
             var successor = sectors[node[0].neighborPositions[i]];
             var newList = node[1].slice(0);
+            //console.log(">>>>>" + newList);
             newList.push(node[0]);
-            fringe.push([successor, newList, node[2] + 1, node[2] + 1 + heuristic(successor)]);
+            fringe.push([successor, newList, node[2] + 1, node[2] + 1 + heuristic(successor, endSector)]);
           }
+          //console.log(">>>" + fringe.length);
         }
       }
 
