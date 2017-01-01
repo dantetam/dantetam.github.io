@@ -619,7 +619,7 @@
       [civN fleet1, civN fleet2, ..., civN fleetN3],
     ]
     where each array is a different faction in the fight. This generalizes to fights that contain 3 or more teams.
-    Also add planets if they are involved in the conflict (not necessarily defenders).
+    Also add planets if they are involved in the conflict (not necessarily as defenders).
     */
     function advanceFleetBattleOneDay(arrayOfFleets) {
 
@@ -714,6 +714,9 @@
 		];
 
 		function checkIfValidImprovement(tile, impr, builder) {
+      if (impr.name === "Colony") {
+        return false;
+      }
 			var result = true;
 			if (impr.biomeRestrict !== null) {
 				if (impr.biomeRestrict === "Arable") {
@@ -776,6 +779,10 @@
       var scores = {};
       for (var i = 0; i < tiles.length; i++) {
         scores[i] = tiles[i].minerals * weights[0] + tiles[i].energy * weights[1] + tiles[i].food * weights[2];
+        if (tiles[i].building !== null) {
+          var out = tiles[i].building.output;
+          scores[i] += out[0] * weights[0] + out[1] * weights[1] + out[2] * weights[2];
+        }
       }
       var sorted = Object.keys(scores).sort(function(a, b) {
         return scores[b] - scores[a];
@@ -790,27 +797,34 @@
       return calculateAssignment(planet.tiles, planet.population, weights);
     }
 
-    function calcTileToBuildOn(tiles, weights=[2,1,4], overwriteBuilding=false) {
+    function calcTileToBuildOn(tiles, builder, weights=[2,1,4], overwriteBuilding=false) {
       var scores = {};
       for (var i = 0; i < tiles.length; i++) {
         if (!overwriteBuilding && tiles[i].building !== null) {
+          scores[i] = -1000;
+          continue;
+        }
+        var validImpr = getValidImprovements(tile, builder);
+        if (validImpr.length === 0) {
+          scores[i] = -1000;
           continue;
         }
         scores[i] = tiles[i].minerals * weights[0] + tiles[i].energy * weights[1] + tiles[i].food * weights[2];
       }
-      var sorted = d3.entries(scores).sort(function(a, b) { return a.value - b.value; });
+      var sorted = d3.entries(scores).sort(function(a, b) { return b.value - a.value; });
       return sorted[0].key;
     }
 
     function calcImprToBuild(tile, builder, weights=[2,1,4]) {
       var scores = {};
       var validImpr = getValidImprovements(tile, builder);
+      if (validImpr.length === 0) return null;
       for (var i = 0; i < validImpr.length; i++) {
         var impr = validImpr[i];
         scores[impr.name] = impr.output[0] * weights[0] + impr.output[1] * weights[1] + impr.output[2] * weights[2];
       }
-      var max = d3.entries(scores).sort(function(a, b) { return a.value - b.value; });
-      return max.key;
+      var max = d3.entries(scores).sort(function(a, b) { return b.value - a.value; });
+      return max[0].key;
     }
 
     var numStars = 500;
@@ -820,7 +834,7 @@
     var sectorRadius = 10;
 
     var numMajorCivs = 10;
-    var numMinorCivs = 30;
+    var numMinorCivs = 0;
 
     for (var i = 0; i < numStars; i++) {
       //var position = [randomX(), randomY()];
@@ -1054,10 +1068,12 @@
         planet.satelliteBuilding.planet = planet;
         buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Colony");
         for (var j = 0; j < 5; j++) {
-          var tileIndex = calcTileToBuildOn(planet.tiles);
+          var tileIndex = calcTileToBuildOn(planet.tiles, planet.owner);
           var tile = planet.tiles[tileIndex];
           var imprName = calcImprToBuild(tile, planet.owner);
-          buildImprOnTileByName(planet.position, tileIndex, imprName);
+          if (imprName !== null) {
+            buildImprOnTileByName(planet.position, tileIndex, imprName);
+          }
         }
       }
       else {
@@ -2230,9 +2246,12 @@
     }
 
     for (var i = 0; i < civilizations.length; i++) {
-      for (var j = 0; j < civilizations[i].worlds.length; j++) {
-        var world = civilizations[i].worlds[j];
-        var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
+      var civ = civilizations[i];
+      if (civ.techLevel >= 4) {
+        for (var j = 0; j < civilizations[i].worlds.length; j++) {
+          var world = civilizations[i].worlds[j];
+          var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
+        }
       }
     }
 
