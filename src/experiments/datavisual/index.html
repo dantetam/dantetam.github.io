@@ -64,7 +64,7 @@
   pointer-events: none;
 }
 
-#planet-build-main, #spaceport-build-main {
+#planet-build-main, #spaceport-build-main, #satellite-build-main {
   position: absolute;
   text-align: center;
   left: 50%;
@@ -380,27 +380,30 @@
     </div>
 
     <div id="planet-build-main">
-
       <div id="planet-build-header">
 				<h1>Test</h1>
 			</div>
-
       <div id="planet-build-options">
 
       </div>
-
     </div>
 
     <div id="spaceport-build-main">
-
       <div id="spaceport-build-header">
 				<h1>Test</h1>
 			</div>
-
       <div id="spaceport-build-options">
 
       </div>
+    </div>
 
+    <div id="satellite-build-main">
+      <div id="satellite-build-header">
+				<h1>Test</h1>
+			</div>
+      <div id="satellite-build-options">
+
+      </div>
     </div>
 
     <div id="fleet-tooltip-main">
@@ -522,6 +525,7 @@
 
 		var maxTiles = 20;
 
+    //TODO: Convert data into CSV format
     var tileImprovements = [
       {name: "Primitive Farm", output: [0,0,1], buildTime: 70, cost: [50,0,25], maintenance: [0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
       {name: "Primitive City", output: [1,1,1], buildTime: 70, cost: [50,0,25], maintenance: [0,-1,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
@@ -547,12 +551,13 @@
     ];
 
     var shipTypes = {};
-    shipTypes["Explorer"] = {name: "Explorer", strength: 30, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Survey"},
-    shipTypes["Constructor"] = {name: "Constructor", strength: 40, maxHealth: 50, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Build"},
-    shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, maxHealth: 100, buildTime: 250, cost: [250,0,40], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Colonize"},
-    shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30},
-    shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2, ftl: 30, maxFtl: 30},
-    shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3, ftl: 30, maxFtl: 30}
+    shipTypes["Satellite"] = {name: "Satellite", strength: 10, maxHealth: 30, speed: 0, buildTime: 250, cost: [250,0,0], maintenance: [0,0,0], levelRestrict: 0, ftl: 0, maxFtl: 0};
+    shipTypes["Explorer"] = {name: "Explorer", strength: 30, maxHealth: 50, speed: 2, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Survey"};
+    shipTypes["Constructor"] = {name: "Constructor", strength: 40, maxHealth: 50, speed: 2, buildTime: 100, cost: [100,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Build"};
+    shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, speed: 1, maxHealth: 100, buildTime: 250, cost: [250,0,40], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30, action: "Colonize"};
+    shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, speed: 1, buildTime: 70, cost: [60,0,0], maintenance: [0,-1,0], levelRestrict: 1, ftl: 30, maxFtl: 30};
+    shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, speed: 1, buildTime: 150, cost: [150,0,0], maintenance: [0,-2,0], levelRestrict: 2, ftl: 30, maxFtl: 30};
+    shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, speed: 1, buildTime: 350, cost: [400,0,0], maintenance: [0,-3,0], levelRestrict: 3, ftl: 30, maxFtl: 30};
 
     function createFleet(sector, name, position, owner, shipNames) {
       var ships = [];
@@ -567,6 +572,12 @@
         });
       }
       var theId = Object.keys(owner.fleets).length;
+      var speed = ships[0].speed;
+      for (var i = 0; i < ships.length; i++) {
+        if (ships[i].speed < speed) {
+          speed = ships[i].speed;
+        }
+      }
       var fleet = {
         sector: sector,
         position: position,
@@ -575,7 +586,7 @@
         ships: ships,
         id: theId,
         orders: [],
-        speed: 2
+        speed: speed
       }
       owner.fleets["Fleet" + theId] = fleet;
       for (var i = 0; i < fleet.ships.length; i++) {
@@ -1061,7 +1072,6 @@
       civilizations[i].worlds.push(planet);
       planet.owner = civilizations[i];
       if (civilizations[i].civType === "PostInformation") {
-        console.log(civilizations[i].civType);
         planet.population = 7;
         var spaceport = planetSatellites[0];
         planet.satelliteBuilding = jQuery.extend({}, spaceport);
@@ -1141,6 +1151,7 @@
 
     var planetBuildTooltip = d3.select("#planet-build-main");
     var spaceportBuildTooltip = d3.select("#spaceport-build-main");
+    var satelliteBuildTooltip = d3.select("#satellite-build-main");
 
     var timeTooltip = d3.select("#player-hud-time");
 
@@ -1166,14 +1177,19 @@
       planetTooltipVisible = false;
       fleetTooltipVisible = false;
 
-      var buildMenu = d3.select("#planet-build-main");
-      buildMenu.style("pointer-events", "none");
-      buildMenu.transition()
+      //var buildMenu = d3.select("#planet-build-main");
+      planetBuildTooltip.style("pointer-events", "none");
+      planetBuildTooltip.transition()
         .duration(200)
         .style("opacity", 0);
 
       spaceportBuildTooltip.style("pointer-events", "none");
       spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      satelliteBuildTooltip.style("pointer-events", "none");
+      satelliteBuildTooltip.transition()
         .duration(200)
         .style("opacity", 0);
 
@@ -1526,6 +1542,30 @@
       }
     }
 
+    function displaySatelliteBuildMenuFromCoord(planetPosition) {
+      var planet = planets[planetPosition];
+      displaySatelliteBuildMenu(planet);
+    }
+
+    function displaySatelliteBuildMenu(planet) {
+      satelliteBuildTooltip.style("pointer-events", "auto");
+      satelliteBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 1);
+
+      spaceportBuildTooltip.style("pointer-events", "none");
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      planetBuildTooltip.style("pointer-events", "none");
+      planetBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      satelliteBuildTooltip.html("<p>Test!</p>");
+    }
+
     function displaySpaceportBuildMenuFromCoord(planetPosition) {
       var planet = planets[planetPosition];
       var port = planet.satelliteBuilding;
@@ -1548,6 +1588,11 @@
 
       planetBuildTooltip.style("pointer-events", "none");
       planetBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      satelliteBuildTooltip.style("pointer-events", "none");
+      satelliteBuildTooltip.transition()
         .duration(200)
         .style("opacity", 0);
 
@@ -1587,6 +1632,11 @@
 
       spaceportBuildTooltip.style("pointer-events", "none");
       spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      satelliteBuildTooltip.style("pointer-events", "none");
+      satelliteBuildTooltip.transition()
         .duration(200)
         .style("opacity", 0);
 
@@ -2051,6 +2101,12 @@
           }
         }
       }
+      else {
+        for (var j = 0; j < maxTiles; j++) {
+          var planetTooltipTile = d3.select("#planet-tooltip-tile" + j);
+          planetTooltipTile.style("border", "none");
+        }
+      }
     }
 
 		function namePlanets() {
@@ -2134,7 +2190,7 @@
         var canFtlTravel = true;
         for (var j = 0; j < fleet.ships.length; j++) {
           var ship = fleet.ships[i];
-          if (ship.ftl !== ship.maxFtl) {
+          if (ship.ftl !== ship.maxFtl || ship.maxFtl === 0) {
             canFtlTravel = false;
             break;
           }
