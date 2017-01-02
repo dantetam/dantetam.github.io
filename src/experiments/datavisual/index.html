@@ -728,6 +728,14 @@
 			"Mountain"
 		];
 
+    function checkIfValidSatellite(planet, satellite, builder) {
+
+    }
+
+    function getValidSatellites(planet, builder) {
+
+    }
+
 		function checkIfValidImprovement(tile, impr, builder) {
       if (impr.name === "Colony") {
         return false;
@@ -979,24 +987,50 @@
       }
 
       var rand3 = Math.random();
-      if (rand3 < 0.6) {
-        baseResources = [0, 0, 0];
+      if (rand3 < 0.7) {
+        baseResources = [0, 0, 0, 0, 0, 0];
       }
       else if (rand3 < 0.85) {
         var amount = Math.round(Math.random()*4);
         var rand4 = Math.random();
         if (rand4 < 0.33) {
-          baseResources = [amount, 0, 0];
+          baseResources = [amount, 0, 0, 0, 0, 0];
         }
         else if (rand4 < 0.66) {
-          baseResources = [0, amount, 0];
+          baseResources = [0, amount, 0, 0, 0, 0];
         }
         else {
-          baseResources = [Math.round(amount/2), 0, 0];
+          baseResources = [Math.round(amount/2), 0, 0, 0, 0, 0];
         }
       }
+      else if (rand3 < 0.90) {
+        baseResources = [Math.round(Math.random()*4), Math.round(Math.random()*4), 0, 0, 0, 0];
+      }
       else {
-        baseResources = [Math.round(Math.random()*4), Math.round(Math.random()*4), 0];
+        var amount = Math.round(Math.random()*3);
+        var rand4 = Math.random(), rand5 = Math.random();
+        if (rand4 < 0.33) {
+          baseResources = [0, 0, 0, amount, 0, 0];
+        }
+        else if (rand4 < 0.66) {
+          baseResources = [0, 0, 0, 0, amount, 0];
+        }
+        else {
+          baseResources = [0, 0, 0, 0, 0, amount];
+        }
+        if (rand5 < 0.2) {
+          var amount2 = Math.round(Math.random()*2);
+          var rand6 = Math.random();
+          if (rand6 < 0.33) {
+            baseResources[3] += amount2;
+          }
+          else if (rand6 < 0.66) {
+            baseResources[4] += amount2;
+          }
+          else {
+            baseResources[5] += amount2;
+          }
+        }
       }
 
 			var tiles = [];
@@ -1059,7 +1093,7 @@
 				color: color,
 				worlds: [],
 				fleets: {},
-			  baseResources: [150, 50, 0]
+			  baseResources: [150, 50, 50, 0, 0, 0]
 			};
 			civilizations.push(civilization);
 		}
@@ -1080,7 +1114,7 @@
 				color: color,
 				worlds: [],
 				fleets: {},
-			  baseResources: [150, 50, 0]
+			  baseResources: [150, 0, 50, 0, 0, 0]
 			};
 			civilizations.push(civilization);
     }
@@ -1505,13 +1539,22 @@
 
         var resourceString = "<p>";
         if (planet.baseResources[0] > 0) {
-          resourceString += planet.baseResources[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+          resourceString += planet.baseResources[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[1] > 0) {
-          resourceString += planet.baseResources[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+          resourceString += planet.baseResources[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
         }
         if (planet.baseResources[2] > 0) {
-          resourceString += planet.baseResources[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+          resourceString += planet.baseResources[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        }
+        if (planet.baseResources[3] > 0) {
+          resourceString += planet.baseResources[3] + "<img src=\"./star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+        }
+        if (planet.baseResources[4] > 0) {
+          resourceString += planet.baseResources[4] + "<img src=\"./society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+        }
+        if (planet.baseResources[5] > 0) {
+          resourceString += planet.baseResources[5] + "<img src=\"./production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
         }
         resourceString += "</p>"
         if (resourceString === "<p></p>") resourceString = "";
@@ -2084,20 +2127,33 @@
           //planetTooltipTile.html("<p>Test"+j+"<img src=\"./minerals.png\"></img></p>");
           var tile = planetClicked.tiles[j];
           var tileResourceString = "";
-          var minerals = tile.baseResources[0], energy = tile.baseResources[1], food = tile.baseResources[2];
+          //var minerals = tile.baseResources[0], energy = tile.baseResources[1], food = tile.baseResources[2];
+          var total = [];
+          for (var k = 0; k < tile.baseResources.length; k++) {
+            total.push(tile.baseResources[k]);
+          }
           if (tile.building !== null) {
-            minerals += tile.building.output[0];
-            energy += tile.building.output[1];
-            food += tile.building.output[2];
+            for (var k = 0; k < tile.baseResources.length; k++) {
+              total[k] += tile.building.output[k];
+            }
           }
-          if (minerals > 0) {
-            tileResourceString += minerals + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+          if (total[0] > 0) {
+            tileResourceString += total[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
-          if (energy > 0) {
-            tileResourceString += energy + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+          if (total[1] > 0) {
+            tileResourceString += total[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
-          if (food > 0) {
-            tileResourceString += food + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+          if (total[2] > 0) {
+            tileResourceString += total[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+          }
+          if (total[3] > 0) {
+            tileResourceString += total[3] + "<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+          }
+          if (total[4] > 0) {
+            tileResourceString += total[4] + "<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+          }
+          if (total[5] > 0) {
+            tileResourceString += total[5] + "<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
           }
           var tileInfo = "" +
             "<p>" +
@@ -2319,23 +2375,34 @@
         var planet = planets[key];
         if (planet.owner !== null) {
           planet.tileAssignments = calculateAssignmentPlanet(planet);
-          var sumMinerals = 0, sumEnergy = 0, sumFood = 0;
-          var maintMinerals = 0, maintEnergy = 0, maintFood = 0;
+          //var sumMinerals = 0, sumEnergy = 0, sumFood = 0;
+          var sumYield = [0,0,0,0,0,0];
+          //var maintMinerals = 0, maintEnergy = 0, maintFood = 0;
+          var sumMaint = [0,0,0,0,0,0];
+          //TODO: Factor in resource to this, generalize with a loop
           for (var i = 0; i < planet.tileAssignments.length; i++) {
             var tile = planet.tiles[planet.tileAssignments[i]];
-            sumMinerals += tile.baseResources[0];
-            sumEnergy += tile.baseResources[1];
-            sumFood += tile.baseResources[2];
+            for (var j = 0; j < tile.baseResources.length; j++) {
+              sumYield[j] += tile.baseResources[j];
+            }
             if (tile.building !== null) {
-              sumMinerals += tile.building.output[0];
-              sumEnergy += tile.building.output[1];
-              sumFood += tile.building.output[2];
+              for (var j = 0; j < tile.building.output.length; j++) {
+                sumYield[j] += tile.building.output[j];
+                sumMaint[j] += tile.building.maintenance[j];
+              }
             }
           }
-          planet.owner.minerals += sumMinerals - maintMinerals;
-          planet.owner.energy += sumEnergy - maintEnergy;
-          sumMinerals *= habitability;
-          sumEnergy *= habitability;
+          planet.owner.baseResources[0] += sumYield[0] - sumMaint[0];
+          planet.owner.baseResources[1] += sumYield[1] - sumMaint[1];
+
+          planet.owner.baseResources[3] += sumYield[3] - sumMaint[3];
+          planet.owner.baseResources[4] += sumYield[4] - sumMaint[4];
+          planet.owner.baseResources[5] += sumYield[5] - sumMaint[5];
+          /*
+          sumMinerals *= planet.habitability;
+          sumEnergy *= planet.habitability;
+          */
+
           //console.log(sumMinerals + " " + sumEnergy + " " + sumFood);
           sumFood = sumFood - (planet.population * 1 + maintFood);
           planet.food += sumFood;
