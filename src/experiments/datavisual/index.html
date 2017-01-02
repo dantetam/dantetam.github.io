@@ -729,11 +729,29 @@
 		];
 
     function checkIfValidSatellite(planet, satellite, builder) {
-
+      var result = true;
+      /*
+      if (builder === null) {
+        return false;
+      }
+      */
+      if (satellite.biomeRestrict !== null) {
+        if (satellite.biomeRestrict === "NotAsteroid") {
+          result = result && (planet.biome !== "Asteroid");
+        }
+      }
+      return result;
     }
 
     function getValidSatellites(planet, builder) {
-
+      var results = [];
+      for (var i = 0; i < planetSatellites.length; i++) {
+        var satellite = planetSatellites[i];
+        if (checkIfValidSatellite(planet, satellite, builder)) {
+          results.push(satellite);
+        }
+      }
+      return results;
     }
 
 		function checkIfValidImprovement(tile, impr, builder) {
@@ -1539,22 +1557,22 @@
 
         var resourceString = "<p>";
         if (planet.baseResources[0] > 0) {
-          resourceString += planet.baseResources[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[0] + "&nbsp;<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[1] > 0) {
-          resourceString += planet.baseResources[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          resourceString += planet.baseResources[1] + "&nbsp;<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
         }
         if (planet.baseResources[2] > 0) {
-          resourceString += planet.baseResources[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          resourceString += planet.baseResources[2] + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
         }
         if (planet.baseResources[3] > 0) {
-          resourceString += planet.baseResources[3] + "<img src=\"./star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[3] + "&nbsp;<img src=\"./star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[4] > 0) {
-          resourceString += planet.baseResources[4] + "<img src=\"./society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[4] + "&nbsp;<img src=\"./society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[5] > 0) {
-          resourceString += planet.baseResources[5] + "<img src=\"./production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+          resourceString += planet.baseResources[5] + "&nbsp;<img src=\"./production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         resourceString += "</p>"
         if (resourceString === "<p></p>") resourceString = "";
@@ -1641,7 +1659,33 @@
         .duration(200)
         .style("opacity", 0);
 
-      satelliteBuildTooltip.html("<p>Test!</p>");
+      var validSate = getValidSatellites(planet, planet.owner);
+
+      satelliteBuildTooltip.html("<h4>Build Improvement</h4>" + planetString + "<br>");
+      //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
+      //{name: "Spaceport", planet: null, output: [0,0,0,1,1,1], buildTime: 400, cost: [250,0,0,0,0,0], maintenance: [0,-3,-2,0,0,0], biomeRestrict: "NotAsteroid", starRestrict: null, orders: []},
+      for (var i = 0; i < validSate.length; i++) {
+        var impr = validSate[i];
+
+        var satelliteString = "";
+        if (impr.output[0] > 0) satelliteString += impr.output[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[1] > 0) satelliteString += impr.output[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[2] > 0) satelliteString += impr.output[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[3] > 0) satelliteString += impr.output[3] + "<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[4] > 0) satelliteString += impr.output[4] + "<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[5] > 0) satelliteString += impr.output[5] + "<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        satelliteString += impr.buildTime + "<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+
+        satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
+          "<div>" +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;); " +
+          "javascript:hideBuildMenu(); " +
+          "javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); \"" +
+          "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
+          "<p>" + satelliteString + "</p>" +
+          "</div>"
+        );
+      }
     }
 
     function displaySpaceportBuildMenuFromCoord(planetPosition) {
@@ -1694,7 +1738,7 @@
           "javascript:hideSpaceportMenu(); " +
           "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
-          "</p><br>"
+          "</p>"
         );
       }
     }
@@ -1731,7 +1775,7 @@
             "javascript:hideBuildMenu(); " +
             "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
             "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
-            "</p><br>"
+            "</p>"
           );
         }
       }
@@ -2061,14 +2105,32 @@
           currentSpaceportSelected = null;
         }
       }
+
+      var planetString = "";
+      var total = [];
+      for (var k = 0; k < planetClicked.baseResources.length; k++) {
+        total.push(planetClicked.baseResources[k]);
+      }
+      if (planetClicked.satelliteBuilding !== null) {
+        for (var k = 0; k < planetClicked.baseResources.length; k++) {
+          total[k] += planetClicked.satelliteBuilding.output[k];
+        }
+      }
+      if (total[0] > 0) planetString += total[0] + "&nbsp;<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[1] > 0) planetString += total[1] + "&nbsp;<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[2] > 0) planetString += total[2] + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[3] > 0) planetString += total[3] + "&nbsp;<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[4] > 0) planetString += total[4] + "&nbsp;<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
       var currentText = "";
       if (planetClicked.biome !== "Asteroid") {
-        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability</h4>" +
+        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
           "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
       }
       else {
-        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "</h4>" +
+        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "&nbsp;&nbsp;" + planetString + "</h4>" +
           "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
       }
 
@@ -2083,14 +2145,14 @@
       if (planetClicked.satelliteBuilding === null) {
         currentText += ", No Satellite&nbsp;" +
         "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
-        "onclick=\"javascript:displaySatelliteBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+        "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
         "/>" +
         "</h4>";
       }
       else {
         currentText += ", " + planetClicked.satelliteBuilding.name + "&nbsp;" +
         "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
-        "onclick=\"javascript:displaySatelliteBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+        "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
         "/>";
         if (planetClicked.satelliteBuilding.name === "Spaceport") {
           var port = planetClicked.satelliteBuilding;
