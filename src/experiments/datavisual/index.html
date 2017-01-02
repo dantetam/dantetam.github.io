@@ -70,7 +70,8 @@
   left: 50%;
   top: 25%;
   width: 20%;
-  height: 30%;
+  height: auto;
+  min-height: 30% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -448,7 +449,7 @@
 		var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
     var gameMode = "Paused";
-    var constructionOrders = [], unitOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [], shipRecoverFTL = [];
+    var constructionOrders = [], unitOrders = [], satelliteOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [], shipRecoverFTL = [];
 
     var currentSectorSelected = null;
     var currentPlanetSelected = null;
@@ -1091,7 +1092,8 @@
         population: 0,
 				food: 0,
         baseResources: baseResources,
-        specialResources: []
+        specialResources: [],
+        order: null
 			};
 			planets[position] = planet;
 		}
@@ -1661,7 +1663,7 @@
 
       var validSate = getValidSatellites(planet, planet.owner);
 
-      satelliteBuildTooltip.html("<h4>Build Improvement</h4>" + planetString + "<br>");
+      satelliteBuildTooltip.html("<h4>Build Satellite</h4>");
       //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
       //{name: "Spaceport", planet: null, output: [0,0,0,1,1,1], buildTime: 400, cost: [250,0,0,0,0,0], maintenance: [0,-3,-2,0,0,0], biomeRestrict: "NotAsteroid", starRestrict: null, orders: []},
       for (var i = 0; i < validSate.length; i++) {
@@ -1678,8 +1680,8 @@
 
         satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
           "<div>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;); " +
-          "javascript:hideBuildMenu(); " +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;); " +
+          "javascript:hideBuildSatelliteMenu(); " +
           "javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
           "<p>" + satelliteString + "</p>" +
@@ -1771,7 +1773,7 @@
           var impr = validImprovements[i];
           planetBuildTooltip.html(planetBuildTooltip.html() +
             "<p>" +
-            "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestImprOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
+            "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueImprOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], " + tileNum + ", &quot;" + impr.name + "&quot;, " + planet.owner.id +"); " +
             "javascript:hideBuildMenu(); " +
             "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
             "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
@@ -1800,9 +1802,15 @@
     }
 
     function hideBuildMenu() {
-      var buildMenu = d3.select("#planet-build-main");
-      buildMenu.style("pointer-events", "none");
-      buildMenu.transition()
+      planetBuildTooltip.style("pointer-events", "none");
+      planetBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+    }
+
+    function hideBuildSatelliteMenu() {
+      satelliteBuildTooltip.style("pointer-events", "none");
+      satelliteBuildTooltip.transition()
         .duration(200)
         .style("opacity", 0);
     }
@@ -1819,6 +1827,35 @@
       currentSectorSelected = null;
       currentPlanetSelected = null;
       systemTooltipVisible = false;
+    }
+
+    function requestQueueSatelliteOnPlanet(planetPosition, satelliteName) {
+      //var planet = planets[planetPosition];
+      var satellite = null;
+      for (var i = 0; i < planetSatellites.length; i++) {
+        if (planetSatellites[i].name === satelliteName) {
+          satellite = planetSatellites[i];
+        }
+      }
+      queueSatelliteOnPlanet(planetPosition, satellite);
+    }
+
+    function queueSatelliteOnPlanet(planetPosition, satellite) {
+      var planet = planets[planetPosition];
+      var order = {
+        orderType: "buildSatellite",
+        timeRemaining: satellite.buildTime,
+        owner: planet.owner,
+        planetPosition: planetPosition,
+        satellite: satellite
+      };
+      planet.order = order;
+      satelliteOrders.push(order);
+    }
+
+    function buildSatelliteOnPlanet(planetPosition, satellite) {
+      var planet = planets[planetPosition];
+      planet.satelliteBuilding = {name: satellite.name, output: satellite.output, maintenance: satellite.maintenance};
     }
 
     function requestQueueUnitOnTile(planetPosition, shipName, ownerId) {
@@ -1863,7 +1900,7 @@
       spaceport.orders.splice(0, 1);
     }
 
-    function requestImprOnTile(planetPosition, tileNum, imprName, ownerId) {
+    function requestQueueImprOnTile(planetPosition, tileNum, imprName, ownerId) {
       var impr = null;
       for (var i = 0; i < tileImprovements.length; i++) {
         if (tileImprovements[i].name === imprName) {
@@ -2394,6 +2431,15 @@
           //TODO: Create new fleet, merge if another fleet nearby
           bulidUnitOnSpaceport(order.owner, order.planetPosition, order.spaceport, order.unit);
           unitOrders.splice(i, 1);
+        }
+      }
+      for (var i = satelliteOrders.length - 1; i >= 0; i--) {
+        var order = satelliteOrders[i];
+        order.timeRemaining--;
+        if (order.timeRemaining <= 0) {
+          //TODO: Create new fleet, merge if another fleet nearby
+          buildSatelliteOnPlanet(order.planetPosition, order.satellite);
+          satelliteOrders.splice(i, 1);
         }
       }
 
