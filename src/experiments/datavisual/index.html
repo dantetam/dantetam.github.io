@@ -81,6 +81,22 @@
   pointer-events: none;
 }
 
+#system-action-menu {
+  position: relative;
+  text-align: center;
+  left: 0%;
+  top: 0%;
+  width: 10%;
+  height: 30%;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: red;
+  border: 0px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 #system-tooltip-header {
 
 }
@@ -94,8 +110,10 @@
   text-align: center;
   left: 10%;
   top: 65%;
-  width: 20%;
-  height: 30%;
+  width: auto;
+  height: auto;
+  min-width: 20% !important;
+  min-height: 30% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -367,6 +385,10 @@
       <div id="system-tooltip-header">
 				<h1>Test</h1>
 			</div>
+
+      <div id="system-action-menu">
+
+      </div>
 
       <div id="system-tutorial">
         <p>
@@ -1394,47 +1416,91 @@
 
     systemStarMap.on("click", function() {
       d3.event.preventDefault();
-      console.log("yes000");
       d3.event.stopPropagation();
     });
 
     systemStarMap.on("contextmenu", function() {
       d3.event.preventDefault();
+
       var click = d3.mouse(this);
-      //console.log(click + " " + $("#system-tooltip-starmap").width() + " " + ($("#system-tooltip-main").height()*0.8));
       var width = $("#system-tooltip-starmap").width();
       var height = $("#system-tooltip-main").height()*0.8;
-      if (currentFleetSelected !== null) {
+
+      //console.log(click + " " + $("#system-tooltip-starmap").width() + " " + ($("#system-tooltip-main").height()*0.8));
+      if (currentFleetSelected !== null) { //Selected fleet can do an action on the planet like building a new satellite
         d3.event.stopPropagation(); //Do not click the body. Events propagate up the hierachy.
+        var temp = d3.event.target;
+
+        //console.log(temp);
+        //console.log(temp.dataset["planetposition"]);
+
         var percentX = click[0] / width * 2 - 1;
         var percentY = click[1] / height * 2 - 1;
         //console.log(percentX + " " + percentY);
         var destSector = currentSectorSelected;
         var newPosition = [destSector.position[0] + sectorRadius * percentX, destSector.position[1] + sectorRadius * percentY];
-        if (currentFleetSelected.sector === currentSectorSelected) {
-          //console.log("Success");
-          //Move a ship within the same sector by an order
-          var order = {
-            orderType: "MoveWithinSector",
-            fleet: currentFleetSelected,
-            destination: newPosition,
-            desc: "Cruise in " + destSector.star.name
-          };
-          currentFleetSelected.orders = [order];
-          moveWithinSectorOrders.push(currentFleetSelected);
+
+        var noActionsFound = false;
+        if (temp.src.includes("planet_")) { //Also includes asteroids
+          var actions = [];
+          for (var i = 0; i < fleet.ships.length; i++) {
+            if (fleet.ships[i].action !== null) {
+              actions.push(fleet.ships[i].action);
+            }
+          }
+          if (actions.length > 0) {
+            var trueX = click[0] / width;
+            var trueY = click[1] / height;
+            var actionsTooltip = d3.select("#system-action-menu");
+            actionsTooltip.transition()
+              .duration(200)
+              .style("opacity", .9)
+              .style("pointer-events", "auto");
+            actionsTooltip.html("")
+              .style("left", Math.round(trueX*100) + "%")
+              .style("top", Math.round(trueY*100) + "%");
+            var menuString = "";
+            for (var i = 0; i < actions.length; i++) {
+              menuString += "<p>" +
+              "<button type=\"button\" class=\"tile-build-button\" " +
+              "onclick=\"javascript:requestActionOnPlanet([" + temp.dataset["planetposition"] + "], " + currentFleetSelected.id + ", &quot;" + actions[i] + "&quot;); " +
+              "javascript:hideActionMenu(); " +
+              "javascript:displayPlanetFromCoord([" + temp.dataset["planetposition"] + "]); \"" +
+              "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + actions[i] + "</button>" +
+              "</p>";
+            }
+            actionsTooltip.html(menuString);
+          }
+          else {
+            noActionsFound = true;
+          }
         }
-        else {
-          //Create an order to move a ship from its sector to the current sector selected
-          //Move the same ship within the sector through an order as above
-          queueShipOrdersToSector(currentFleetSelected, currentSectorSelected, newPosition);
+        if (!temp.src.includes("planet_") || noActionsFound) {
+          if (currentFleetSelected.sector === currentSectorSelected) {
+            //console.log("Success");
+            //Move a ship within the same sector by an order
+            var order = {
+              orderType: "MoveWithinSector",
+              fleet: currentFleetSelected,
+              destination: newPosition,
+              desc: "Cruise in " + destSector.star.name
+            };
+            currentFleetSelected.orders = [order];
+            moveWithinSectorOrders.push(currentFleetSelected);
+          }
+          else {
+            //Create an order to move a ship from its sector to the current sector selected
+            //Move the same ship within the sector through an order as above
+            queueShipOrdersToSector(currentFleetSelected, currentSectorSelected, newPosition);
+          }
         }
+
         displayFleet(currentFleetSelected);
       }
     });
 
     systemTooltip.on("click", function() {
       d3.event.preventDefault();
-      console.log("yes222");
     });
 
     d3.select("#system-tooltip-main").on("click", function() {
@@ -1589,7 +1655,7 @@
         systemStarMap.html(
           systemStarMap.html() +
           //"<figure class=\"tint\" style=\"background: rgba(0, 0, 255, 0.5);\">" +
-          "<img src=\"./planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./planet_" + planet.biome.toLowerCase() + ".png\" data-planetposition=\"" + planet.position + "\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
           "onclick=\"javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); " +
           "javascript:hideBuildMenu(); \" " +
           "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:-1;\" />" +
@@ -1829,7 +1895,25 @@
       systemTooltipVisible = false;
     }
 
-    function requestQueueSatelliteOnPlanet(planetPosition, satelliteName) {
+    //requestActionOnPlanet([" + temp.dataset["planetposition"] + "], " + currentFleetSelected.id + ", &quot;" + actions[i] + "&quot;); " +
+    function requestActionOnPlanet(planetPosition, fleetId, actionString) {
+      var planet = planets[position];
+      var fleet = fleets["Fleet" + fleetId];
+      if (actionString === "Colonize") {
+
+      }
+      else if (actionString === "Explore") {
+
+      }
+      else if (actionString === "Build") {
+
+      }
+      else {
+        
+      }
+    }
+
+    function requestQueueSatelliteOnPlanet(planetPosition, satelliteName, ownerId) {
       //var planet = planets[planetPosition];
       var satellite = null;
       for (var i = 0; i < planetSatellites.length; i++) {
@@ -1837,7 +1921,21 @@
           satellite = planetSatellites[i];
         }
       }
-      queueSatelliteOnPlanet(planetPosition, satellite);
+      if (satellite === null) {
+        var cost = satellite.cost;
+        var owner = civilizations[ownerId];
+        var civRes = owner.baseResources;
+        for (var i = 0; i < cost.length; i++) {
+          if (cost[i] > civRes[i]) {
+            //Not enough resources to build the improvement
+            return;
+          }
+        }
+        for (var i = 0; i < cost.length; i++) {
+          civRes[i] -= cost[i];
+        }
+        queueSatelliteOnPlanet(planetPosition, satellite);
+      }
     }
 
     function queueSatelliteOnPlanet(planetPosition, satellite) {
@@ -1856,6 +1954,7 @@
     function buildSatelliteOnPlanet(planetPosition, satellite) {
       var planet = planets[planetPosition];
       planet.satelliteBuilding = {name: satellite.name, output: satellite.output, maintenance: satellite.maintenance};
+      planet.order = null;
     }
 
     function requestQueueUnitOnTile(planetPosition, shipName, ownerId) {
@@ -2180,7 +2279,13 @@
         planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
       }
       if (planetClicked.satelliteBuilding === null) {
-        currentText += ", No Satellite&nbsp;" +
+        if (planetClicked.order === null) {
+          currentText += ", No Satellite&nbsp;"
+        }
+        else {
+          currentText += ", Building&nbsp;" + planetClicked.order.satellite.name + "&nbsp;" + planetClicked.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+        }
+        currentText += "&nbsp;" +
         "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
         "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
         "/>" +
@@ -2412,6 +2517,22 @@
       }
     }
 
+    function updateRender() {
+      if (currentSpaceportSelected !== null) {
+        displaySpaceportBuildMenu(currentSpaceportSelected);
+      }
+      if (currentPlanetSelected !== null) {
+        displayPlanet(currentPlanetSelected);
+      }
+      if (currentFleetSelected !== null) {
+        displayFleet(currentFleetSelected);
+      }
+      if (currentSectorSelected !== null) {
+        //TODO: Display updated sector
+        displaySector(currentSectorSelected);
+      }
+    }
+
     function evaluateDay() {
       //Move all fleets towards destination
       //Evaluate battles and other actions like excavations
@@ -2437,7 +2558,6 @@
         var order = satelliteOrders[i];
         order.timeRemaining--;
         if (order.timeRemaining <= 0) {
-          //TODO: Create new fleet, merge if another fleet nearby
           buildSatelliteOnPlanet(order.planetPosition, order.satellite);
           satelliteOrders.splice(i, 1);
         }
@@ -2462,19 +2582,7 @@
           shipRecoverFTL.splice(i, 1);
         }
       }
-      if (currentSpaceportSelected !== null) {
-        displaySpaceportBuildMenu(currentSpaceportSelected);
-      }
-      if (currentPlanetSelected !== null) {
-        displayPlanet(currentPlanetSelected);
-      }
-      if (currentFleetSelected !== null) {
-        displayFleet(currentFleetSelected);
-      }
-      if (currentSectorSelected !== null) {
-        //TODO: Display updated sector
-        displaySector(currentSectorSelected);
-      }
+      updateRender();
     }
 
     function evaluateMonth() {
@@ -2528,7 +2636,7 @@
       if (civ.techLevel >= 4) {
         for (var j = 0; j < civilizations[i].worlds.length; j++) {
           var world = civilizations[i].worlds[j];
-          var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer"]);
+          var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer", "Constructor"]);
         }
       }
     }
@@ -2563,6 +2671,8 @@
       gameMode = newMode;
       displayTime();
     }
+
+    window.addEventListener("resize", updateRender);
 
     var timer = d3.interval(function(elapsed) {
       var advanceDay = false;
