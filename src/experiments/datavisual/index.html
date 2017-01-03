@@ -86,11 +86,11 @@
   text-align: center;
   left: 0%;
   top: 0%;
-  width: 10%;
-  height: 30%;
+  width: auto;
+  height: auto;
   padding: 2px;
   font: 12px sans-serif;
-  background: red;
+  background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
   opacity: 0;
@@ -593,7 +593,12 @@
           owner: owner,
           strength: shipTypes[shipNames[i]].strength,
           health: shipTypes[shipNames[i]].maxHealth,
-          maxHealth: shipTypes[shipNames[i]].maxHealth
+          maxHealth: shipTypes[shipNames[i]].maxHealth,
+          action: shipTypes[shipNames[i]].action,
+          ftl: shipTypes[shipNames[i]].ftl,
+          maxFtl: shipTypes[shipNames[i]].maxFtl,
+          speed: shipTypes[shipNames[i]].speed,
+          maintenance: shipTypes[shipNames[i]].maintenance
         });
       }
       var theId = Object.keys(owner.fleets).length;
@@ -1170,44 +1175,6 @@
     Also add technologies to game and research point resources
     */
 
-		var planetPositions = Object.keys(planets);
-    for (var i = 0; i < civilizations.length; i++) {
-      var randPlanet = null, planet = null;
-      while (true) {
-        randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
-        planet = planets[planetPositions[randPlanet]];
-        if (planet.size > 14) {
-          break;
-        }
-      }
-      civilizations[i].worlds.push(planet);
-      planet.owner = civilizations[i];
-      if (civilizations[i].civType === "PostInformation") {
-        planet.population = 7;
-        var spaceport = planetSatellites[0];
-        planet.satelliteBuilding = jQuery.extend({}, spaceport);
-        planet.satelliteBuilding.planet = planet;
-        buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Colony");
-        for (var j = 0; j < 5; j++) {
-          var tileIndex = calcTileToBuildOn(planet.tiles, planet.owner);
-          var tile = planet.tiles[tileIndex];
-          var imprName = calcImprToBuild(tile, planet.owner);
-          if (imprName !== null) {
-            buildImprOnTileByName(planet.position, tileIndex, imprName);
-          }
-        }
-      }
-      else {
-        planet.population = 4;
-        if (civilizations[i].civType === "Neolithic" || civilizations[i].civType === "Modern" || civilizations[i].civType === "Information") {
-          buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Primitive City");
-          for (var j = 0; j < 3; j++) {
-            buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Primitive Farm");
-          }
-        }
-      }
-      //moveFleet(fleet, destSector, destPosition);
-    }
     /*
 		for (var i = 0; i < numPlanets + numAsteroids; i++) {
 			var randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
@@ -1236,6 +1203,11 @@
 		var color = d3.scale.linear()
 				.domain([0, 20])
 				.range(["white", "white"])
+				.interpolate(d3.interpolateLab);
+
+    var testColor = d3.scale.linear()
+				.domain([0, 20])
+				.range(["white", "red"])
 				.interpolate(d3.interpolateLab);
 
 		var hexbin = d3.hexbin()
@@ -1345,6 +1317,7 @@
 				.attr("class", "hexagon")
 				.attr("d", hexbin.hexagon())
 				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("data-planetposition", function(d) {return d.x + "," + d.y;})
 				.style("fill", function(d) {
 					var returnColor = null;
           //console.log("-----");
@@ -1358,7 +1331,7 @@
           }*/
 
           var randomStar = stars[index];
-          var thisSector = {position: [d.x, d.y], posX: d.x, posY: d.y, star: randomStar, planets: [], fleets: [], neighborPositions: []};
+          var thisSector = {position: [d.x, d.y], posX: d.x, posY: d.y, owner: null, star: randomStar, planets: [], fleets: [], neighborPositions: []};
 					d.forEach(function(element) {
 						//console.log(planets[element]);
             //console.log(element);
@@ -1444,7 +1417,7 @@
         if (temp.src.includes("planet_")) { //Also includes asteroids
           var actions = [];
           for (var i = 0; i < fleet.ships.length; i++) {
-            if (fleet.ships[i].action !== null) {
+            if (fleet.ships[i].action !== null && fleet.ships[i].action !== undefined) {
               actions.push(fleet.ships[i].action);
             }
           }
@@ -1524,6 +1497,47 @@
       fleetTooltipVisible = false;
     });
 
+    var planetPositions = Object.keys(planets);
+    for (var i = 0; i < civilizations.length; i++) {
+      var randPlanet = null, planet = null;
+      while (true) {
+        randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
+        planet = planets[planetPositions[randPlanet]];
+        if (planet.size > 14 && planet.biome !== "Asteroid" && planet.sector.owner === null) { //Use sector as temporary variable to show ownership
+          break;
+        }
+      }
+      civilizations[i].worlds.push(planet);
+      planet.owner = civilizations[i];
+      planet.sector.owner = civilizations[i];
+      //planet.sector = civilizations[i];
+      if (civilizations[i].civType === "PostInformation") {
+        planet.population = 7;
+        var spaceport = planetSatellites[0];
+        planet.satelliteBuilding = jQuery.extend({}, spaceport);
+        planet.satelliteBuilding.planet = planet;
+        buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Colony");
+        for (var j = 0; j < 5; j++) {
+          var tileIndex = calcTileToBuildOn(planet.tiles, planet.owner);
+          var tile = planet.tiles[tileIndex];
+          var imprName = calcImprToBuild(tile, planet.owner);
+          if (imprName !== null) {
+            buildImprOnTileByName(planet.position, tileIndex, imprName);
+          }
+        }
+      }
+      else {
+        planet.population = 4;
+        if (civilizations[i].civType === "Neolithic" || civilizations[i].civType === "Modern" || civilizations[i].civType === "Information") {
+          buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Primitive City");
+          for (var j = 0; j < 3; j++) {
+            buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Primitive Farm");
+          }
+        }
+      }
+      //moveFleet(fleet, destSector, destPosition);
+    }
+
     /*
     var xSet = new Set(), ySet = new Set();
     var minX = 0, maxX = 0, minY = 0, maxY = 0;
@@ -1569,6 +1583,66 @@
       }
     }
 
+    //hexagons.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+
+
+    d3.selectAll(".hexagon")
+        .data(hexbin(planets))
+        .style("fill", function(d) {
+          var returnColor = null;
+          d.forEach(function(element) {
+            var planet = planets[element];
+            if (planet.owner === null) {
+
+            }
+            else {
+              if (returnColor === null) { //No other civs have been found in this system
+                returnColor = planet.owner.color(d.length);
+              }
+              else { //The system is contested
+                returnColor = blackColor(10);
+              }
+            }
+          });
+          if (returnColor === null) {
+            returnColor = color(5);
+          }
+          return returnColor;
+        });
+
+    /*
+    console.log(	d3.selectAll(".hexagon").style("fill", function() {return testColor(10);}));
+    console.log(d3.selectAll(".hexagon"));
+
+    var hexes = d3.selectAll(".hexagon")[0];
+    for (var i = 0; i < hexes.length; i++) {
+      console.log(hexes[i]["__data__"]);
+      console.log(Object.keys(hexes[i]));
+    }
+    */
+      /*
+				.style("fill", function() {
+					var returnColor = null;
+
+					d.forEach(function(element) {
+						if (planet.owner === null) {
+
+						}
+						else {
+              if (returnColor === null) { //No other civs have been found in this system
+                returnColor = planet.owner.color(d.length);
+              }
+              else { //The system is contested
+                returnColor = blackColor(10);
+              }
+						}
+					});
+          if (returnColor === null) {
+            returnColor = color(5);
+          }
+					return returnColor;
+				});*/
+
     //for (var pos in sectors) {
       //console.log(sectors[pos].neighborPositions.length);
     //}
@@ -1598,6 +1672,13 @@
       "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&emsp;" +
       "<button type=\"button\" onclick=\"javascript:hideSystemMap();\">Close System Map</button>" +
       "</h3>");
+
+      if (sector.owner !== null && sector.owner !== undefined) {
+        systemTooltipHeader.html(systemTooltipHeader.html() + "<h4>" + sector.owner.name + "</h4>");
+      }
+      else {
+        systemTooltipHeader.html(systemTooltipHeader.html() + "<h4>Unclaimed</h4>");
+      }
 
       //var rect = systemStarMap.getBoundingClientRect();
       //console.log(rect.top, rect.right, rect.bottom, rect.left);
@@ -1746,7 +1827,7 @@
 
         satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
           "<div>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;); " +
+          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;, " + planet.sector.owner.id + "); " +
           "javascript:hideBuildSatelliteMenu(); " +
           "javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); \"" +
           "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
@@ -1909,7 +1990,7 @@
 
       }
       else {
-        
+
       }
     }
 
