@@ -947,7 +947,10 @@
         civType: civType,
         techLevel: 4,
         techsResearched: {},
-        techResearching: null,
+        techResearchingStar: null,
+        techResearchingSociety: null,
+        techResearchingProduction: null,
+        techChoicesNum: 4,
         techChoicesStar: [],
         techChoicesSociety: [],
         techChoicesProduction: [],
@@ -973,7 +976,10 @@
         civType: civType,
         techLevel: techLevel,
         techsResearched: {},
-        techResearching: null,
+        techResearchingStar: null,
+        techResearchingSociety: null,
+        techResearchingProduction: null,
+        techChoicesNum: 4,
         techChoicesStar: [],
         techChoicesSociety: [],
         techChoicesProduction: [],
@@ -1754,7 +1760,7 @@
     }
 
     function displayTechMenu() {
-      
+
     }
 
     function hideFleetTooltip() {
@@ -1802,6 +1808,24 @@
 
     function findNewSetTechs(civ, techType) {
       //TODO: Find the most likely useful to the player from the group techEraN in data
+      var candidates = [];
+      for (var i = 0; i < techEra0.length; i++) {
+        var tech = techEra0[i];
+        if (tech.type === techType) {
+          candidates.push(tech);
+        }
+      }
+      var finalChoices = [];
+      for (var i = 0; i < civ.techChoicesNum; i++) {
+        //Use a weighing system later, where earlier and less expensive techs are more likely
+        if (candidates.length === 0) {
+          break;
+        }
+        var randIndex = Math.trunc(Math.random()*candidates.length);
+        var randomTech = candidates.splice(randIndex, 1)[0];
+        finalChoices.push(randomTech);
+      }
+      return finalChoices;
     }
 
     //requestActionOnPlanet([" + temp.dataset["planetposition"] + "], " + currentFleetSelected.id + ", &quot;" + actions[i] + "&quot;); " +
@@ -2542,15 +2566,35 @@
           }
         }
         //TODO: Evaluate progress towards techs
-        if (civ.techResearching !== null) {
-          if (civ.techResearching.type === "Star") {
-            civ.techResearching.research
+        var tech = null;
+        if (civ.techResearchingStar !== null) {
+          tech = civ.techResearchingStar;
+          tech.researchCompleted += totalStar;
+          if (tech.researchCompleted >= tech.researchNeeded) {
+            civ.techResearchingStar = null;
+            civ.techsResearched[tech.name] = tech;
+            var newChoices = findNewSetTechs(civ, tech.type);
+            civ.techChoicesStar = newChoices;
           }
-          else if (civ.techResearching.type === "Society") {
-
+        }
+        if (civ.techResearchingSociety !== null) {
+          tech = civ.techResearchingSociety;
+          tech.researchCompleted += totalSociety;
+          if (tech.researchCompleted >= tech.researchNeeded) {
+            civ.techResearchingSociety = null;
+            civ.techsResearched[tech.name] = tech;
+            var newChoices = findNewSetTechs(civ, tech.type);
+            civ.techChoicesSociety = newChoices;
           }
-          else if (civ.techResearching.type === "Production") {
-
+        }
+        if (civ.techResearchingProduction !== null) {
+          tech = civ.techResearchingProduction;
+          tech.researchCompleted += totalProduction;
+          if (tech.researchCompleted >= tech.researchNeeded) {
+            civ.techResearchingProduction = null;
+            civ.techsResearched[tech.name] = tech;
+            var newChoices = findNewSetTechs(civ, tech.type);
+            civ.techChoicesProduction = newChoices;
           }
         }
       }
