@@ -88,9 +88,13 @@
   top: 0%;
   width: auto;
   height: auto;
+  min-width: 15% !important;
+  min-height: 5% !important;
+  max-width: 15% !important;
+  max-height: 30% !important;
   padding: 2px;
   font: 12px sans-serif;
-  background: lightsteelblue;
+  background: white;
   border: 0px;
   border-radius: 8px;
   opacity: 0;
@@ -233,11 +237,13 @@
 
 		<!--<script src="d3.v3.min.js"></script>-->
 		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-		<script src="d3.hexbin.min.js"></script>
 		<script src="https://d3js.org/d3-random.v1.min.js"></script>
     <script src="https://d3js.org/d3-timer.v1.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+
+    <script src="d3.hexbin.min.js"></script>
+    <script type="text/javascript" src="data.js"></script>
 
   </head>
 
@@ -314,9 +320,9 @@
 
 		<div id="player-hud">
 			<p>
-				Minerals<img src="./minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
-				Energy&emsp;<img src="./energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
-				Planets&emsp;<img src="./planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
+				Minerals<img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
+				Energy&emsp;<img src="./images/energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
+				Planets&emsp;<img src="./images/planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
         <button type="button" onclick="javascript:setGameSpeed(&quot;Paused&quot;)">Pause</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Slow&quot;)">Slow</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Fast&quot;)">Fast</button>
@@ -449,6 +455,8 @@
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
 
 		<script>
+
+    console.log(testVariable);
 
 		var margin = {top: 20, right: 100, bottom: 30, left: 100},
 				width = $(window).width() - margin.left - margin.right,
@@ -1669,7 +1677,7 @@
         .style("opacity", 0.0);
 
       systemTooltipHeader.html("<h3>" + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
-      "<img src=\""+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&emsp;" +
+      "<img src=\"images/"+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&emsp;" +
       "<button type=\"button\" onclick=\"javascript:hideSystemMap();\">Close System Map</button>" +
       "</h3>");
 
@@ -1686,7 +1694,7 @@
       var starMapWidth = $("#system-tooltip-main").width();
       var starMapHeight = $("#system-tooltip-main").height();
       systemStarMap.html(
-        "<img src=\"./blank.png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
+        "<img src=\"./images/blank.png\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
         "style=\"left:0%; top:0%; max-height:" + starMapHeight + "px; max-width:" + starMapWidth + "px; width:100%; height:100%; position:absolute; z-index:-1;\" />"
       );
       for (var planetPos in sector.planets) {
@@ -1706,22 +1714,22 @@
 
         var resourceString = "<p>";
         if (planet.baseResources[0] > 0) {
-          resourceString += planet.baseResources[0] + "&nbsp;<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[0] + "&nbsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[1] > 0) {
-          resourceString += planet.baseResources[1] + "&nbsp;<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          resourceString += planet.baseResources[1] + "&nbsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
         }
         if (planet.baseResources[2] > 0) {
-          resourceString += planet.baseResources[2] + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          resourceString += planet.baseResources[2] + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
         }
         if (planet.baseResources[3] > 0) {
-          resourceString += planet.baseResources[3] + "&nbsp;<img src=\"./star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[3] + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[4] > 0) {
-          resourceString += planet.baseResources[4] + "&nbsp;<img src=\"./society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[4] + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         if (planet.baseResources[5] > 0) {
-          resourceString += planet.baseResources[5] + "&nbsp;<img src=\"./production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
+          resourceString += planet.baseResources[5] + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
         }
         resourceString += "</p>"
         if (resourceString === "<p></p>") resourceString = "";
@@ -1736,7 +1744,7 @@
         systemStarMap.html(
           systemStarMap.html() +
           //"<figure class=\"tint\" style=\"background: rgba(0, 0, 255, 0.5);\">" +
-          "<img src=\"./planet_" + planet.biome.toLowerCase() + ".png\" data-planetposition=\"" + planet.position + "\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" data-planetposition=\"" + planet.position + "\" alt=\"Planet\" width=\"50\" height=\"50\" align=\"center\" " +
           "onclick=\"javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); " +
           "javascript:hideBuildMenu(); \" " +
           "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:" + sizePlanet + "px; max-width:" + sizePlanet + "px; width:100%; position:absolute; z-index:-1;\" />" +
@@ -1772,15 +1780,15 @@
       // displayFleet(civId, fleetId)
         systemStarMap.html(
           systemStarMap.html() +
-          "<img src=\"./red_ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/red_ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "onclick=\"javascript:displayFleetFromId(" + fleet.owner.id + "," + fleet.id + ");\" " +
           "style=\"left:" + trueX + "%; top:" + trueY + "%; max-height:20px; max-width:20px; width:100%; position:absolute; z-index:" + i + ";\" />" +
           "<div style=\"left:" + textOffsetX + "px; top:" + textOffsetY + "px; max-height:20px; max-width:100px; width:100%; pointer-events:none; position:absolute; z-index:" + i + ";\">" +
           strength +
-          "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:10px; max-width:10px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;" +
           fleet.ships.length +
-          "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:10px; max-width:10px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
           "</div>"
         );
@@ -1817,13 +1825,13 @@
         var impr = validSate[i];
 
         var satelliteString = "";
-        if (impr.output[0] > 0) satelliteString += impr.output[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[1] > 0) satelliteString += impr.output[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[2] > 0) satelliteString += impr.output[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[3] > 0) satelliteString += impr.output[3] + "<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[4] > 0) satelliteString += impr.output[4] + "<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[5] > 0) satelliteString += impr.output[5] + "<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        satelliteString += impr.buildTime + "<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+        if (impr.output[0] > 0) satelliteString += impr.output[0] + "<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[1] > 0) satelliteString += impr.output[1] + "<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[2] > 0) satelliteString += impr.output[2] + "<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[3] > 0) satelliteString += impr.output[3] + "<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[4] > 0) satelliteString += impr.output[4] + "<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        if (impr.output[5] > 0) satelliteString += impr.output[5] + "<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+        satelliteString += impr.buildTime + "<img src=\"./images/time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
 
         satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
           "<div>" +
@@ -1874,7 +1882,7 @@
         spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
         "<h5>" +
         "Queue: " + order.unit.name + ", " +
-        order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+        order.timeRemaining + "&nbsp;<img src=\"./images/time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
         "</h5>");
       }
       //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
@@ -2250,10 +2258,10 @@
       var fleetStrength = calcFleetStrength(fleet);
       var fleetStringy = "<h4>" + fleet.name + "&emsp;" +
       fleetStrength + "&nbsp;" +
-      "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+      "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
       "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
       fleet.ships.length + "&nbsp;" +
-      "<img src=\"./ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+      "<img src=\"./images/ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
       "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
       + "</h4>";
       if (fleet.orders.length === 0) {
@@ -2281,10 +2289,10 @@
         fleetTooltip.html(
           fleetTooltip.html() + "<p>" + ship.name + "&emsp;" +
           ship.strength + "&nbsp;" +
-          "<img src=\"./strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
           ship.health + "/" + ship.maxHealth + "&nbsp;" +
-          "<img src=\"./health.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+          "<img src=\"./images/health.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
           "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
           "</p>"
         );
@@ -2333,22 +2341,22 @@
           total[k] += planetClicked.satelliteBuilding.output[k];
         }
       }
-      if (total[0] > 0) planetString += total[0] + "&nbsp;<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[1] > 0) planetString += total[1] + "&nbsp;<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[2] > 0) planetString += total[2] + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[3] > 0) planetString += total[3] + "&nbsp;<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[4] > 0) planetString += total[4] + "&nbsp;<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[0] > 0) planetString += total[0] + "&nbsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[1] > 0) planetString += total[1] + "&nbsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[2] > 0) planetString += total[2] + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[3] > 0) planetString += total[3] + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[4] > 0) planetString += total[4] + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
 
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
       var currentText = "";
       if (planetClicked.biome !== "Asteroid") {
         currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
-          "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
+          "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
       }
       else {
         currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "&nbsp;&nbsp;" + planetString + "</h4>" +
-          "<p><img src=\"./planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
+          "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
       }
 
       if (planetClicked.owner === null) {
@@ -2356,8 +2364,8 @@
       }
       else {
         currentText += "<h4>" + planetClicked.owner.name + ", " +
-        planetClicked.population + "<img src=\"./population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>, " +
-        planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+        planetClicked.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>, " +
+        planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
       }
       if (planetClicked.satelliteBuilding === null) {
         if (planetClicked.order === null) {
@@ -2367,14 +2375,14 @@
           currentText += ", Building&nbsp;" + planetClicked.order.satellite.name + "&nbsp;" + planetClicked.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
         }
         currentText += "&nbsp;" +
-        "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+        "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
         "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
         "/>" +
         "</h4>";
       }
       else {
         currentText += ", " + planetClicked.satelliteBuilding.name + "&nbsp;" +
-        "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+        "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
         "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
         "/>";
         if (planetClicked.satelliteBuilding.name === "Spaceport") {
@@ -2383,13 +2391,13 @@
             var order = port.orders[0];
             currentText +=
               "&nbsp;(" + order.unit.name + ", " +
-              order.timeRemaining + "<img src=\"./time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+              order.timeRemaining + "<img src=\"./images/time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
             if (port.orders.length != 1) {
               currentText += ", +" + (port.orders.length - 1) + " more";
             }
             currentText += ")";
           }
-          currentText += "&nbsp;<img src=\"hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+          currentText += "&nbsp;<img src=\"images/hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
           "onclick=\"javascript:displaySpaceportBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
           "/>";
           if (planetClicked.order !== null) {
@@ -2423,22 +2431,22 @@
             }
           }
           if (total[0] > 0) {
-            tileResourceString += total[0] + "<img src=\"./minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+            tileResourceString += total[0] + "<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
           if (total[1] > 0) {
-            tileResourceString += total[1] + "<img src=\"./energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+            tileResourceString += total[1] + "<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
           if (total[2] > 0) {
-            tileResourceString += total[2] + "<img src=\"./food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+            tileResourceString += total[2] + "<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
           if (total[3] > 0) {
-            tileResourceString += total[3] + "<img src=\"./star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+            tileResourceString += total[3] + "<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
           if (total[4] > 0) {
-            tileResourceString += total[4] + "<img src=\"./society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
+            tileResourceString += total[4] + "<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&emsp;";
           }
           if (total[5] > 0) {
-            tileResourceString += total[5] + "<img src=\"./production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+            tileResourceString += total[5] + "<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
           }
           var tileInfo = "" +
             "<p>" +
@@ -2446,11 +2454,11 @@
             "</p>" +
             "<p>" +
             tile.localBiome + ", " + tile.localTerrain + " " +
-            "<img src=\"build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+            "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
             "onclick=\"javascript:displayTileBuildMenu([" + planetClicked.position[0] + "," + planetClicked.position[1] + "], " + j + ")\" " +
             "/>";
           if (assignment.indexOf(j + "") !== -1) {
-            tileInfo += "<img src=\"./population.png\" alt=\"Worker\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+            tileInfo += "<img src=\"./images/population.png\" alt=\"Worker\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
               "onclick=\" \" " +
               "/>" +
               "</p>";
@@ -2462,7 +2470,7 @@
           if (tile.order !== null) {
             planetTooltipTile.html(planetTooltipTile.html() +
               "<p>Build: " + tile.order.impr.name + ", " +
-              tile.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+              tile.order.timeRemaining + "&nbsp;<img src=\"./images/time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
               "</p>");
           }
           else if (tile.building === null) {
@@ -2668,6 +2676,7 @@
 
     function evaluateMonth() {
       //Evaluate tech progress
+      var totalStar = 0, totalSociety = 0, totalProduction = 0;
       for (var key in planets) {
         var planet = planets[key];
         if (planet.owner !== null) {
@@ -2692,9 +2701,9 @@
           planet.owner.baseResources[0] += sumYield[0] - sumMaint[0];
           planet.owner.baseResources[1] += sumYield[1] - sumMaint[1];
 
-          planet.owner.baseResources[3] += sumYield[3] - sumMaint[3];
-          planet.owner.baseResources[4] += sumYield[4] - sumMaint[4];
-          planet.owner.baseResources[5] += sumYield[5] - sumMaint[5];
+          totalStar += sumYield[3] - sumMaint[3];
+          totalSociety += sumYield[4] - sumMaint[4];
+          totalProduction += sumYield[5] - sumMaint[5];
           /*
           sumMinerals *= planet.habitability;
           sumEnergy *= planet.habitability;
@@ -2710,6 +2719,7 @@
           //console.log(sumMinerals + " " + sumEnergy + " " + sumFood);
         }
       }
+      //TODO: Evaluate progress towards techs
     }
 
     for (var i = 0; i < civilizations.length; i++) {
