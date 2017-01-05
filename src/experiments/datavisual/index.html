@@ -149,9 +149,11 @@
   position: absolute;
   text-align: center;
 	top: 10%;
-  width: 80%;
 	left: 10%;
-  height: 10%;
+  width: auto;
+  height: auto;  
+  min-width: 80% !important;
+  min-height: 10% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -332,9 +334,11 @@
 
 		<div id="player-hud">
 			<p>
-				Minerals<img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
-				Energy&emsp;<img src="./images/energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
-				Planets&emsp;<img src="./images/planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
+        <div id="player-hud-resources">
+  				Minerals&emsp;<img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>150 / +0&emsp;&emsp;&emsp;
+  				Energy&emsp;<img src="./images/energy.png" alt="Energy" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
+  				Planets&emsp;<img src="./images/planets.png" alt="Planets" width="50" height="50" style="max-height:50px; max-width:50px; width:10%;"/>&emsp;1/5&emsp;&emsp;&emsp;
+        </div>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Paused&quot;)">Pause</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Slow&quot;)">Slow</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Fast&quot;)">Fast</button>
@@ -972,6 +976,8 @@
 				worlds: [],
 				fleets: {},
 			  baseResources: [150, 50, 50, 0, 0, 0],
+        mineFlow: 0, //For GUI purposes
+        energyFlow: 0,
         specialResourcesFlow: {}
 			};
 			civilizations.push(civilization);
@@ -1002,10 +1008,14 @@
 				worlds: [],
 				fleets: {},
 			  baseResources: [150, 0, 50, 0, 0, 0],
+        mineFlow: 0, //For GUI purposes
+        energyFlow: 0,
         specialResourcesFlow: {}
 			};
 			civilizations.push(civilization);
     }
+
+    var playerCiv = civilizations[0];
 
     //TODO: Add colonization mechanics
     /*
@@ -1671,27 +1681,29 @@
       satelliteBuildTooltip.html("<h4>Build Satellite</h4>");
       //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
       //{name: "Spaceport", planet: null, output: [0,0,0,1,1,1], buildTime: 400, cost: [250,0,0,0,0,0], maintenance: [0,-3,-2,0,0,0], biomeRestrict: "NotAsteroid", starRestrict: null, orders: []},
-      for (var i = 0; i < validSate.length; i++) {
-        var impr = validSate[i];
+      if (planet.sector.owner === playerCiv) {
+        for (var i = 0; i < validSate.length; i++) {
+          var impr = validSate[i];
 
-        var satelliteString = "";
-        if (impr.output[0] > 0) satelliteString += impr.output[0] + "<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[1] > 0) satelliteString += impr.output[1] + "<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[2] > 0) satelliteString += impr.output[2] + "<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[3] > 0) satelliteString += impr.output[3] + "<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[4] > 0) satelliteString += impr.output[4] + "<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        if (impr.output[5] > 0) satelliteString += impr.output[5] + "<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-        satelliteString += impr.buildTime + "<img src=\"./images/time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+          var satelliteString = "";
+          if (impr.output[0] > 0) satelliteString += impr.output[0] + "<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          if (impr.output[1] > 0) satelliteString += impr.output[1] + "<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          if (impr.output[2] > 0) satelliteString += impr.output[2] + "<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          if (impr.output[3] > 0) satelliteString += impr.output[3] + "<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          if (impr.output[4] > 0) satelliteString += impr.output[4] + "<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          if (impr.output[5] > 0) satelliteString += impr.output[5] + "<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+          satelliteString += impr.buildTime + "<img src=\"./images/time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
 
-        satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
-          "<div>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;, " + planet.sector.owner.id + "); " +
-          "javascript:hideBuildSatelliteMenu(); " +
-          "javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); \"" +
-          "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
-          "<p>" + satelliteString + "</p>" +
-          "</div>"
-        );
+          satelliteBuildTooltip.html(satelliteBuildTooltip.html() +
+            "<div>" +
+            "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueSatelliteOnPlanet([" + planet.position[0] + "," + planet.position[1] + "], &quot;" + impr.name + "&quot;, " + planet.sector.owner.id + "); " +
+            "javascript:hideBuildSatelliteMenu(); " +
+            "javascript:displayPlanetFromCoord([" + planet.position[0] + "," + planet.position[1] + "]); \"" +
+            "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
+            "<p>" + satelliteString + "</p>" +
+            "</div>"
+          );
+        }
       }
     }
 
@@ -1737,16 +1749,18 @@
       }
       //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
       //<button type="button" class="button" onclick="alert('Hello world!')">Click Me!</button>
-      for (var i = 0; i < validQueue.length; i++) {
-        var impr = validQueue[i];
-        spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
-          "<p>" +
-          "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueUnitOnTile([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + port.planet.owner.id +"); " +
-          "javascript:hideSpaceportMenu(); " +
-          "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
-          "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
-          "</p>"
-        );
+      if (port.planet.owner === playerCiv) {
+        for (var i = 0; i < validQueue.length; i++) {
+          var impr = validQueue[i];
+          spaceportBuildTooltip.html(spaceportBuildTooltip.html() +
+            "<p>" +
+            "<button type=\"button\" class=\"tile-build-button\" onclick=\"javascript:requestQueueUnitOnPosition([" + planetPosition[0] + "," + planetPosition[1] + "], &quot;" + impr.name + "&quot;, " + port.planet.owner.id +"); " +
+            "javascript:hideSpaceportMenu(); " +
+            "javascript:displayPlanetFromCoord([" + planetPosition[0] + "," + planetPosition[1] + "]); \"" +
+            "style=\"max-height:50px; max-width:300px; width:100%; position:relative; z-index:" + i + ";\">" + impr.name + "</button>" +
+            "</p>"
+          );
+        }
       }
     }
 
@@ -1769,7 +1783,7 @@
         .duration(200)
         .style("opacity", 0);
 
-      if (planet.owner !== null) {
+      if (planet.owner === playerCiv) {
         var validImprovements = getValidImprovements(tile, planet.owner);
         planetBuildTooltip.html("<h4>Build Improvement</h4>");
         //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
@@ -1889,7 +1903,9 @@
 
       }
       else if (actionString === "Build") {
+        if (fleet.owner === planet.owner) {
 
+        }
       }
       else {
 
@@ -1897,27 +1913,29 @@
     }
 
     function requestQueueSatelliteOnPlanet(planetPosition, satelliteName, ownerId) {
-      //var planet = planets[planetPosition];
-      var satellite = null;
-      for (var i = 0; i < planetSatellites.length; i++) {
-        if (planetSatellites[i].name === satelliteName) {
-          satellite = planetSatellites[i];
-        }
-      }
-      if (satellite === null) {
-        var cost = satellite.cost;
-        var owner = civilizations[ownerId];
-        var civRes = owner.baseResources;
-        for (var i = 0; i < cost.length; i++) {
-          if (cost[i] > civRes[i]) {
-            //Not enough resources to build the improvement
-            return;
+      var planet = planets[planetPosition];
+      var owner = civilizations[ownerId];
+      if (planet.sector.owner === owner) {
+        var satellite = null;
+        for (var i = 0; i < planetSatellites.length; i++) {
+          if (planetSatellites[i].name === satelliteName) {
+            satellite = planetSatellites[i];
           }
         }
-        for (var i = 0; i < cost.length; i++) {
-          civRes[i] -= cost[i];
+        if (satellite !== null) {
+          var cost = satellite.cost;
+          var civRes = owner.baseResources;
+          for (var i = 0; i < cost.length; i++) {
+            if (cost[i] > civRes[i]) {
+              //Not enough resources to build the improvement
+              return;
+            }
+          }
+          for (var i = 0; i < cost.length; i++) {
+            civRes[i] -= cost[i];
+          }
+          queueSatelliteOnPlanet(planetPosition, satellite);
         }
-        queueSatelliteOnPlanet(planetPosition, satellite);
       }
     }
 
@@ -1940,9 +1958,11 @@
       planet.order = null;
     }
 
-    function requestQueueUnitOnTile(planetPosition, shipName, ownerId) {
+    function requestQueueUnitOnPosition(planetPosition, shipName, ownerId) {
       var impr = shipTypes[shipName];
-      if (impr !== null) {
+      var planet = planets[planetPosition];
+      var owner = civilizations[ownerId];
+      if (impr !== null && planet.sector.owner === owner) {
         var cost = impr.cost;
         var owner = civilizations[ownerId];
         var civRes = owner.baseResources;
@@ -2413,6 +2433,16 @@
 			}*/
 		}
 
+    function displayPlayerResources() {
+      var resourceTooltip = d3.select("#player-hud-resources");
+
+      resourceTooltip.html("" +
+        "Minerals&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:10%;\"/>" + playerCiv.baseResources[0] + " / " + playerCiv.mineFlow + "&emsp;&emsp;&emsp;" +
+        "Energy&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:10%;\"/>&emsp;" + playerCiv.baseResources[1] + " / " + playerCiv.energyFlow + "&emsp;&emsp;&emsp;" +
+        "Planets&emsp;<img src=\"./images/planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:50px; max-width:50px; width:10%;\"/>&emsp;" + playerCiv.worlds.length + "&emsp;&emsp;&emsp;"
+      );
+    }
+
     function nameStars() {
 			for (var key in stars) {
 				var star = stars[key];
@@ -2458,6 +2488,7 @@
         //TODO: Display updated sector
         displaySector(currentSectorSelected);
       }
+      displayPlayerResources();
     }
 
     //Ships need to be evaluated every frame to have a relatively smooth animation
@@ -2573,9 +2604,11 @@
       var totalStar = 0, totalSociety = 0, totalProduction = 0;
       for (var i = 0; i < civilizations.length; i++) {
         var civ = civilizations[i];
+        civ.mineFlow = 0;
+        civ.energyFlow = 0;
         civ.specialResourcesFlow = {};
-        for (var key in civ.planets) {
-          var planet = civ.planets[key];
+        for (var key in civ.worlds) {
+          var planet = civ.worlds[key];
           if (planet.owner !== null) {
             planet.tileAssignments = calculateAssignmentPlanet(planet);
             //var sumMinerals = 0, sumEnergy = 0, sumFood = 0;
@@ -2598,6 +2631,9 @@
             planet.owner.baseResources[0] += sumYield[0] - sumMaint[0];
             planet.owner.baseResources[1] += sumYield[1] - sumMaint[1];
 
+            civ.mineFlow += sumYield[0] - sumMaint[0];
+            civ.energyFlow += sumYield[1] - sumMaint[1];
+
             totalStar += sumYield[3] - sumMaint[3];
             totalSociety += sumYield[4] - sumMaint[4];
             totalProduction += sumYield[5] - sumMaint[5];
@@ -2607,8 +2643,8 @@
             */
 
             //console.log(sumMinerals + " " + sumEnergy + " " + sumFood);
-            sumFood = sumFood - (planet.population * 1 + maintFood);
-            planet.food += sumFood;
+            sumYield[2] = sumYield[2] - (planet.population * 1 + maintFood);
+            planet.food += sumYield[2];
             if (planet.food > foodNeededToGrow) {
               planet.population++;
               planet.food = Math.round(planet.food / 4);
