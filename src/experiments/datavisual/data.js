@@ -87,6 +87,9 @@ var small = d3.random.normal(7, 1.5),
 
 var maxTiles = 20;
 
+var specialResources = {};
+specialResources["Crystal Cells"] = {name: "Crystal Cells", icon: "./images/crystal_cells.png"};
+
 //TODO: Convert data into CSV format
 var tileImprovements = [
   {name: "Primitive Farm", output: [0,0,1,0,0,0], buildTime: 70, cost: [50,0,25,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
@@ -94,6 +97,7 @@ var tileImprovements = [
   {name: "Mine I", output: [2,0,0,0,0,0], buildTime: 70, cost: [60,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
   {name: "Mine II", output: [3,0,0,0,0,0], buildTime: 120, cost: [90,0,0,0,0,0], maintenance: [0,-2,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine I"},
   {name: "Mine III", output: [4,0,0,0,0,0], buildTime: 200, cost: [120,0,0,0,0,0], maintenance: [0,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine II"},
+  {name: "Crystall Processor", output: [5,0,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
   {name: "Platform I", output: [1,1,0,0,0,0], buildTime: 100, cost: [100,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: null},
   {name: "Platform II", output: [1,2,0,0,0,0], buildTime: 160, cost: [150,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform I"},
   {name: "Platform III", output: [1,3,0,0,0,0], buildTime: 250, cost: [200,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform II"},
@@ -103,6 +107,7 @@ var tileImprovements = [
   {name: "Power Plant I", output: [0,2,0,0,0,0], buildTime: 70, cost: [50,50,0,0,0,0], maintenance: [0,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
   {name: "Power Plant II", output: [0,3,0,0,0,0], buildTime: 120, cost: [100,50,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant I"},
   {name: "Power Plant III", output: [0,4,0,0,0,0], buildTime: 200, cost: [150,50,0,0,0,0], maintenance: [-2,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant II"},
+  {name: "Crystalline Power Plant", output: [0,6,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
   {name: "Lab I", output: [0,0,0,1,1,1], buildTime: 200, cost: [150,50,0,0,0,0], maintenance: [-2,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant II"},
   {name: "Colony", output: [0,0,3,3,3,3], buildTime: 250, cost: [250,0,50,0,0,0], maintenance: [-3,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null}
 ];
@@ -123,6 +128,14 @@ shipTypes["Colony Flagship"] = {name: "Colony Flagship", strength: 90, speed: 1,
 shipTypes["Cruiser"] = {name: "Cruiser", strength: 50, maxHealth: 30, speed: 1, buildTime: 70, cost: [60,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], levelRestrict: 1, ftl: 30, maxFtl: 30};
 shipTypes["Destroyer"] = {name: "Destroyer", strength: 150, maxHealth: 50, speed: 1, buildTime: 150, cost: [150,0,0,0,0,0], maintenance: [0,-2,0,0,0,0], levelRestrict: 2, ftl: 30, maxFtl: 30};
 shipTypes["Battleship"] = {name: "Battleship", strength: 350, maxHealth: 120, speed: 1, buildTime: 350, cost: [400,0,0,0,0,0], maintenance: [0,-3,0,0,0,0], levelRestrict: 3, ftl: 30, maxFtl: 30};
+
+var shipAliens = {};
+shipAliens["Drone"] = {name: "Drone", strength: 50, maxHealth: 50, attitude: "Innocent", speed: 1, mean: 3, stdDev: 2, ftl: 30, maxFtl: 30};
+shipAliens["Predator"] = {name: "Predator", strength: 150, maxHealth: 100, attitude: "Aggressive", speed: 0.5, mean: 1, stdDev: 1, ftl: 100, maxFtl: 100};
+shipAliens["PirateCruiser"] = {name: "PirateCruiser", strength: 40, maxHealth: 40, attitude: "Passive", speed: 1, mean: 3, stdDev: 2, ftl: 30, maxFtl: 30};
+shipAliens["PirateDestroyer"] = {name: "PirateDestroyer", strength: 125, maxHealth: 50, attitude: "Aggressive", speed: 1, mean: 2, stdDev: 1, ftl: 30, maxFtl: 30};
+shipAliens["Startraveller"] = {name: "Startraveller", strength: 50, maxHealth: 100, attitude: "Evasive", speed: 2, mean: 4, stdDev: 2, ftl: 30, maxFtl: 30};
+shipAliens["Guardian"] = {name: "Guardian", strength: 500, maxHealth: 500, attitude: "Passive", speed: 0.5, mean: 1, stdDev: 0, ftl: 30, maxFtl: 30};
 
 var tileStarts = [
   [0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],
@@ -181,7 +194,7 @@ biomeDesc["Tropical"] = "Hot and humid, this planet is home to all types of life
 biomeDesc["Gaia"] = "This planet is a monument and living museum to all the biodiversity imaginable within the universe.";
 biomeDesc["Toxic"] = "Magma flowing in rivers, noxious gases in the air, and jagged, hostile terrain render this planet unbearable and unlivable.";
 biomeDesc["Ice Cream"] = "This planet is very peculiar — the frozen surface preserves a massive sea, almost like a cosmic slushie of water, sugar, and lactating bacteria.";
-biomeDesc["Barren"] = "This planet has no atmosphere and all its life has passed away ages ago.";
+biomeDesc["Barren"] = "This planet has no atmosphere, a past of volcanic activity, and all its life has passed away ages ago.";
 biomeDesc["Gas Giant"] = "This planet is a swirling sphere of gases.";
 biomeDesc["Primordial"] = "This planet is newly formed and still undergoes the stress of its own gravity.";
 biomeDesc["Asteroid"] = "Anywhere from a small piece of space debris to a large space base, this object can only support small satellites.";
@@ -197,11 +210,11 @@ civTypeDesc["Transcendent"] = "This species has exceeded the limit of its purely
 
 var techEra0 = [];
 
-techEra0.push({name: "Interstellar Administration", type: "Star", research: 300, building: "Administration"});
+techEra0.push({name: "Interstellar Administration", type: "Star", researchNeeded: 300, building: "Administration"});
 
-techEra0.push({name: "Colony Ships", type: "Society", research: 300, unit: "Colony Flagship"});
+techEra0.push({name: "Colony Ships", type: "Society", researchNeeded: 300, unit: "Colony Flagship"});
 
-techEra0.push({name: "Spaceport II", type: "Production", research: 300, satellite: "Spaceport II"});
+techEra0.push({name: "Spaceport II", type: "Production", researchNeeded: 300, satellite: "Spaceport II"});
 
 
 

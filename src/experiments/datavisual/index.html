@@ -18,13 +18,23 @@
   stroke-width: .5px;
 }
 
+.svg {
+  overflow: visible;
+}
+
+.svg:not(:root) {
+  overflow: visible;
+}
+
 #planet-tooltip {
   position: absolute;
   text-align: center;
 	left: 0px;
 	top: 15%;
-  width: 40%;
-  height: 80%;
+  width: auto;
+  height: auto;
+  min-width: 40% !important;
+  min-height: 80% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -53,8 +63,10 @@
   text-align: center;
   left: 40%;
   top: 15%;
-  width: 40%;
-  height: 80%;
+  width: auto;
+  height: auto;
+  min-width: 40% !important;
+  min-height: 80% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -456,7 +468,8 @@
 
 		<script>
 
-		var margin = {top: 20, right: 100, bottom: 30, left: 100},
+		//var margin = {top: 20, right: 100, bottom: 30, left: 100},
+    var margin = {top: 0, right: 0, bottom: 0, left: 0},
 				width = $(window).width() - margin.left - margin.right,
 				height = $(window).height() - margin.top - margin.bottom;
 
@@ -929,7 +942,7 @@
         population: 0,
 				food: 0,
         baseResources: baseResources,
-        specialResources: [],
+        specialResourcesFlow: {},
         order: null
 			};
 			planets[position] = planet;
@@ -958,7 +971,8 @@
 				color: color,
 				worlds: [],
 				fleets: {},
-			  baseResources: [150, 50, 50, 0, 0, 0]
+			  baseResources: [150, 50, 50, 0, 0, 0],
+        specialResourcesFlow: {}
 			};
 			civilizations.push(civilization);
 		}
@@ -987,7 +1001,8 @@
 				color: color,
 				worlds: [],
 				fleets: {},
-			  baseResources: [150, 0, 50, 0, 0, 0]
+			  baseResources: [150, 0, 50, 0, 0, 0],
+        specialResourcesFlow: {}
 			};
 			civilizations.push(civilization);
     }
@@ -1116,16 +1131,20 @@
 
 		var svg = d3.select("body").append("svg")
 				.attr("width", width + margin.left + margin.right)
-				.attr("height", height + margin.top + margin.bottom)
+				.attr("height", Math.max(720, height + margin.top + margin.bottom))
+        .style("overflow", "visible")
 			.append("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
+
+    /*
 		svg.append("clipPath")
 				.attr("id", "clip")
 			.append("rect")
 				.attr("class", "mesh")
 				.attr("width", width)
-				.attr("height", height);
+				.attr("height", 720);
+    */
 
     var usedStars = {};
 
@@ -1135,8 +1154,9 @@
         .domain([0, 20])
         .range(["white", "black"])
         .interpolate(d3.interpolateLab);
-		svg.append("g")
-				.attr("clip-path", "url(#clip)")
+
+    //svg.classed("svg-container", true);
+		svg.append("g") //.attr("clip-path", "url(#clip)")
 			.selectAll(".hexagon")
 				.data(hexbin(planets))
 			.enter().append("path")
@@ -1530,6 +1550,18 @@
         var textOffsetX = starMapWidth*(trueX/100) - 80;
         var textOffsetY = starMapHeight*(trueY/100) + sizePlanet;
 
+        /*
+        var total = [];
+        for (var k = 0; k < planet.baseResources.length; k++) {
+          total.push(planet.baseResources[k]);
+        }
+        if (planet.satelliteBuilding !== null) {
+          for (var k = 0; k < planet.baseResources.length; k++) {
+            total[k] += planet.satelliteBuilding.output[k];
+          }
+        }
+        */
+
         var resourceString = "<p>";
         if (planet.baseResources[0] > 0) {
           resourceString += planet.baseResources[0] + "&nbsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;"
@@ -1826,6 +1858,24 @@
         finalChoices.push(randomTech);
       }
       return finalChoices;
+    }
+
+    function queueNewTech(civ, tech) {
+      if (tech.type === "Star") {
+        civ.techResearchingStar = jQuery.extend({}, tech);
+        civ.techResearchingStar.researchCompleted = 0;
+      }
+      else if (tech.type === "Society") {
+        civ.techResearchingSociety = jQuery.extend({}, tech);
+        civ.techResearchingSociety.researchCompleted = 0;
+      }
+      else if (tech.type === "Production") {
+        civ.techResearchingProduction = jQuery.extend({}, tech);
+        civ.techResearchingProduction.researchCompleted = 0;
+      }
+      else {
+        console.log("Invalid tech type: " + tech.type);
+      }
     }
 
     //requestActionOnPlanet([" + temp.dataset["planetposition"] + "], " + currentFleetSelected.id + ", &quot;" + actions[i] + "&quot;); " +
@@ -2523,6 +2573,7 @@
       var totalStar = 0, totalSociety = 0, totalProduction = 0;
       for (var i = 0; i < civilizations.length; i++) {
         var civ = civilizations[i];
+        civ.specialResourcesFlow = {};
         for (var key in civ.planets) {
           var planet = civ.planets[key];
           if (planet.owner !== null) {
@@ -2562,7 +2613,15 @@
               planet.population++;
               planet.food = Math.round(planet.food / 4);
             }
-            //console.log(sumMinerals + " " + sumEnergy + " " + sumFood);
+
+            for (var specRes in planet.specialResourcesFlow) {
+              if (specRes in civ.specialResourcesFlow) {
+                civ.specialResourcesFlow[specRes] += planet.specialResourcesFlow[specRes];
+              }
+              else {
+                civ.specialResourcesFlow[specRes] = planet.specialResourcesFlow[specRes];
+              }
+            }
           }
         }
         //TODO: Evaluate progress towards techs
@@ -2607,6 +2666,9 @@
           var world = civilizations[i].worlds[j];
           var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer", "Constructor"]);
         }
+        civ.techChoicesStar = findNewSetTechs(civ, "Star");
+        civ.techChoicesSociety = findNewSetTechs(civ, "Society");
+        civ.techChoicesProduction = findNewSetTechs(civ, "Production");
       }
     }
 
