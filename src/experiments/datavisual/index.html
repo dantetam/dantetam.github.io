@@ -26,6 +26,11 @@
   overflow: visible;
 }
 
+p {
+  margin: 0px;
+  padding: 0px;
+}
+
 #planet-tooltip {
   position: absolute;
   text-align: center;
@@ -44,7 +49,7 @@
   pointer-events: none;
 }
 
-#tech-menu {
+#empire-menu, #tech-menu, #diplomacy-menu {
   position: absolute;
   text-align: center;
   left: 10%;
@@ -404,6 +409,7 @@ h3 span { font-size: 12px; }
     <div id="menu-bar">
       <img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
       <img src="./images/research-icon.png" alt="Research" onclick="javascript:displayTechMenu();" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
+      <img src="./images/diplomacy-icon.png" alt="Diplomacy" onclick="javascript:displayDiplomacyMenu();" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
 		</div>
     <div id="tutorial">
 			<p>
@@ -481,9 +487,13 @@ h3 span { font-size: 12px; }
 
     </div>
 
+    <div id="empire-menu">
+
+    </div>
+
     <div id="tech-menu">
       <div id="tech-menu-header">
-        <h3>Test Tech Menu</h3>
+        <h3>Research</h3>
       </div>
       <div id="tech-star-display">
       </div>
@@ -491,6 +501,10 @@ h3 span { font-size: 12px; }
       </div>
       <div id="tech-production-display">
       </div>
+    </div>
+
+    <div id="diplomacy-menu">
+
     </div>
 
     <div id="planet-build-main">
@@ -614,6 +628,7 @@ h3 span { font-size: 12px; }
         }
       }
       nameAsteroids();
+      initializeWorld();
       updateRender();
     });
 
@@ -778,6 +793,15 @@ h3 span { font-size: 12px; }
           result = result && (planet.biome !== "Asteroid");
         }
       }
+      if (builder != null) {
+        //result = result && (builder.techLevel >= impr.techLevelRestrictMin && builder.techLevel <= impr.techLevelRestrictMax);
+        if (impr.specResRestrict !== null && impr.specResRestrict !== undefined) {
+          result = result && (impr.specResRestrict in builder.specialResourcesFlow);
+        }
+        if (impr.techRestrict !== null) {
+          result = result && (impr.techRestrict in builder.techsResearched);
+        }
+      }
       return result;
     }
 
@@ -832,6 +856,9 @@ h3 span { font-size: 12px; }
         if (impr.specResRestrict !== null && impr.specResRestrict !== undefined) {
           result = result && (impr.specResRestrict in builder.specialResourcesFlow);
         }
+        if (impr.techRestrict !== null) {
+          result = result && (impr.techRestrict in builder.techsResearched);
+        }
       }
 			return result;
 		}
@@ -852,6 +879,15 @@ h3 span { font-size: 12px; }
       var shipNames = Object.keys(shipTypes);
       for (var i = 0; i < shipNames.length; i++) {
         var ship = shipTypes[shipNames[i]];
+        if (spaceport.planet.owner != null) {
+          //result = result && (builder.techLevel >= impr.techLevelRestrictMin && builder.techLevel <= impr.techLevelRestrictMax);
+          if (ship.specResRestrict !== null && ship.specResRestrict !== undefined) {
+            result = result && (ship.specResRestrict in builder.specialResourcesFlow);
+          }
+          if (ship.techRestrict !== null) {
+            result = result && (ship.techRestrict in builder.techsResearched);
+          }
+        }
         result.push(ship);
       }
       return result;
@@ -1116,7 +1152,9 @@ h3 span { font-size: 12px; }
 			  baseResources: [150, 50, 50, 0, 0, 0],
         mineFlow: 0, //For GUI purposes
         energyFlow: 0,
-        specialResourcesFlow: {}
+        specialResourcesFlow: {},
+        relations: {}, //Modifiers that affect my opinion of others
+        relationStats: {} //My opinion of others
 			};
 			civilizations.push(civilization);
 		}
@@ -1229,10 +1267,14 @@ h3 span { font-size: 12px; }
 
     var outlineTooltip = d3.select("#outline-tooltip");
 
+    var activeMenuBarTooltip = null;
+
     var techMenu = d3.select("#tech-menu");
     var techStarMenu = d3.select("#tech-star-display");
     var techSocietyMenu = d3.select("#tech-society-display");
     var techProductionMenu = d3.select("#tech-production-display");
+
+    var diplomacyMenu = d3.select("#diplomacy-menu");
 
     var foodNeededToGrow = 50;
 
@@ -1277,6 +1319,18 @@ h3 span { font-size: 12px; }
       currentSectorSelected = null;
       currentSpaceportSelected = null;
 		}
+
+    function hideMenuBarTooltips() {
+      techMenu.style("pointer-events", "none");
+      techMenu.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      diplomacyMenu.style("pointer-events", "none");
+      diplomacyMenu.transition()
+        .duration(200)
+        .style("opacity", 0);
+    }
 
     var starMapSvg = systemStarMap.append("svg")
         .attr("width", $("#system-tooltip-starmap").width)
@@ -1488,7 +1542,7 @@ h3 span { font-size: 12px; }
 			d3.event.preventDefault();
       console.log("yes");
 			hideTooltip();
-      hideTechMenu();
+      hideMenuBarTooltips();
 		});
 
     fleetTooltip.on("contextmenu", function() {
@@ -1503,7 +1557,7 @@ h3 span { font-size: 12px; }
     techMenu.on("contextmenu", function() {
       d3.event.preventDefault();
       d3.event.stopPropagation();
-      hideTechMenu();
+      hideMenuBarTooltips();
     });
 
     var planetPositions = Object.keys(planets);
@@ -1512,7 +1566,7 @@ h3 span { font-size: 12px; }
       while (true) {
         randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
         planet = planets[planetPositions[randPlanet]];
-        if (planet.size > 14 && planet.biome !== "Asteroid" && planet.sector.owner === null) { //Use sector as temporary variable to show ownership
+        if (planet.size > 14 && planet.biome !== "Asteroid" && planet.sector.owner === null && planet.habitability >= 0.8) { //Use sector as temporary variable to show ownership
           break;
         }
       }
@@ -1961,10 +2015,17 @@ h3 span { font-size: 12px; }
     }
 
     function displayTechMenu() {
+      hideMenuBarTooltips();
+
       techMenu.style("pointer-events", "auto");
       techMenu.transition()
         .duration(200)
         .style("opacity", 0.9);
+
+      techStarMenu.html("");
+      techSocietyMenu.html("");
+      techProductionMenu.html("");
+
       for (var i = 0; i < playerCiv.techChoicesStar.length; i++) {
         var tech = playerCiv.techChoicesStar[i];
         techStarMenu.html(techStarMenu.html() +
@@ -1985,6 +2046,36 @@ h3 span { font-size: 12px; }
       }
     }
 
+    function displayDiplomacyMenu() {
+      hideMenuBarTooltips();
+
+      diplomacyMenu.style("pointer-events", "auto");
+      diplomacyMenu.transition()
+        .duration(200)
+        .style("opacity", 0.9);
+
+      var diplomacyString = "<h3>Galaxy Communications</h3>";
+      for (var i = 0; i < civilizations.length; i++) {
+        var civ = civilizations[i];
+        if (civ === playerCiv) continue;
+        diplomacyString += "<p>" + civ.name + "&nbsp;" + civ.relationStats[playerCiv.name] + "</p>";
+      }
+      diplomacyMenu.html(diplomacyString);
+    }
+
+    function updateRelationStats(civ) {
+      //civ.relations[otherCiv.name] = [["Peace", "Your nations are at peace.", 10, 0]];
+      civ.relationStats = {};
+      for (var civName in civ.relations) {
+        var relation = 0;
+        for (var i = 0; i < civ.relations[civName].length; i++) {
+          var modifier = civ.relations[civName][i];
+          relation += modifier[2];
+        }
+        civ.relationStats[civName] = relation;
+      }
+    }
+
     function updateOutlineTooltip() {
       var outlineString = "<h3>" + playerCiv.name + "</h3><br>";
 
@@ -1994,10 +2085,11 @@ h3 span { font-size: 12px; }
 
         var planetSize = Math.round(planet.size / maxTiles * 20) + 10;
 
-        outlineString += "<p><b>" + planet.name + "</b>&nbsp;" + planet.biome + ", " + planet.size + ",</p><p>" + Math.round(planet.habitability*100) + "% HA&nbsp;&nbsp;" +
-          "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/>";
+        outlineString += "<p><b>" + planet.name + "</b>&nbsp;" +
+          "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/>" +
+          "&nbsp;" + planet.biomeAbbr + ", " + planet.size + ", " + Math.round(planet.habitability*100) + "%, ";
 
-        outlineString += "&nbsp;" + planet.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+        outlineString += planet.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
           //planet.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
           "</p>";
       }
@@ -2006,7 +2098,7 @@ h3 span { font-size: 12px; }
       for (var fleetId in playerCiv.fleets) {
         var fleet = playerCiv.fleets[fleetId];
         var str = calcFleetStrength(fleet);
-        outlineString += "<p><b>" + fleet.name + "</b>&emsp;" +
+        outlineString += "<p><b>" + fleet.name + "</b>&nbsp;" +
         str + "&nbsp;" +
         "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
         "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
@@ -2913,17 +3005,27 @@ h3 span { font-size: 12px; }
       }
     }
 
-    for (var i = 0; i < civilizations.length; i++) {
-      var civ = civilizations[i];
-      if (civ.techLevel >= 4) {
-        for (var j = 0; j < civilizations[i].worlds.length; j++) {
-          var world = civilizations[i].worlds[j];
-          var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer", "Constructor"]);
+    function initializeWorld() {
+      for (var i = 0; i < civilizations.length; i++) {
+        var civ = civilizations[i];
+        if (civ.techLevel >= 4) {
+          for (var j = 0; j < civilizations[i].worlds.length; j++) {
+            var world = civilizations[i].worlds[j];
+            var fleet = createFleet(world.sector, world.name + " Fleet", world.position, civilizations[i], ["Destroyer", "Destroyer", "Destroyer", "Constructor"]);
+          }
+          civ.techChoicesStar = findNewSetTechs(civ, "Star");
+          civ.techChoicesSociety = findNewSetTechs(civ, "Society");
+          civ.techChoicesProduction = findNewSetTechs(civ, "Production");
         }
-        civ.techChoicesStar = findNewSetTechs(civ, "Star");
-        civ.techChoicesSociety = findNewSetTechs(civ, "Society");
-        civ.techChoicesProduction = findNewSetTechs(civ, "Production");
+        for (var j = 0; j < civilizations.length; j++) {
+          if (i !== j) {
+            var otherCiv = civilizations[j];
+            civ.relations[otherCiv.name] = [["Peace", "Your nations are at peace.", 10, 0]];
+          }
+          updateRelationStats(civ);
+        }
       }
+      updateRender();
     }
 
     updateRender();

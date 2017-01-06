@@ -14,7 +14,7 @@ body {
     list-style-type: none;
 }
 
-.navbar { background-color: #333333; }
+.navbar { background-color: #EEEEEE; }
 /*#mobile-navigation-label { background-color: transparent; }*/
 
 .navbar-nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
