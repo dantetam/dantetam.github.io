@@ -114,13 +114,13 @@ p {
   border: 0px;
   border-radius: 8px;
   opacity: 1;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 #planet-build-main, #spaceport-build-main, #satellite-build-main {
   position: absolute;
   text-align: center;
-  left: 50%;
+  left: 40%;
   top: 25%;
   width: 20%;
   height: auto;
@@ -856,7 +856,7 @@ h3 span { font-size: 12px; }
         if (impr.specResRestrict !== null && impr.specResRestrict !== undefined) {
           result = result && (impr.specResRestrict in builder.specialResourcesFlow);
         }
-        if (impr.techRestrict !== null) {
+        if (impr.techRestrict !== null && impr.techRestrict !== undefined) {
           result = result && (impr.techRestrict in builder.techsResearched);
         }
       }
@@ -867,6 +867,11 @@ h3 span { font-size: 12px; }
 			var result = [];
 			for (var i = 0; i < tileImprovements.length; i++) {
 				var impr = tileImprovements[i];
+        if (tile.building !== null) {
+          if (impr.name === tile.building.name) {
+            continue;
+          }
+        }
 				if (checkIfValidImprovement(tile, impr, builder)) {
 					result.push(impr);
 				}
@@ -1560,6 +1565,33 @@ h3 span { font-size: 12px; }
       hideMenuBarTooltips();
     });
 
+    planetBuildTooltip.on("contextmenu", function() {
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+      planetBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      planetBuildTooltip.style("pointer-events", "none");
+    });
+
+    spaceportBuildTooltip.on("contextmenu", function() {
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+      spaceportBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      spaceportBuildTooltip.style("pointer-events", "none");
+    });
+
+    satelliteBuildTooltip.on("contextmenu", function() {
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+      satelliteBuildTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      satelliteBuildTooltip.style("pointer-events", "none");
+    });
+
     var planetPositions = Object.keys(planets);
     for (var i = 0; i < civilizations.length; i++) {
       var randPlanet = null, planet = null;
@@ -2058,7 +2090,11 @@ h3 span { font-size: 12px; }
       for (var i = 0; i < civilizations.length; i++) {
         var civ = civilizations[i];
         if (civ === playerCiv) continue;
-        diplomacyString += "<p>" + civ.name + "&nbsp;" + civ.relationStats[playerCiv.name] + "</p>";
+        var relation = civ.relationStats[playerCiv.name] + "";
+        if (relation >= 0) {
+          relation = "+" + relation;
+        }
+        diplomacyString += "<p>" + civ.name + "&nbsp;" + relation + "</p>";
       }
       diplomacyMenu.html(diplomacyString);
     }
@@ -2085,30 +2121,52 @@ h3 span { font-size: 12px; }
 
         var planetSize = Math.round(planet.size / maxTiles * 20) + 10;
 
-        outlineString += "<p><b>" + planet.name + "</b>&nbsp;" +
+        outlineString += "<div id=\"generated-outline-planet-" + i + "\" onclick=\"javascript:" +
+          "outlineDisplayPlanetFromCoord([" + planet.position + "]);" +
+          "\"><b>" + planet.name + "</b>&nbsp;" +
           "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/>" +
           "&nbsp;" + planet.biomeAbbr + ", " + planet.size + ", " + Math.round(planet.habitability*100) + "%, ";
 
         outlineString += planet.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
           //planet.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
-          "</p>";
+          "</div>";
+
+        //console.log(d3.select("#generated-outline-planet-" + i));
+        //d3.select("#generated-outline-planet-" + i).on("click", function() {console.log(i);});
       }
 
       outlineString += "<br><h4>Fleets</h4>";
       for (var fleetId in playerCiv.fleets) {
         var fleet = playerCiv.fleets[fleetId];
         var str = calcFleetStrength(fleet);
-        outlineString += "<p><b>" + fleet.name + "</b>&nbsp;" +
+        outlineString += "<div onclick=\"javascript:outlineDisplayFleetFromId(" + playerCiv.id + ", &quot;" + fleetId + "&quot;);\"><b>" + fleet.name + "</b>&nbsp;" +
         str + "&nbsp;" +
         "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:auto; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
         fleet.ships.length + "&nbsp;" +
         "<img src=\"./images/ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
-        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
-        + "</p>";
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" +
+        "</div>";
       }
 
       outlineTooltip.html(outlineString);
+    }
+    function outlineDisplayPlanetFromCoord(planetPosition) {
+      var planet = planets[planetPosition];
+      if (currentPlanetSelected === planet) {
+        displaySector(planet.sector);
+      }
+      displayPlanet(planet);
+    }
+    function outlineDisplayFleetFromId(civId, fleetId) {
+      var fleet = civilizations[civId].fleets["Fleet" + fleetId];
+      if (fleet === null || fleet === undefined) {
+        fleet = civilizations[civId].fleets[fleetId];
+      }
+      if (currentFleetSelected === fleet) {
+        displaySector(fleet.sector);
+      }
+      displayFleet(fleet);
     }
 
     function hideFleetTooltip() {
@@ -2145,12 +2203,12 @@ h3 span { font-size: 12px; }
       systemTooltip.transition()
         .duration(200)
         .style("opacity", 0);
-      planetTooltip.style("pointer-events", "none");
-      planetTooltip.transition()
-        .duration(200)
-        .style("opacity", 0);
+      //planetTooltip.style("pointer-events", "none");
+      //planetTooltip.transition()
+        //.duration(200)
+        //.style("opacity", 0);
       currentSectorSelected = null;
-      currentPlanetSelected = null;
+      //currentPlanetSelected = null;
       systemTooltipVisible = false;
     }
 
@@ -2453,6 +2511,9 @@ h3 span { font-size: 12px; }
     function displayFleetFromId(civId, fleetId) {
       //console.log(civId + " " + fleetId + " " + civilizations[civId] + " " + civilizations[civId].fleets[fleetId]);
       var fleet = civilizations[civId].fleets["Fleet" + fleetId];
+      if (fleet === null || fleet === undefined) {
+        fleet = civilizations[civId].fleets[fleetId];
+      }
       displayFleet(fleet);
     }
 
@@ -2553,6 +2614,18 @@ h3 span { font-size: 12px; }
           currentSpaceportSelected = null;
         }
       }
+
+      /*
+      function displayPlanetPlayerCivWorld(planetPosition) {
+        for (var i = 0; i < playerCiv.worlds.length; i++) {
+          var candidate = playerCiv.worlds[i];
+          if (candidate.name === name) {
+            displayPlanet(candidate);
+            break;
+          }
+        }
+      }
+      */
 
       var planetString = "";
       var total = [];
