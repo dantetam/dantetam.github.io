@@ -29,12 +29,12 @@
 #planet-tooltip {
   position: absolute;
   text-align: center;
-	left: 0px;
-	top: 15%;
+	left: 10%;
+	top: 25%;
   width: auto;
   height: auto;
-  min-width: 40% !important;
-  min-height: 80% !important;
+  max-width: 30% !important;
+  min-height: 40% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
@@ -80,17 +80,35 @@
   position: absolute;
   text-align: center;
   left: 40%;
-  top: 15%;
+  top: 25%;
   width: auto;
   height: auto;
-  min-width: 40% !important;
-  min-height: 80% !important;
+  min-width: 30% !important;
+  min-height: 70% !important;
   padding: 2px;
   font: 12px sans-serif;
   background: lightsteelblue;
   border: 0px;
   border-radius: 8px;
   opacity: 0;
+  pointer-events: none;
+}
+
+#outline-tooltip {
+  position: absolute;
+  text-align: center;
+  left: 75%;
+  top: 25%;
+  width: auto;
+  height: auto;
+  min-width: 15% !important;
+  min-height: 30% !important;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  opacity: 1;
   pointer-events: none;
 }
 
@@ -228,6 +246,8 @@
   opacity: 1;
   pointer-events: none;
 }
+
+h3 span { font-size: 12px; }
 
 .tint {
   position: relative;
@@ -505,6 +525,10 @@
       </div>
     </div>
 
+    <div id="outline-tooltip">
+
+    </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -542,6 +566,7 @@
         }
       }
       namePlanets();
+      updateRender();
     });
 
     var starData = [];
@@ -573,6 +598,7 @@
         }
       }
       nameStars();
+      updateRender();
     });
 
     var smallBodyData = [];
@@ -588,6 +614,7 @@
         }
       }
       nameAsteroids();
+      updateRender();
     });
 
     function createFleet(sector, name, position, owner, shipNames) {
@@ -802,6 +829,9 @@
       }
       if (builder != null) {
         result = result && (builder.techLevel >= impr.techLevelRestrictMin && builder.techLevel <= impr.techLevelRestrictMax);
+        if (impr.specResRestrict !== null && impr.specResRestrict !== undefined) {
+          result = result && (impr.specResRestrict in builder.specialResourcesFlow);
+        }
       }
 			return result;
 		}
@@ -1196,6 +1226,8 @@
     var satelliteBuildTooltip = d3.select("#satellite-build-main");
 
     var timeTooltip = d3.select("#player-hud-time");
+
+    var outlineTooltip = d3.select("#outline-tooltip");
 
     var techMenu = d3.select("#tech-menu");
     var techStarMenu = d3.select("#tech-star-display");
@@ -1637,17 +1669,19 @@
         .style("opacity", 0.9);
       //planetTooltip.style("left", (d3.event.pageX) + "px")
         //.style("top", (d3.event.pageY - 28) + "px");
-      planetTooltip.style("left", "10%")
-        .style("top", "25%");
-      systemTooltip.style("left", "50%")
-        .style("top", "25%");
+      //planetTooltip.style("left", "10%")
+        //.style("top", "25%");
+      //systemTooltip.style("left", "50%")
+        //.style("top", "25%");
       d3.select("#tutorial").transition()
         .duration(200)
         .style("opacity", 0.0);
 
-      systemTooltipHeader.html("<h3>" + sector.star.name + " - Class " + sector.star.type + "&emsp;" +
-      "<img src=\"images/"+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&emsp;" +
+      systemTooltipHeader.html("<h3>" + sector.star.name + ", Star " + sector.star.type + "&nbsp;" +
+      "<img src=\"images/"+sector.star.type.toUpperCase()+"_Star.png\" alt=\"Star\" align=\"center\" style=\"max-height:40px; max-width:40px; width:100%\"/>&nbsp;" +
+      "<span>" +
       "<button type=\"button\" onclick=\"javascript:hideSystemMap();\">Close System Map</button>" +
+      "</span>" +
       "</h3>");
 
       if (sector.owner !== null && sector.owner !== undefined) {
@@ -1949,6 +1983,40 @@
           "<p>" + tech.name + "</p>"
         );
       }
+    }
+
+    function updateOutlineTooltip() {
+      var outlineString = "<h3>" + playerCiv.name + "</h3><br>";
+
+      outlineString += "<h4>Worlds</h4>";
+      for (var i = 0; i < playerCiv.worlds.length; i++) {
+        var planet = playerCiv.worlds[i];
+
+        var planetSize = Math.round(planet.size / maxTiles * 20) + 10;
+
+        outlineString += "<p><b>" + planet.name + "</b>&nbsp;" + planet.biome + ", " + planet.size + ",</p><p>" + Math.round(planet.habitability*100) + "% HA&nbsp;&nbsp;" +
+          "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/>";
+
+        outlineString += "&nbsp;" + planet.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+          //planet.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
+          "</p>";
+      }
+
+      outlineString += "<br><h4>Fleets</h4>";
+      for (var fleetId in playerCiv.fleets) {
+        var fleet = playerCiv.fleets[fleetId];
+        var str = calcFleetStrength(fleet);
+        outlineString += "<p><b>" + fleet.name + "</b>&emsp;" +
+        str + "&nbsp;" +
+        "<img src=\"./images/strength.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />" + "&nbsp;&nbsp;" +
+        fleet.ships.length + "&nbsp;" +
+        "<img src=\"./images/ship.png\" alt=\"Fleet\" width=\"50\" height=\"50\" align=\"center\" " +
+        "style=\"max-height:20px; max-width:20px; width:100%; pointer-events:none; position:relative; z-index:" + i + ";\" />"
+        + "</p>";
+      }
+
+      outlineTooltip.html(outlineString);
     }
 
     function hideFleetTooltip() {
@@ -2638,6 +2706,7 @@
         displaySector(currentSectorSelected);
       }
       displayPlayerResources();
+      updateOutlineTooltip();
     }
 
     //Ships need to be evaluated every frame to have a relatively smooth animation
@@ -2856,6 +2925,8 @@
         civ.techChoicesProduction = findNewSetTechs(civ, "Production");
       }
     }
+
+    updateRender();
 
     /*function requestFullScreen(element) {
         // Supports most browsers and their versions.
