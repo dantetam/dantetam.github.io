@@ -411,9 +411,9 @@ h3 span { font-size: 12px; }
 		<div id="player-hud">
 			<p>
         <div id="player-hud-resources">
-  				Minerals&emsp;<img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;150 / +0&emsp;&emsp;&emsp;
-  				Energy&emsp;<img src="./images/energy.png" alt="Energy" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
-  				Planets&emsp;<img src="./images/planets.png" alt="Planets" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;1&emsp;&emsp;&emsp;
+  				<img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;150 / +0&emsp;&emsp;&emsp;
+  				&emsp;<img src="./images/energy.png" alt="Energy" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;50 / +0&emsp;&emsp;&emsp;
+  				&emsp;<img src="./images/planets.png" alt="Planets" width="50" height="50" style="max-height:20px; max-width:20px; width:10%;"/>&emsp;1&emsp;&emsp;&emsp;
         </div>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Paused&quot;)">Pause</button>
         <button type="button" onclick="javascript:setGameSpeed(&quot;Slow&quot;)">Slow</button>
@@ -1253,8 +1253,7 @@ h3 span { font-size: 12px; }
 				worlds: [],
 				fleets: {},
 			  baseResources: [150, 50, 50, 0, 0, 0],
-        mineFlow: 0, //For GUI purposes
-        energyFlow: 0,
+        baseResourcesFlow: {},
         specialResourcesFlow: {},
         relations: {}, //Modifiers that affect my opinion of others
         relationStats: {} //My opinion of others
@@ -1287,7 +1286,7 @@ h3 span { font-size: 12px; }
 				worlds: [],
 				fleets: {},
 			  baseResources: [150, 0, 50, 0, 0, 0],
-        mineFlow: 0, //For GUI purposes
+        baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
         energyFlow: 0,
         specialResourcesFlow: {}
 			};
@@ -1851,6 +1850,7 @@ h3 span { font-size: 12px; }
       systemTooltip.transition()
         .duration(200)
         .style("opacity", 0.9);
+      systemTooltip.style("pointer-events", "auto");
       //planetTooltip.style("left", (d3.event.pageX) + "px")
         //.style("top", (d3.event.pageY - 28) + "px");
       //planetTooltip.style("left", "10%")
@@ -2155,26 +2155,50 @@ h3 span { font-size: 12px; }
         .duration(200)
         .style("opacity", 0.9);
 
-      techStarMenu.html("");
-      techSocietyMenu.html("");
-      techProductionMenu.html("");
+      if (playerCiv.techResearchingStar !== null) {
+        techStarMenu.html("Researching " + playerCiv.techResearchingStar.name);
+      }
+      else {
+        techStarMenu.html("No Universe Research");
+      }
+      if (playerCiv.techResearchingSociety !== null) {
+        techSocietyMenu.html("Researching " + playerCiv.techResearchingSociety.name);
+      }
+      else {
+        techSocietyMenu.html("No Society Research");
+      }
+      if (playerCiv.techResearchingProduction !== null) {
+        techProductionMenu.html("Researching " + playerCiv.techResearchingProduction.name);
+      }
+      else {
+        techProductionMenu.html("No Production Research");
+      }
 
       for (var i = 0; i < playerCiv.techChoicesStar.length; i++) {
         var tech = playerCiv.techChoicesStar[i];
         techStarMenu.html(techStarMenu.html() +
-          "<p>" + tech.name + "</p>"
+          "<div onclick=\"javascript:requestResearchStarTech(&quot;" + i + "&quot;);\">" +
+          tech.name + "&nbsp;" +
+          tech.researchNeeded + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
+          "</div>"
         );
       }
       for (var i = 0; i < playerCiv.techChoicesSociety.length; i++) {
         var tech = playerCiv.techChoicesSociety[i];
         techSocietyMenu.html(techSocietyMenu.html() +
-          "<p>" + tech.name + "</p>"
+          "<div onclick=\"javascript:requestResearchSocietyTech(&quot;" + i + "&quot;);\">" +
+          tech.name + "&nbsp;" +
+          tech.researchNeeded + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
+          "</div>"
         );
       }
       for (var i = 0; i < playerCiv.techChoicesProduction.length; i++) {
         var tech = playerCiv.techChoicesProduction[i];
         techProductionMenu.html(techProductionMenu.html() +
-          "<p>" + tech.name + "</p>"
+          "<div onclick=\"javascript:requestResearchProductionTech(&quot;" + i + "&quot;);\">" +
+          tech.name + "&nbsp;" +
+          tech.researchNeeded + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
+          "</div>"
         );
       }
     }
@@ -2309,7 +2333,17 @@ h3 span { font-size: 12px; }
         .style("opacity", 0);
     }
 
+    function hidePlanetMap() {
+      planetTooltip.style("pointer-events", "none");
+      planetTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+      currentPlanetSelected = null;
+      planetTooltipVisible = false;
+    }
+
     function hideSystemMap() {
+      console.log("yesssss");
       systemTooltip.style("pointer-events", "none");
       systemTooltip.transition()
         .duration(200)
@@ -2350,6 +2384,19 @@ h3 span { font-size: 12px; }
         finalChoices.push(randomTech);
       }
       return finalChoices;
+    }
+
+    function requestResearchStarTech(index) {
+      var tech = playerCiv.techChoicesStar[index];
+      queueNewTech(playerCiv, tech);
+    }
+    function requestResearchSocietyTech() {
+      var tech = playerCiv.techChoicesSociety[index];
+      queueNewTech(playerCiv, tech);
+    }
+    function requestResearchProductionTech() {
+      var tech = playerCiv.techChoicesProduction[index];
+      queueNewTech(playerCiv, tech);
     }
 
     function queueNewTech(civ, tech) {
@@ -2703,6 +2750,13 @@ h3 span { font-size: 12px; }
 
     function displayPlanet(planetClicked) {
       currentPlanetSelected = planetClicked;
+
+      if (currentSectorSelected !== null && planetClicked !== null) {
+        if (currentSectorSelected === planetClicked.sector) {
+          hideSystemMap();
+        }
+      }
+
       d3.select("#system-tutorial").transition()
 				.duration(200)
 				.style("opacity", 0);
@@ -2751,14 +2805,19 @@ h3 span { font-size: 12px; }
       if (total[0] > 0) planetString += total[0] + "&nbsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
       if (total[1] > 0) planetString += total[1] + "&nbsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
       if (total[2] > 0) planetString += total[2] + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[3] > 0) planetString += total[3] + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[4] > 0) planetString += total[4] + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
-      if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[3] > 0) planetString += total[3] + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[4] > 0) planetString += total[4] + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
+      if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
 
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
       var currentText = "";
       if (planetClicked.biome !== "Asteroid") {
-        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
+        currentText = "<h3>" + planetClicked.name +
+          "<span>" +
+          "<button type=\"button\" onclick=\"javascript:hidePlanetMap();\">Close Planet Map</button>" +
+          "</span>" +
+          "</h3>" +
+          "<h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
           "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
       }
       else {
@@ -2930,9 +2989,12 @@ h3 span { font-size: 12px; }
       var resourceTooltip = d3.select("#player-hud-resources");
 
       resourceTooltip.html("" +
-        "Minerals&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[0] + " / " + playerCiv.mineFlow + "&emsp;&emsp;&emsp;" +
-        "Energy&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[1] + " / " + playerCiv.energyFlow + "&emsp;&emsp;&emsp;" +
-        "Planets&emsp;<img src=\"./images/planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.worlds.length + "&emsp;&emsp;&emsp;"
+        "&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[0] + " / " + playerCiv.baseResourcesFlow[0] + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[1] + " / " + playerCiv.baseResourcesFlow[1] + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.worlds.length + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[3] + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[4] + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[5] + "&emsp;&emsp;&emsp;"
       );
     }
 
@@ -3129,10 +3191,9 @@ h3 span { font-size: 12px; }
     function evaluateMonth() {
       //Evaluate tech progress
       var totalStar = 0, totalSociety = 0, totalProduction = 0;
-      for (var i = 0; i < civilizations.length; i++) {
-        var civ = civilizations[i];
-        civ.mineFlow = 0;
-        civ.energyFlow = 0;
+      for (var civIndex = 0; civIndex < civilizations.length; civIndex++) {
+        var civ = civilizations[civIndex];
+        civ.baseResourcesFlow = [0,0,0,0,0,0];
         civ.specialResourcesFlow = {};
         for (var key in civ.worlds) {
           var planet = civ.worlds[key];
@@ -3158,8 +3219,9 @@ h3 span { font-size: 12px; }
             planet.owner.baseResources[0] += sumYield[0] + sumMaint[0];
             planet.owner.baseResources[1] += sumYield[1] + sumMaint[1];
 
-            civ.mineFlow += sumYield[0] + sumMaint[0];
-            civ.energyFlow += sumYield[1] + sumMaint[1];
+            for (var i = 0; i < sumYield.length; i++) {
+              civ.baseResourcesFlow[i] += sumYield[i] + sumMaint[i];
+            }
 
             totalStar += sumYield[3] + sumMaint[3];
             totalSociety += sumYield[4] + sumMaint[4];
@@ -3283,31 +3345,28 @@ h3 span { font-size: 12px; }
     var timer = d3.interval(function(elapsed) {
       var advanceDay = false;
       evaluateShips();
-      if (frames === 0) {
-        //advanceDay = true;
-        displayTime();
-      }
       frames++;
-      if (frames >= 6) {
+      console.log("Advance frame");
+      if (frames >= 8) {
         frames = 0;
       }
       if (gameMode === "Paused") {
 
       }
       else if (gameMode === "Slow") {
-        if (frames % 6 == 0) {
+        if (frames % 8 == 0) {
           advanceDay = true;
         }
       }
       else if (gameMode === "Fast") {
-        if (frames % 2 == 0) {
+        if (frames % 4 == 0) {
           advanceDay = true;
         }
       }
       else if (gameMode === "Fastest") {
-        //if (frames % 2 == 0) {
+        if (frames % 2 == 0) {
           advanceDay = true;
-        //}
+        }
       }
       if (advanceDay) {
         var currentMonth = currentDate.getMonth();
@@ -3315,6 +3374,7 @@ h3 span { font-size: 12px; }
         var newMonth = currentDate.getMonth();
         if (currentMonth !== newMonth) {
           //Advance a month
+          console.log("Eval month");
           evaluateMonth();
         }
         //console.log(currentDate);
@@ -3323,10 +3383,12 @@ h3 span { font-size: 12px; }
         if (days >= 365) {
           days = 0;
         }
+        console.log("Eval day");
         evaluateDay();
+        console.log("Advance day");
       }
       displayTime();
-    }, 250, 0);
+    }, 250);
 
 		</script>
 
