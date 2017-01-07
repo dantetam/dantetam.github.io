@@ -88,7 +88,7 @@ p {
   top: 25%;
   width: auto;
   height: auto;
-  min-width: 30% !important;
+  min-width: 35% !important;
   min-height: 70% !important;
   padding: 2px;
   font: 12px sans-serif;
@@ -237,6 +237,22 @@ p {
 }
 
 #system-tutorial {
+  position: relative;
+  text-align: center;
+  top: 25%;
+  width: 30%;
+  left: 60%;
+  height: 15%;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: rgba(255, 255, 255, 0);
+  border: 0px;
+  border-radius: 8px;
+  opacity: 1;
+  pointer-events: none;
+}
+
+#message-tooltip {
   position: relative;
   text-align: center;
   top: 25%;
@@ -504,7 +520,9 @@ h3 span { font-size: 12px; }
     </div>
 
     <div id="diplomacy-menu">
+    </div>
 
+    <div id="message-tooltip">
     </div>
 
     <div id="planet-build-main">
@@ -664,7 +682,9 @@ h3 span { font-size: 12px; }
         ships: ships,
         id: theId,
         orders: [],
-        speed: speed
+        speed: speed,
+        inBattle: false,
+        inRetreat: false
       }
       owner.fleets["Fleet" + theId] = fleet;
       for (var i = 0; i < fleet.ships.length; i++) {
@@ -709,9 +729,87 @@ h3 span { font-size: 12px; }
     ]
     where each array is a different faction in the fight. This generalizes to fights that contain 3 or more teams.
     Also add planets if they are involved in the conflict (not necessarily as defenders).
-    */
-    function advanceFleetBattleOneDay(arrayOfFleets) {
 
+    ships.push({
+      name: shipNames[i],
+      owner: owner,
+      strength: shipTypes[shipNames[i]].strength,
+      health: shipTypes[shipNames[i]].maxHealth,
+      maxHealth: shipTypes[shipNames[i]].maxHealth,
+      action: shipTypes[shipNames[i]].action,
+      ftl: shipTypes[shipNames[i]].ftl,
+      maxFtl: shipTypes[shipNames[i]].maxFtl,
+      speed: shipTypes[shipNames[i]].speed,
+      maintenance: shipTypes[shipNames[i]].maintenance
+    });
+    */
+    function advanceFleetBattleOneDay(battle) {
+      var arrayOfFleets = battle.arrayOfFleets;
+      var ships = [];
+      for (var i = 0; i < arrayOfFleets.length; i++) {
+        var fleets = arrayOfFleets[i];
+        ships.push([]);
+        for (var j = 0; j < fleets.length; j++) {
+          var fleet = fleets[j];
+          for (var k = 0; k < fleet.ships.length; k++) {
+            var ship = fleet.ships[k];
+            ships[i].push(ship);
+          }
+        }
+      }
+      for (var i = 0; i < arrayOfFleets.length; i++) {
+        var civShips = ships[i];
+        var otherShips = [];
+        for (var k = 0; k < arrayOfFleets.length; k++) {
+          if (i === k) continue;
+          for (var l = 0; l < ships[k].length; l++) {
+            otherShips.push(ships[k][l]);
+          }
+        }
+        for (var j = 0; j < civShips.length; j++) {
+          for (var k = otherShips.length - 1; k >= 0; k--) {
+            otherShips[k].health--;
+          }
+        }
+      }
+    }
+
+    function startBattle(arrayOfFleets, sector, position) {
+      var morale = [];
+      for (var i = 0; i < arrayOfFleets.length; i++) {
+        morale.push(100);
+      }
+      var battle = {
+        fleets: arrayOfFleets,
+        days: 0,
+        sector: sector,
+        position: position,
+        morale: morale
+      };
+      battles.add(battle);
+
+      for (var i = 0; i < arrayOfFleets.length; i++) {
+        var fleets = arrayOfFleets[i];
+        for (var j = 0; j < fleets.length; j++) {
+          var fleet = fleets[j];
+          fleet.inBattle = true;
+        }
+      }
+    }
+
+    function endBattle(battle) {
+      for (var i = 0; i < arrayOfFleets.length; i++) {
+        var fleets = arrayOfFleets[i];
+        for (var j = 0; j < fleets.length; j++) {
+          var fleet = fleets[j];
+          fleet.inBattle = false;
+          fleet.inRetreat = true;
+        }
+      }
+
+      var index = battles.indexOf(battle);
+      battle.fleets = [];
+      battles.splice(index, 1);
     }
 
     /*function mergeFleets(fleets) {
@@ -1049,10 +1147,10 @@ h3 span { font-size: 12px; }
           baseResources = [amount, 0, 0, 0, 0, 0];
         }
         else if (rand4 < 0.66) {
-          baseResources = [0, amount, 0, 0, 0, 0];
+          baseResources = [0, amount + 1, 0, 0, 0, 0];
         }
         else {
-          baseResources = [Math.round(amount/2), 0, 0, 0, 0, 0];
+          baseResources = [Math.round(amount/2), Math.round(amount/2 + 1), 0, 0, 0, 0];
         }
       }
       else if (rand3 < 0.90) {
@@ -1613,7 +1711,7 @@ h3 span { font-size: 12px; }
         planet.satelliteBuilding.planet = planet;
         buildImprOnTileByName(planet.position, Math.trunc(Math.random()*planet.size), "Colony");
         for (var j = 0; j < 5; j++) {
-          var tileIndex = calcTileToBuildOn(planet.tiles, planet.owner);
+          var tileIndex = calcTileToBuildOn(planet.tiles, planet.owner, [1,4,2,1,1,1]);
           var tile = planet.tiles[tileIndex];
           var imprName = calcImprToBuild(tile, planet.owner);
           if (imprName !== null) {
@@ -2029,6 +2127,9 @@ h3 span { font-size: 12px; }
         planetBuildTooltip.html("<h4>Build Improvement</h4>");
         //{name: "Mine", output: [1,0,0], cost: [70,0,0], maintenance: [0,-1,0], biomeRestrict: null, terrainRestrict: "Land"}
         //<button type="button" class="button" onclick="alert('Hello world!')">Click Me!</button>
+        if (validImprovements.length <= 0) {
+          planetBuildTooltip.html(planetBuildTooltip.html() + "<p>No improvements to build.</p>")
+        }
         for (var i = 0; i < validImprovements.length; i++) {
           var impr = validImprovements[i];
           planetBuildTooltip.html(planetBuildTooltip.html() +
@@ -2110,6 +2211,16 @@ h3 span { font-size: 12px; }
         }
         civ.relationStats[civName] = relation;
       }
+    }
+
+    function isAtWar(civ, otherCiv) {
+      var relations = civ.relations[otherCiv.name];
+      for (var i = 0; i < relations.length; i++) {
+        if (relations[i][0] === "War") {
+          return true;
+        }
+      }
+      return false;
     }
 
     function updateOutlineTooltip() {
@@ -2960,6 +3071,39 @@ h3 span { font-size: 12px; }
         }
       }
 
+      for (var i = battles.length - 1; i >= 0; i--) {
+        var battle = battles[i];
+        advanceFleetBattleOneDay(battle);
+        battle.days++;
+        if (battle.days >= 30) {
+          endBattle(battle);
+        }
+      }
+
+      //TODO: Ideally later on here, all sectors that could possibly contain hostile interactions only are checked, not all sectors.
+      /*
+      This list would be updated when
+      a fleet moves (current and destination),
+      and when a civilization declares war/peace (all sectors with fleets belonging to the two parties)
+      */
+      for (var i = 0; i < civilizations.length; i++) {
+        for (var j = 0; j < civilizations[i].fleets.length; j++) {
+          var fleet = civilizations[i].fleets[j];
+          if (fleet.inBattle || fleet.inRetreat) continue;
+          var sector = fleet.sector;
+          for (var k = 0; k < sector.fleets.length; k++) {
+            var otherFleet = sector.fleets[k];
+            if (otherFleet.inBattle || otherFleet.inRetreat) continue;
+            if (isAtWar(fleet, otherFleet)) {
+              //startBattle(arrayOfFleets, sector, position)
+              //TODO: Look for other ships in the area
+              var arrayOfFleets = [[fleet], [otherFleet]];
+              startBattle(arrayOfFleets, sector, fleet.position);
+            }
+          }
+        }
+      }
+
       for (var i = shipRecoverFTL.length - 1; i >= 0; i--) {
         var fleet = shipRecoverFTL[i];
         var needsToRecover = false;
@@ -3011,15 +3155,15 @@ h3 span { font-size: 12px; }
                 }
               }
             }
-            planet.owner.baseResources[0] += sumYield[0] - sumMaint[0];
-            planet.owner.baseResources[1] += sumYield[1] - sumMaint[1];
+            planet.owner.baseResources[0] += sumYield[0] + sumMaint[0];
+            planet.owner.baseResources[1] += sumYield[1] + sumMaint[1];
 
-            civ.mineFlow += sumYield[0] - sumMaint[0];
-            civ.energyFlow += sumYield[1] - sumMaint[1];
+            civ.mineFlow += sumYield[0] + sumMaint[0];
+            civ.energyFlow += sumYield[1] + sumMaint[1];
 
-            totalStar += sumYield[3] - sumMaint[3];
-            totalSociety += sumYield[4] - sumMaint[4];
-            totalProduction += sumYield[5] - sumMaint[5];
+            totalStar += sumYield[3] + sumMaint[3];
+            totalSociety += sumYield[4] + sumMaint[4];
+            totalProduction += sumYield[5] + sumMaint[5];
             /*
             sumMinerals *= planet.habitability;
             sumEnergy *= planet.habitability;
@@ -3144,26 +3288,26 @@ h3 span { font-size: 12px; }
         displayTime();
       }
       frames++;
-      if (frames >= 8) {
+      if (frames >= 6) {
         frames = 0;
       }
       if (gameMode === "Paused") {
 
       }
       else if (gameMode === "Slow") {
-        if (frames % 8 == 0) {
+        if (frames % 6 == 0) {
           advanceDay = true;
         }
       }
       else if (gameMode === "Fast") {
-        if (frames % 4 == 0) {
+        if (frames % 2 == 0) {
           advanceDay = true;
         }
       }
       else if (gameMode === "Fastest") {
-        if (frames % 2 == 0) {
+        //if (frames % 2 == 0) {
           advanceDay = true;
-        }
+        //}
       }
       if (advanceDay) {
         var currentMonth = currentDate.getMonth();

@@ -10,7 +10,7 @@ var points = [],
 var civColors = ["red", "blue", "steelblue", "violet", "green"];
 
 var gameMode = "Paused";
-var constructionOrders = [], unitOrders = [], satelliteOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [], shipRecoverFTL = [];
+var constructionOrders = [], unitOrders = [], satelliteOrders = [], moveWithinSectorOrders = [], moveToSectorOrders = [], shipRecoverFTL = [], battles = [];
 
 var currentSectorSelected = null;
 var currentPlanetSelected = null;
