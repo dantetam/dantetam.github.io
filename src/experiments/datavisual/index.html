@@ -67,6 +67,24 @@ p {
   pointer-events: none;
 }
 
+#contact-menu {
+  position: absolute;
+  text-align: center;
+  left: 35%;
+  top: 25%;
+  width: auto;
+  height: auto;
+  min-width: 15% !important;
+  min-height: 30% !important;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 #planet-tooltip-menu {
   width: 25%;
   float: left;
@@ -253,18 +271,19 @@ p {
 }
 
 #message-tooltip {
-  position: relative;
+  position: absolute;
   text-align: center;
-  top: 25%;
+  top: 50%;
   width: 30%;
-  left: 60%;
-  height: 15%;
+  left: 35%;
+  height: 30%;
   padding: 2px;
   font: 12px sans-serif;
-  background: rgba(255, 255, 255, 0);
   border: 0px;
   border-radius: 8px;
-  opacity: 1;
+  background: rgb(255, 255, 255); /* Fallback for older browsers without RGBA-support */
+  background: rgba(255, 255, 255, 0.75);
+  opacity: 0;
   pointer-events: none;
 }
 
@@ -522,7 +541,12 @@ h3 span { font-size: 12px; }
     <div id="diplomacy-menu">
     </div>
 
+    <div id="contact-menu">
+    </div>
+
     <div id="message-tooltip">
+      Yes
+      <p>Fit text</p>
     </div>
 
     <div id="planet-build-main">
@@ -1371,12 +1395,15 @@ h3 span { font-size: 12px; }
 
     var activeMenuBarTooltip = null;
 
+    var messageTooltip = d3.select("#message-tooltip");
+
     var techMenu = d3.select("#tech-menu");
     var techStarMenu = d3.select("#tech-star-display");
     var techSocietyMenu = d3.select("#tech-society-display");
     var techProductionMenu = d3.select("#tech-production-display");
 
     var diplomacyMenu = d3.select("#diplomacy-menu");
+    var contactMenu = d3.select("#contact-menu");
 
     var foodNeededToGrow = 50;
 
@@ -1430,6 +1457,11 @@ h3 span { font-size: 12px; }
 
       diplomacyMenu.style("pointer-events", "none");
       diplomacyMenu.transition()
+        .duration(200)
+        .style("opacity", 0);
+
+      contactMenu.style("pointer-events", "none");
+      contactMenu.transition()
         .duration(200)
         .style("opacity", 0);
     }
@@ -1634,11 +1666,21 @@ h3 span { font-size: 12px; }
       d3.event.preventDefault();
     });
 
+    messageTooltip.on("contextmenu", function() {
+      d3.event.preventDefault();
+      d3.event.stopPropagation();
+      messageTooltip.style("pointer-events", "none");
+      messageTooltip.transition()
+        .duration(200)
+        .style("opacity", 0);
+    });
+
     d3.select("#system-tooltip-main").on("click", function() {
       d3.event.preventDefault();
     });
 
-		d3.select("body").style("background-color", "#326EFF");
+		//d3.select("body").style("background-color", "#326EFF");
+    d3.select("body").style("background-color", "#333333");
 
     d3.select("body").on("contextmenu", function() {
 			d3.event.preventDefault();
@@ -2219,9 +2261,52 @@ h3 span { font-size: 12px; }
         if (relation >= 0) {
           relation = "+" + relation;
         }
-        diplomacyString += "<p>" + civ.name + "&nbsp;" + relation + "</p>";
+        diplomacyString += "<div onclick=\"javascript:displayContactMenu(" + i + ");\">"
+          + civ.name + "&nbsp;" + relation +
+          "<p>" + "Test" + "</p>" +
+          "</div>";
       }
       diplomacyMenu.html(diplomacyString);
+    }
+
+    function displayContactMenu(civIndex) {
+      contactMenu.style("pointer-events", "auto");
+      contactMenu.transition()
+        .duration(200)
+        .style("opacity", 0.9);
+
+      var civ = civilizations[civIndex];
+      var relations = civ.relationStats[playerCiv.name];
+      contactMenu.html("<h4>" + civ.name + " (" + relations + ")</h4>");
+      if (isAtWar(playerCiv, civ)) {
+
+      }
+      else {
+        contactMenu.html(contactMenu.html() + "<div onclick=\"javascript:declareWar(0, " + civIndex + "); javascript:displayContactMenu(" + civIndex + ");\"><p>" + "Declare War" + "</p></div>");
+      }
+    }
+
+    function declareWar(attackerCivIndex, defenderCivIndex) {
+      var attacker = civilizations[attackerCivIndex], defender = civilizations[defenderCivIndex];
+      for (var i = attacker.relations[defender.name].length - 1; i >= 0; i--) {
+        var relations = attacker.relations[defender.name];
+        var relation = relations[i];
+        if (relation[0] === "Peace") {
+          relations.splice(i, 1);
+        }
+      }
+      for (var i = defender.relations[attacker.name].length - 1; i >= 0; i--) {
+        var relations = defender.relations[attacker.name];
+        var relation = relations[i];
+        if (relation[0] === "Peace") {
+          relations.splice(i, 1);
+        }
+      }
+      attacker.relations[defender.name].push(["War", "Your nations are at war!", -50, 0]);
+      defender.relations[attacker.name].push(["War", "Your nations are at war!", -50, 0]);
+      defender.relations[attacker.name].push(["Declared War", "You declared war!", -25, 0]);
+      updateRelationStats(attacker);
+      updateRelationStats(defender);
     }
 
     function updateRelationStats(civ) {
@@ -2302,6 +2387,16 @@ h3 span { font-size: 12px; }
         displaySector(fleet.sector);
       }
       displayFleet(fleet);
+    }
+
+    function displayMessage(title, message) {
+      messageTooltip.style("pointer-events", "auto");
+      messageTooltip.transition()
+        .duration(200)
+        .style("opacity", 0.75);
+      messageTooltip.html("<h4>" + title + "</h4>")
+      messageTooltip.html(messageTooltip.html() +
+        "<p>" + message + "</p>");
     }
 
     function hideFleetTooltip() {
@@ -3346,7 +3441,6 @@ h3 span { font-size: 12px; }
       var advanceDay = false;
       evaluateShips();
       frames++;
-      console.log("Advance frame");
       if (frames >= 8) {
         frames = 0;
       }
@@ -3374,7 +3468,6 @@ h3 span { font-size: 12px; }
         var newMonth = currentDate.getMonth();
         if (currentMonth !== newMonth) {
           //Advance a month
-          console.log("Eval month");
           evaluateMonth();
         }
         //console.log(currentDate);
@@ -3383,9 +3476,7 @@ h3 span { font-size: 12px; }
         if (days >= 365) {
           days = 0;
         }
-        console.log("Eval day");
         evaluateDay();
-        console.log("Advance day");
       }
       displayTime();
     }, 250);
