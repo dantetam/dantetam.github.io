@@ -676,8 +676,16 @@ h3 span { font-size: 12px; }
 
     function createFleet(sector, name, position, owner, shipNames) {
       var ships = [];
+      if (shipNames.length === 0) {
+        return null;
+      }
       for (var i = 0; i < shipNames.length; i++) {
         //console.log(shipNames[i] + " " + shipTypes[shipNames[i]] + " " + shipTypes["Destroyer"]);
+        var prototypeShip = shipTypes[shipNames[i]];
+        if (prototypeShip === null || prototypeShip === undefined) {
+          prototypeShip = shipAliens[shipNames[i]];
+        }
+        /*
         ships.push({
           name: shipNames[i],
           owner: owner,
@@ -690,6 +698,10 @@ h3 span { font-size: 12px; }
           speed: shipTypes[shipNames[i]].speed,
           maintenance: shipTypes[shipNames[i]].maintenance
         });
+        */
+        var clonedShip = Object.assign({}, prototypeShip);
+        ships.push(clonedShip);
+        clonedShip.health = clonedShip.maxHealth;
       }
       var theId = Object.keys(owner.fleets).length;
       var speed = ships[0].speed;
@@ -1311,11 +1323,41 @@ h3 span { font-size: 12px; }
 				fleets: {},
 			  baseResources: [150, 0, 50, 0, 0, 0],
         baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
-        energyFlow: 0,
-        specialResourcesFlow: {}
+        specialResourcesFlow: {},
+        relations: {}, //Modifiers that affect my opinion of others
+        relationStats: {} //My opinion of others
 			};
 			civilizations.push(civilization);
     }
+
+    var color = d3.scale.linear()
+			.domain([0, 20])
+			.range(["white", "green"])
+			.interpolate(d3.interpolateLab);
+		var aliens = {
+			name: "Aliens",
+      id: (numMajorCivs + numMinorCivs),
+      civType: "Information",
+      techLevel: 0,
+      techsResearched: {},
+      techResearchingStar: null,
+      techResearchingSociety: null,
+      techResearchingProduction: null,
+      techChoicesNum: 0,
+      techChoicesStar: [],
+      techChoicesSociety: [],
+      techChoicesProduction: [],
+      desc: "Star wanderers, stateless nomads, pirates and vigilantes, and ancient space life.",
+			color: color,
+			worlds: [],
+			fleets: {},
+		  baseResources: [0, 0, 0, 0, 0, 0],
+      baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
+      specialResourcesFlow: {},
+      relations: {}, //Modifiers that affect my opinion of others
+      relationStats: {} //My opinion of others
+		};
+		civilizations.push(aliens);
 
     var playerCiv = civilizations[0];
 
@@ -3298,6 +3340,8 @@ h3 span { font-size: 12px; }
             var sumYield = [0,0,0,0,0,0];
             //var maintMinerals = 0, maintEnergy = 0, maintFood = 0;
             var sumMaint = [0,0,0,0,0,0];
+
+            var sumMod = [0,0,0,0,0,0]; //e.g. [0.2, 0, 0, 0, -0.15, 0] represents +20% minerals, -15% society research
             //TODO: Factor in resource to this, generalize with a loop
             for (var i = 0; i < planet.tileAssignments.length; i++) {
               var tile = planet.tiles[planet.tileAssignments[i]];
@@ -3397,6 +3441,22 @@ h3 span { font-size: 12px; }
             civ.relations[otherCiv.name] = [["Peace", "Your nations are at peace.", 10, 0]];
           }
           updateRelationStats(civ);
+        }
+      }
+      var planetPositions = Object.keys(planets);
+      for (var i = 0; i < planetPositions.length; i++) {
+        var planet = planets[planetPositions[i]];
+        if (planet.sector.owner === null) {
+          if (planet.sector.fleets.length === 0) {
+            var types = Object.keys(shipAliens);
+            var randomType = types[Math.trunc(Math.random()*types.length)];
+            var dist = d3.random.normal(shipAliens[randomType].mean, shipAliens[randomType].stdDev);
+            var shipNames = [];
+            for (var i = 0; i < Math.round(dist()); i++) {
+              shipNames.push(shipAliens[randomType].name);
+            }
+            var fleet = createFleet(planet.sector, shipAliens[randomType].name + " Aliens", planet.position, aliens, shipNames);
+          }
         }
       }
       updateRender();
