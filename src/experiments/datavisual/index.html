@@ -1160,6 +1160,134 @@ h3 span { font-size: 12px; }
       mod: [0.25,0,0,0,0,0]
     };
 
+    for (var i = 0; i < numMajorCivs; i++) {
+      var color = d3.scale.linear()
+        .domain([0, 20])
+        .range(["white", civColors[i % civColors.length]])
+        .interpolate(d3.interpolateLab);
+      var civType = "PostInformation";
+      var rand = Math.random();
+      if (rand < 0.333) {
+        planetPreference = temperatePreference;
+      }
+      else if (rand < 0.666) {
+        planetPreference = coldPreference;
+      }
+      else {
+        planetPreference = hotPreference;
+      }
+      var civilization = {
+        name: "Civilization" + i,
+        speciesName: "Human" + i,
+        id: i,
+        civType: civType,
+        planetPreference: planetPreference,
+        ethics: [exampleEthic],
+        techLevel: 4,
+        techsResearched: {},
+        techResearchingStar: null,
+        techResearchingSociety: null,
+        techResearchingProduction: null,
+        techChoicesNum: 4,
+        techChoicesStar: [],
+        techChoicesSociety: [],
+        techChoicesProduction: [],
+        desc: civTypeDesc[civType],
+        color: color,
+        worlds: [],
+        fleets: {},
+        baseResources: [150, 50, 50, 0, 0, 0],
+        baseResourcesFlow: {},
+        specialResourcesFlow: {},
+        relations: {}, //Modifiers that affect my opinion of others
+        relationStats: {}, //My opinion of others
+        exploredSectorPositions: {}
+      };
+      civilizations.push(civilization);
+    }
+
+    for (var i = 0; i < numMinorCivs; i++) {
+      var color = d3.scale.linear()
+        .domain([0, 20])
+        .range(["white", civColors[i % civColors.length]])
+        .interpolate(d3.interpolateLab);
+      var techLevel = Math.trunc(Math.random()*4);
+      var civType = civTypes[techLevel];
+      var rand = Math.random();
+      if (rand < 0.333) {
+        planetPreference = temperatePreference;
+      }
+      else if (rand < 0.666) {
+        planetPreference = coldPreference;
+      }
+      else {
+        planetPreference = hotPreference;
+      }
+      var civilization = {
+        name: "Civilization" + i,
+        speciesName: "Human" + (i + numMajorCivs),
+        id: i,
+        civType: civType,
+        planetPreference: planetPreference,
+        ethics: [exampleEthic],
+        techLevel: techLevel,
+        techsResearched: {},
+        techResearchingStar: null,
+        techResearchingSociety: null,
+        techResearchingProduction: null,
+        techChoicesNum: 4,
+        techChoicesStar: [],
+        techChoicesSociety: [],
+        techChoicesProduction: [],
+        desc: civTypeDesc[civType],
+        color: color,
+        worlds: [],
+        fleets: {},
+        baseResources: [150, 0, 50, 0, 0, 0],
+        baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
+        specialResourcesFlow: {},
+        relations: {}, //Modifiers that affect my opinion of others
+        relationStats: {}, //My opinion of others
+        exploredSectorPositions: {}
+      };
+      civilizations.push(civilization);
+    }
+
+    var color = d3.scale.linear()
+      .domain([0, 20])
+      .range(["white", "green"])
+      .interpolate(d3.interpolateLab);
+    var aliens = {
+      name: "Aliens",
+      speciesName: "Aliens",
+      id: (numMajorCivs + numMinorCivs),
+      civType: "Information",
+      planetPreference: null,
+      ethics: [],
+      techLevel: 0,
+      techsResearched: {},
+      techResearchingStar: null,
+      techResearchingSociety: null,
+      techResearchingProduction: null,
+      techChoicesNum: 0,
+      techChoicesStar: [],
+      techChoicesSociety: [],
+      techChoicesProduction: [],
+      desc: "Star wanderers, stateless nomads, pirates and vigilantes, and ancient space life.",
+      color: color,
+      worlds: [],
+      fleets: {},
+      baseResources: [0, 0, 0, 0, 0, 0],
+      baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
+      specialResourcesFlow: {},
+      relations: {}, //Modifiers that affect my opinion of others
+      relationStats: {}, //My opinion of others
+      exploredSectorPositions: {}
+    };
+    civilizations.push(aliens);
+
+    var playerCiv = civilizations[0];
+
     for (var i = 0; i < biomes.length; i++) {
       temperatePreference[biomes[i][0]] = temperatePreferenceNum[i];
       coldPreference[biomes[i][0]] = coldPreferenceNum[i];
@@ -1288,6 +1416,7 @@ h3 span { font-size: 12px; }
 					energy: tileStart[1],
 					food: tileStart[2],
           */
+          worker: null,
           baseResources: tileStart,
           order: null
 				};
@@ -1313,137 +1442,12 @@ h3 span { font-size: 12px; }
 				food: 0,
         baseResources: baseResources,
         specialResourcesFlow: {},
-        planetModifers: [],
+        planetModifiers: [examplePlanetMod],
         order: null
 			};
 			planets[position] = planet;
       planetPositionsByBiome[type].push(position);
 		}
-
-		for (var i = 0; i < numMajorCivs; i++) {
-			var color = d3.scale.linear()
-				.domain([0, 20])
-				.range(["white", civColors[i % civColors.length]])
-				.interpolate(d3.interpolateLab);
-      var civType = "PostInformation";
-      var rand = Math.random();
-      if (rand < 0.333) {
-        planetPreference = temperatePreference;
-      }
-      else if (rand < 0.666) {
-        planetPreference = coldPreference;
-      }
-      else {
-        planetPreference = hotPreference;
-      }
-			var civilization = {
-				name: "Civilization" + i,
-        id: i,
-        civType: civType,
-        planetPreference: planetPreference,
-        ethics: [],
-        techLevel: 4,
-        techsResearched: {},
-        techResearchingStar: null,
-        techResearchingSociety: null,
-        techResearchingProduction: null,
-        techChoicesNum: 4,
-        techChoicesStar: [],
-        techChoicesSociety: [],
-        techChoicesProduction: [],
-        desc: civTypeDesc[civType],
-				color: color,
-				worlds: [],
-				fleets: {},
-			  baseResources: [150, 50, 50, 0, 0, 0],
-        baseResourcesFlow: {},
-        specialResourcesFlow: {},
-        relations: {}, //Modifiers that affect my opinion of others
-        relationStats: {}, //My opinion of others
-        exploredSectorPositions: {}
-			};
-			civilizations.push(civilization);
-		}
-
-    for (var i = 0; i < numMinorCivs; i++) {
-      var color = d3.scale.linear()
-				.domain([0, 20])
-				.range(["white", civColors[i % civColors.length]])
-				.interpolate(d3.interpolateLab);
-      var techLevel = Math.trunc(Math.random()*4);
-      var civType = civTypes[techLevel];
-      var rand = Math.random();
-      if (rand < 0.333) {
-        planetPreference = temperatePreference;
-      }
-      else if (rand < 0.666) {
-        planetPreference = coldPreference;
-      }
-      else {
-        planetPreference = hotPreference;
-      }
-			var civilization = {
-				name: "Civilization" + i,
-        id: i,
-        civType: civType,
-        planetPreference: planetPreference,
-        ethics: [],
-        techLevel: techLevel,
-        techsResearched: {},
-        techResearchingStar: null,
-        techResearchingSociety: null,
-        techResearchingProduction: null,
-        techChoicesNum: 4,
-        techChoicesStar: [],
-        techChoicesSociety: [],
-        techChoicesProduction: [],
-        desc: civTypeDesc[civType],
-				color: color,
-				worlds: [],
-				fleets: {},
-			  baseResources: [150, 0, 50, 0, 0, 0],
-        baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
-        specialResourcesFlow: {},
-        relations: {}, //Modifiers that affect my opinion of others
-        relationStats: {}, //My opinion of others
-        exploredSectorPositions: {}
-			};
-			civilizations.push(civilization);
-    }
-
-    var color = d3.scale.linear()
-			.domain([0, 20])
-			.range(["white", "green"])
-			.interpolate(d3.interpolateLab);
-		var aliens = {
-			name: "Aliens",
-      id: (numMajorCivs + numMinorCivs),
-      civType: "Information",
-      planetPreference: null,
-      ethics: [],
-      techLevel: 0,
-      techsResearched: {},
-      techResearchingStar: null,
-      techResearchingSociety: null,
-      techResearchingProduction: null,
-      techChoicesNum: 0,
-      techChoicesStar: [],
-      techChoicesSociety: [],
-      techChoicesProduction: [],
-      desc: "Star wanderers, stateless nomads, pirates and vigilantes, and ancient space life.",
-			color: color,
-			worlds: [],
-			fleets: {},
-		  baseResources: [0, 0, 0, 0, 0, 0],
-      baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
-      specialResourcesFlow: {},
-      relations: {}, //Modifiers that affect my opinion of others
-      relationStats: {}, //My opinion of others
-      exploredSectorPositions: {}
-		};
-		civilizations.push(aliens);
-
-    var playerCiv = civilizations[0];
 
     //TODO: Add colonization mechanics
     /*
@@ -3511,17 +3515,40 @@ svg.append("rect")
                   sumMaint[j] += tile.building.maintenance[j];
                 }
               }
+              if (tile.worker !== null) {
+                for (var j = 0; j < tile.worker.ethics; j++) {
+                  var mod = tile.worker.ethics[i].mod;
+                  for (var k = 0; k < mod.length; k++) {
+                    sumMod[k] += mod[k];
+                  }
+                }
+              }
             }
-            planet.owner.baseResources[0] += sumYield[0] + sumMaint[0];
-            planet.owner.baseResources[1] += sumYield[1] + sumMaint[1];
+
+            for (var i = 0; i < planet.planetModifiers.length; i++) {
+              var mod = planet.planetModifiers[i].mod;
+              for (var k = 0; k < mod.length; k++) {
+                sumMod[k] += mod[k];
+              }
+            }
+
+            for (var i = 0; i < civ.ethics.length; i++) {
+              var mod = civ.ethics[i].mod;
+              for (var k = 0; k < mod.length; k++) {
+                sumMod[k] += mod[k];
+              }
+            }
+
+            planet.owner.baseResources[0] += (sumYield[0] + sumMaint[0]) * (1 + sumMod[0]);
+            planet.owner.baseResources[1] += (sumYield[1] + sumMaint[1]) * (1 + sumMod[1]);
 
             for (var i = 0; i < sumYield.length; i++) {
-              civ.baseResourcesFlow[i] += sumYield[i] + sumMaint[i];
+              civ.baseResourcesFlow[i] += (sumYield[i] + sumMaint[i]) * (1 + sumMod[i]);
             }
 
-            totalStar += sumYield[3] + sumMaint[3];
-            totalSociety += sumYield[4] + sumMaint[4];
-            totalProduction += sumYield[5] + sumMaint[5];
+            totalStar += (sumYield[3] + sumMaint[3]) * (1 + sumMod[3]);
+            totalSociety += (sumYield[4] + sumMaint[4]) * (1 + sumMod[4]);
+            totalProduction += (sumYield[5] + sumMaint[5]) * (1 + sumMod[5]);
             /*
             sumMinerals *= planet.habitability;
             sumEnergy *= planet.habitability;
