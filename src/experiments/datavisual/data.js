@@ -17,9 +17,9 @@ var currentPlanetSelected = null;
 var currentFleetSelected = null;
 var currentSpaceportSelected = null;
 
-var small = d3.random.normal(7, 1.5),
-    medium = d3.random.normal(12, 1.5),
-    large = d3.random.normal(16, 3);
+var small = d3.random.normal(10, 1.5),
+    medium = d3.random.normal(14, 1.5),
+    large = d3.random.normal(18, 3);
 
 var maxTiles = 20;
 
@@ -99,15 +99,16 @@ var tileTerrains = [
   "Mountain"
 ];
 
-var numStars = 500;
+var numStars = 300;
 var numPlanets = 1000;
-var numAsteroids = 2000;
+var numAsteroids = 1000;
 
 var sectorRadius = 10;
 
 var numMajorCivs = 10;
 var numMinorCivs = 0;
 
+/*
 var biomeAbbrs = {};
 biomeAbbrs["Arid"] = "A";
 biomeAbbrs["Icy"] = "I";
@@ -122,18 +123,20 @@ biomeAbbrs["Barren"] = "B";
 biomeAbbrs["Gas Giant"] = "GG";
 biomeAbbrs["Primordial"] = "P";
 biomeAbbrs["Asteroid"] = "x";
+*/
 
 var biomeDesc = {};
 biomeDesc["Arid"] = "Dry and nearly barren, this planet is harsh for many forms of higher life.";
-biomeDesc["Icy"] = "Cold and frozen over, this planet preserves little life and biodiversity.";
+biomeDesc["Icy"] = "Cold and frozen over yet still barely inhabitable, this planet preserves little life and biodiversity.";
 biomeDesc["Tundra"] = "Mostly grasses and patches of ice, this planet is tough to live off of.";
 biomeDesc["Ocean"] = "This planet has a wet, warm climate and a thick atmosphere which led to the formation of large bodies of water.";
 biomeDesc["Temperate"] = "This planet has seasonal, normal weather supporting a somewhat diverse ecosystem.";
 biomeDesc["Tropical"] = "Hot and humid, this planet is home to all types of life.";
 biomeDesc["Gaia"] = "This planet is a monument and living museum to all the biodiversity imaginable within the universe.";
 biomeDesc["Toxic"] = "Magma flowing in rivers, noxious gases in the air, and jagged, hostile terrain render this planet unbearable and unlivable.";
-biomeDesc["Ice Cream"] = "This planet is very peculiar — the frozen surface preserves a massive sea, almost like a cosmic slushie of water, sugar, and lactating bacteria.";
+biomeDesc["Ice Cream"] = "This planet is very peculiar — the frozen surface preserves a massive sea almost like a cosmic slushie of water, sugar, and lactating bacteria.";
 biomeDesc["Barren"] = "This planet has no atmosphere, a past of volcanic activity, and all its life has passed away ages ago.";
+biomeDesc["Cold Barren"] = "This planet is cold due to its lack of an atmosphere, and life never lived here.";
 biomeDesc["Gas Giant"] = "This planet is a swirling sphere of gases.";
 biomeDesc["Primordial"] = "This planet is newly formed and still undergoes the stress of its own gravity.";
 biomeDesc["Asteroid"] = "Anywhere from a small piece of space debris to a large space base, this object can only support small satellites.";

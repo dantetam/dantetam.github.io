@@ -199,7 +199,7 @@ p {
 }
 
 .col-md-3 {
-
+  line-height: 80%;
 }
 
 .intro { height: 100px; width: 300px; }
@@ -442,7 +442,7 @@ h3 span { font-size: 12px; }
       </p>
 		</div>
     <div id="menu-bar">
-      <img src="./images/minerals.png" alt="Minerals" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
+      <img src="./images/population.png" alt="Minerals" onclick="javascript:displayEmpireMenu();" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
       <img src="./images/research-icon.png" alt="Research" onclick="javascript:displayTechMenu();" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
       <img src="./images/diplomacy-icon.png" alt="Diplomacy" onclick="javascript:displayDiplomacyMenu();" width="50" height="50" style="max-height:40px; max-width:40px; width:10%;"/>
 		</div>
@@ -1110,10 +1110,81 @@ h3 span { font-size: 12px; }
 			//stars[position] = star;
     }
 
+    /*
+    biomeAbbrs["Gaia"] = "G";
+    biomeAbbrs["Toxic"] = "Tx";
+    biomeAbbrs["Ice Cream"] = "IC";
+    biomeAbbrs["Barren"] = "B";
+    biomeAbbrs["Gas Giant"] = "GG";
+    biomeAbbrs["Primordial"] = "P";
+    biomeAbbrs["Asteroid"] = "x";
+    */
+
+    var planetPositionsByBiome = {};
+
+    var biomes = [
+      ["Arid", "A", 0.2],
+      ["Icy", "I", 0.2],
+      ["Tundra", "Tn", 0.4],
+      ["Ocean", "O", 0.6],
+      ["Temperate", "Te", 1.0],
+      ["Tropical", "Tr", 0.6],
+      ["Toxic", "Tx", 0.0],
+      ["Gaia", "G", 1.0],
+      ["Ice Cream", "IC", 0.6],
+      ["Barren", "B", 0.0],
+      ["Cold Barren", "CB", 0.0],
+      ["Gas Giant", "GG", 0.0],
+      ["Primordial", "P", 0.6],
+      ["Asteroid", "x", 0.0]
+    ];
+
+    var biomeChances = [1,0.5,0.5,1,1,1,1,0.5,0.1,3,3,0.3,0.3,0]
+
+    var temperatePreferenceNum = [0.2, 0.2, 0.4, 0.6, 1.0, 0.6, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.6, 0.0];
+    var coldPreferenceNum =      [0.6, 1.0, 1.0, 0.4, 0.2, 0.0, 0.0, 0.6, 0.8, 0.0, 0.6, 0.0, 0.4, 0.0];
+    var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 0.0, 0.0, 0.6, 0.0];
+
+    var temperatePreference = {}, coldPreference = {}, hotPreference = {};
+
+    var exampleEthic = {
+      name: "Ascensionist",
+      desc: "Desire to go beyond and break the chains of biological substance, perfection over species identity and autonomy.",
+      mod: [-0.1,0,-0.1,0.1,0.1,0.1],
+      specialAbility: null
+    };
+
+    var examplePlanetMod = {
+      name: "Mineral Field",
+      desc: "This planet has rich, natural deposits of well-formed, high quality minerals.",
+      mod: [0.25,0,0,0,0,0]
+    };
+
+    for (var i = 0; i < biomes.length; i++) {
+      temperatePreference[biomes[i][0]] = temperatePreferenceNum[i];
+      coldPreference[biomes[i][0]] = coldPreferenceNum[i];
+      hotPreference[biomes[i][0]] = hotPreferenceNum[i];
+      planetPositionsByBiome[biomes[i][0]] = [];
+    }
+
+    function normalize(arr) {
+      var sum = 0;
+      for (var i = 0; i < arr.length; i++) {
+        sum += arr[i];
+      }
+      var result = [];
+      for (var i = 0; i < arr.length; i++) {
+        result.push(arr[i] / sum);
+      }
+      return result;
+    }
+
+    biomeChances = normalize(biomeChances);
+
 		for (var i = 0; i < numPlanets + numAsteroids; i++) {
 			var size = 0;
 			var type = "", typeAbbr = "";
-      var habitability = 0;
+      //var habitability = 0;
 
 			var rand = Math.random();
 
@@ -1135,41 +1206,23 @@ h3 span { font-size: 12px; }
 
       if (i < numPlanets) {
   			var rand2 = Math.random();
-  			if (rand2 < 1.0/6.0) {
-  				type = "Arid";
-          typeAbbr = "A";
-          habitability = 0.2;
-  			} else if (rand2 < 2.0/6.0) {
-  				type = "Icy";
-          typeAbbr = "I";
-          habitability = 0.2;
-  			} else if (rand2 < 3.0/6.0) {
-  				type = "Tundra";
-          typeAbbr = "Tu";
-          habitability = 0.4;
-  			} else if (rand2 < 4.0/6.0) {
-  				type = "Ocean";
-          typeAbbr = "O";
-          habitability = 0.6;
-  			} else if (rand2 < 5.0/6.0) {
-  				type = "Temperate";
-          typeAbbr = "Te";
-          habitability = 1.0;
-  			} else if (rand2 < 6.0/6.0) {
-  				type = "Tropical";
-          typeAbbr = "Tr";
-          habitability = 0.6;
-  			} else if (rand2 < 7.0/7.0){
-  				type = "Toxic";
-          typeAbbr = "Tx";
-          habitability = 0;
-  			} else {
-
+  			var sum = 0;
+        for (var j = 0; j < biomeChances.length; j++) {
+          sum += biomeChances[j];
+          if (rand < sum) {
+            var biomeChoice = biomes[j];
+            type = biomeChoice[0];
+            typeAbbr = biomeChoice[1];
+            //habitability = biomeChoice[2];
+            break;
+          }
         }
       }
       else {
         type = "Asteroid";
+        typeAbbr = "x";
         size = 0;
+        //habitability = 0;
       }
 
       var rand3 = Math.random();
@@ -1251,7 +1304,7 @@ h3 span { font-size: 12px; }
 				size: size,
 				biome: type,
         biomeAbbr: typeAbbr,
-        habitability: habitability,
+        //habitability: habitability,
 				owner: null,
 				tiles: tiles,
         tileAssignments: [],
@@ -1260,9 +1313,11 @@ h3 span { font-size: 12px; }
 				food: 0,
         baseResources: baseResources,
         specialResourcesFlow: {},
+        planetModifers: [],
         order: null
 			};
 			planets[position] = planet;
+      planetPositionsByBiome[type].push(position);
 		}
 
 		for (var i = 0; i < numMajorCivs; i++) {
@@ -1271,10 +1326,22 @@ h3 span { font-size: 12px; }
 				.range(["white", civColors[i % civColors.length]])
 				.interpolate(d3.interpolateLab);
       var civType = "PostInformation";
+      var rand = Math.random();
+      if (rand < 0.333) {
+        planetPreference = temperatePreference;
+      }
+      else if (rand < 0.666) {
+        planetPreference = coldPreference;
+      }
+      else {
+        planetPreference = hotPreference;
+      }
 			var civilization = {
 				name: "Civilization" + i,
         id: i,
         civType: civType,
+        planetPreference: planetPreference,
+        ethics: [],
         techLevel: 4,
         techsResearched: {},
         techResearchingStar: null,
@@ -1292,7 +1359,8 @@ h3 span { font-size: 12px; }
         baseResourcesFlow: {},
         specialResourcesFlow: {},
         relations: {}, //Modifiers that affect my opinion of others
-        relationStats: {} //My opinion of others
+        relationStats: {}, //My opinion of others
+        exploredSectorPositions: {}
 			};
 			civilizations.push(civilization);
 		}
@@ -1304,10 +1372,22 @@ h3 span { font-size: 12px; }
 				.interpolate(d3.interpolateLab);
       var techLevel = Math.trunc(Math.random()*4);
       var civType = civTypes[techLevel];
+      var rand = Math.random();
+      if (rand < 0.333) {
+        planetPreference = temperatePreference;
+      }
+      else if (rand < 0.666) {
+        planetPreference = coldPreference;
+      }
+      else {
+        planetPreference = hotPreference;
+      }
 			var civilization = {
 				name: "Civilization" + i,
         id: i,
         civType: civType,
+        planetPreference: planetPreference,
+        ethics: [],
         techLevel: techLevel,
         techsResearched: {},
         techResearchingStar: null,
@@ -1325,7 +1405,8 @@ h3 span { font-size: 12px; }
         baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
         specialResourcesFlow: {},
         relations: {}, //Modifiers that affect my opinion of others
-        relationStats: {} //My opinion of others
+        relationStats: {}, //My opinion of others
+        exploredSectorPositions: {}
 			};
 			civilizations.push(civilization);
     }
@@ -1338,6 +1419,8 @@ h3 span { font-size: 12px; }
 			name: "Aliens",
       id: (numMajorCivs + numMinorCivs),
       civType: "Information",
+      planetPreference: null,
+      ethics: [],
       techLevel: 0,
       techsResearched: {},
       techResearchingStar: null,
@@ -1355,7 +1438,8 @@ h3 span { font-size: 12px; }
       baseResourcesFlow: [0, 0, 0, 0, 0, 0], //For GUI purposes
       specialResourcesFlow: {},
       relations: {}, //Modifiers that affect my opinion of others
-      relationStats: {} //My opinion of others
+      relationStats: {}, //My opinion of others
+      exploredSectorPositions: {}
 		};
 		civilizations.push(aliens);
 
@@ -1549,6 +1633,7 @@ h3 span { font-size: 12px; }
 				.attr("d", hexbin.hexagon())
 				.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .attr("data-planetposition", function(d) {return d.x + "," + d.y;})
+        .style("stroke", "lightsteelblue")
 				.style("fill", function(d) {
 					var returnColor = null;
           //console.log("-----");
@@ -1704,6 +1789,26 @@ h3 span { font-size: 12px; }
       }
     });
 
+    /*
+    svg.append("defs")
+    .append("pattern")
+    .attr("id", "venus")
+    .attr('patternUnits', 'userSpaceOnUse')
+    .attr("width", max.x)
+    .attr("height", max.y)
+    .append("image")
+    .attr("xlink:href", imgUrl)
+    .attr("width", max.x)
+    .attr("height", max.y);
+
+svg.append("rect")
+    .attr("x", "0")
+    .attr("y", "0")
+    .attr("width", max.x)
+    .attr("height", max.y)
+    .attr("fill", "url(#venus)");
+  */
+
     systemTooltip.on("click", function() {
       d3.event.preventDefault();
     });
@@ -1773,19 +1878,44 @@ h3 span { font-size: 12px; }
       satelliteBuildTooltip.style("pointer-events", "none");
     });
 
+    //An O(N^2) squared method but it can be applied and generalized to any shape
+    for (var pos in sectors) {
+      var thisSector = sectors[pos];
+      for (var pos2 in sectors) {
+        if (pos == pos2) continue;
+        //console.log(">>>>" + typeof pos + " " + typeof pos2);
+        //pos = pos.split(",");
+        //pos2 = pos2.split(",");
+        /*var split = pos.split(",");
+        var split2 = pos2.split(",");
+        var dx = (+split[0]) - (+split2[0]), dy = (+split[1]) - (+split2[1]);*/
+        var otherSector = sectors[pos2];
+        var dx = thisSector.posX - otherSector.posX, dy = thisSector.posY - otherSector.posY;
+        var dist = Math.sqrt(dx*dx + dy*dy);
+        //console.log(split + " " + split2 + " " + dx + " " + dy + " " + dist);
+        if (dist < 20) {
+          thisSector.neighborPositions.push(pos2);
+          //console.log("Success: " + dx + " " + dy + " " + dist);
+        }
+      }
+    }
+
     var planetPositions = Object.keys(planets);
-    for (var i = 0; i < civilizations.length; i++) {
+    for (var i = 0; i < civilizations.length - 1; i++) {
       var randPlanet = null, planet = null;
       while (true) {
         randPlanet = Math.round(d3.randomUniform(0, planetPositions.length - 1)());
         planet = planets[planetPositions[randPlanet]];
-        if (planet.size > 14 && planet.biome !== "Asteroid" && planet.sector.owner === null && planet.habitability >= 0.8) { //Use sector as temporary variable to show ownership
+        //console.log(planet.size + " " + habitability + " " + planet.sector.owner);
+        var habitability = civilizations[i].planetPreference[planet.biome];
+        if (planet.size > 14 && planet.biome !== "Asteroid" && planet.sector.owner === null && habitability >= 0.6) { //Use sector as temporary variable to show ownership
           break;
         }
       }
       civilizations[i].worlds.push(planet);
       planet.owner = civilizations[i];
       planet.sector.owner = civilizations[i];
+      civilizations[i].exploredSectorPositions[planet.sector.position] = true;
       //planet.sector = civilizations[i];
       if (civilizations[i].civType === "PostInformation") {
         planet.population = 7;
@@ -1837,54 +1967,44 @@ h3 span { font-size: 12px; }
     */
     //console.log(minX + " " + maxX);
 
-    //An O(N^2) squared method but it can be applied and generalized to any shape
-    for (var pos in sectors) {
-      var thisSector = sectors[pos];
-      for (var pos2 in sectors) {
-        if (pos == pos2) continue;
-        //console.log(">>>>" + typeof pos + " " + typeof pos2);
-        //pos = pos.split(",");
-        //pos2 = pos2.split(",");
-        /*var split = pos.split(",");
-        var split2 = pos2.split(",");
-        var dx = (+split[0]) - (+split2[0]), dy = (+split[1]) - (+split2[1]);*/
-        var otherSector = sectors[pos2];
-        var dx = thisSector.posX - otherSector.posX, dy = thisSector.posY - otherSector.posY;
-        var dist = Math.sqrt(dx*dx + dy*dy);
-        //console.log(split + " " + split2 + " " + dx + " " + dy + " " + dist);
-        if (dist < 20) {
-          thisSector.neighborPositions.push(pos2);
-          //console.log("Success: " + dx + " " + dy + " " + dist);
-        }
-      }
-    }
-
     //hexagons.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
 
+    var black = d3.scale.linear()
+      .domain([0, 20])
+      .range(["black", "black"])
+      .interpolate(d3.interpolateLab);
 
-    d3.selectAll(".hexagon")
-        .data(hexbin(planets))
-        .style("fill", function(d) {
-          var returnColor = null;
-          d.forEach(function(element) {
-            var planet = planets[element];
-            if (planet.owner === null) {
+    function updateGalaxyMap() {
+      d3.selectAll(".hexagon")
+          .data(hexbin(planets))
+          .style("fill", function(d) {
+            var returnColor = null;
+            var sector = sectors[[d.x, d.y]];
+            if (!([d.x, d.y] in playerCiv.exploredSectorPositions)) {
+              return black(5);
+            }
+            d.forEach(function(element) {
+              var planet = planets[element];
+              if (planet.owner === null) {
 
-            }
-            else {
-              if (returnColor === null) { //No other civs have been found in this system
-                returnColor = planet.owner.color(d.length);
               }
-              else { //The system is contested
-                returnColor = blackColor(10);
+              else {
+                if (returnColor === null) { //No other civs have been found in this system
+                  returnColor = planet.owner.color(d.length);
+                }
+                else { //The system is contested
+                  returnColor = blackColor(10);
+                }
               }
+            });
+            if (returnColor === null) {
+              returnColor = color(5);
             }
+            return returnColor;
           });
-          if (returnColor === null) {
-            returnColor = color(5);
-          }
-          return returnColor;
-        });
+    }
+
+    updateGalaxyMap();
 
     /*
     console.log(	d3.selectAll(".hexagon").style("fill", function() {return testColor(10);}));
@@ -2382,12 +2502,13 @@ h3 span { font-size: 12px; }
         var planet = playerCiv.worlds[i];
 
         var planetSize = Math.round(planet.size / maxTiles * 20) + 10;
+        var habitability = playerCiv.planetPreference[planet.biome];
 
         outlineString += "<div id=\"generated-outline-planet-" + i + "\" onclick=\"javascript:" +
           "outlineDisplayPlanetFromCoord([" + planet.position + "]);" +
           "\"><b>" + planet.name + "</b>&nbsp;" +
           "<img src=\"./images/planet_" + planet.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/>" +
-          "&nbsp;" + planet.biomeAbbr + ", " + planet.size + ", " + Math.round(planet.habitability*100) + "%, ";
+          "&nbsp;" + planet.biomeAbbr + ", " + planet.size + ", " + Math.round(habitability*100) + "%, ";
 
         outlineString += planet.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
           //planet.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>" +
@@ -2555,14 +2676,17 @@ h3 span { font-size: 12px; }
     }
 
     //requestActionOnPlanet([" + temp.dataset["planetposition"] + "], " + currentFleetSelected.id + ", &quot;" + actions[i] + "&quot;); " +
-    function requestActionOnPlanet(planetPosition, fleetId, actionString) {
-      var planet = planets[position];
-      var fleet = fleets["Fleet" + fleetId];
+    function requestActionOnPlanet(planetPosition, fleetOwnerCivId, fleetId, actionString) {
+      var planet = planets[planetPosition];
+      var civ = civilizations[fleetOwnerCivId];
+      var fleet = civ.fleets["Fleet" + fleetId];
       if (actionString === "Colonize") {
 
       }
       else if (actionString === "Explore") {
-
+        if (!(planetPosition in civ.exploredSectorPositions)) {
+          civ.exploredSectorPositions[planetPosition] = true;
+        }
       }
       else if (actionString === "Build") {
         if (fleet.owner === planet.owner) {
@@ -2878,6 +3002,10 @@ h3 span { font-size: 12px; }
       }
     }
 
+    function displayBattle(battle) {
+
+    }
+
     function displayPlanetFromCoord(position) {
       //console.log(position);
       var planet = planets[position];
@@ -2889,7 +3017,7 @@ h3 span { font-size: 12px; }
       currentPlanetSelected = planetClicked;
 
       if (currentSectorSelected !== null && planetClicked !== null) {
-        if (currentSectorSelected === planetClicked.sector) {
+        if (currentSectorSelected !== planetClicked.sector) {
           hideSystemMap();
         }
       }
@@ -2947,67 +3075,92 @@ h3 span { font-size: 12px; }
       if (total[5] > 0) planetString += total[5] + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;";
 
       var planetSize = Math.round(planetClicked.size / maxTiles * 50 + 25);
+      var habitability = playerCiv.planetPreference[planetClicked.biome];
       var currentText = "";
-      if (planetClicked.biome !== "Asteroid") {
-        currentText = "<h3>" + planetClicked.name +
-          "<span>" +
-          "<button type=\"button\" onclick=\"javascript:hidePlanetMap();\">Close Planet Map</button>" +
-          "</span>" +
-          "</h3>" +
-          "<h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(planetClicked.habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
-          "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
-      }
-      else {
-        currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "&nbsp;&nbsp;" + planetString + "</h4>" +
-          "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
-      }
-
-      if (planetClicked.owner === null) {
-        currentText += "<h4>Uncolonized";
-      }
-      else {
-        currentText += "<h4>" + planetClicked.owner.name + ", " +
-        planetClicked.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>, " +
-        planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
-      }
-      if (planetClicked.satelliteBuilding === null) {
-        if (planetClicked.order === null) {
-          currentText += ", No Satellite&nbsp;"
+      if (!(planetClicked.sector.position in playerCiv.exploredSectorPositions)) {
+        if (planetClicked.biome !== "Asteroid") {
+          currentText = "<h3>" + planetClicked.name + "&emsp;" +
+            "<span>" +
+            "<button type=\"button\" onclick=\"javascript:hidePlanetMap();\">Close Planet Map</button>" +
+            "</span>" +
+            "</h3>" +
+            "<h4>" + planetClicked.biome + ", " + planetClicked.size + "</h4>" +
+            "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
         }
         else {
-          currentText += ", Building&nbsp;" + planetClicked.order.satellite.name + "&nbsp;" + planetClicked.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+          currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "&nbsp;&nbsp;" + "</h4>" +
+            "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
         }
-        currentText += "&nbsp;" +
-        "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
-        "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
-        "/>" +
-        "</h4>";
+
+        if (planetClicked.owner === null) {
+          currentText += "<h4>Uncolonized</h4>";
+        }
+        else {
+          currentText += "<h4>" + planetClicked.owner.name + "</h4>";
+        }
       }
       else {
-        currentText += ", " + planetClicked.satelliteBuilding.name + "&nbsp;" +
-        "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
-        "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
-        "/>";
-        if (planetClicked.satelliteBuilding.name === "Spaceport") {
-          var port = planetClicked.satelliteBuilding;
-          if (port.orders.length > 0) {
-            var order = port.orders[0];
-            currentText +=
-              "&nbsp;(" + order.unit.name + ", " +
-              order.timeRemaining + "<img src=\"./images/time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
-            if (port.orders.length != 1) {
-              currentText += ", +" + (port.orders.length - 1) + " more";
-            }
-            currentText += ")";
-          }
-          currentText += "&nbsp;<img src=\"images/hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
-          "onclick=\"javascript:displaySpaceportBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
-          "/>";
-          if (planetClicked.order !== null) {
-
-          }
+        if (planetClicked.biome !== "Asteroid") {
+          currentText = "<h3>" + planetClicked.name + "&emsp;" +
+            "<span>" +
+            "<button type=\"button\" onclick=\"javascript:hidePlanetMap();\">Close Planet Map</button>" +
+            "</span>" +
+            "</h3>" +
+            "<h4>" + planetClicked.biome + ", " + planetClicked.size + ", " + Math.round(habitability*100) + "% habitability&nbsp;&nbsp;" + planetString + "</h4>" +
+            "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"" + planetSize + "\" height=\"" + planetSize + "\" style=\"max-height:" + planetSize + "px; max-width:" + planetSize + "px; width:100%;\"/></p>";
         }
-        currentText += "</h4>";
+        else {
+          currentText = "<h3>" + planetClicked.name + "</h3><h4>" + planetClicked.biome + "&nbsp;&nbsp;" + planetString + "</h4>" +
+            "<p><img src=\"./images/planet_" + planetClicked.biome.toLowerCase() + ".png\" alt=\"Planet\" width=\"30\" height=\"30\" style=\"max-height:30px; max-width:30px; width:100%;\"/></p>";
+        }
+
+        if (planetClicked.owner === null) {
+          currentText += "<h4>Uncolonized";
+        }
+        else {
+          currentText += "<h4>" + planetClicked.owner.name + ", " +
+          planetClicked.population + "<img src=\"./images/population.png\" alt=\"Population\" width=\"20\" height=\"20\" style=\"max-height:20px; max-width:20px; width:100%;\"/>, " +
+          planetClicked.food + "/" + foodNeededToGrow + "&nbsp;<img src=\"./images/food.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+        }
+        if (planetClicked.satelliteBuilding === null) {
+          if (planetClicked.order === null) {
+            currentText += ", No Satellite&nbsp;"
+          }
+          else {
+            currentText += ", Building&nbsp;" + planetClicked.order.satellite.name + "&nbsp;" + planetClicked.order.timeRemaining + "&nbsp;<img src=\"./time.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>"
+          }
+          currentText += "&nbsp;" +
+          "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+          "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+          "/>" +
+          "</h4>";
+        }
+        else {
+          currentText += ", " + planetClicked.satelliteBuilding.name + "&nbsp;" +
+          "<img src=\"images/build-icon.png\" alt=\"Build\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+          "onclick=\"javascript:displaySatelliteBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+          "/>";
+          if (planetClicked.satelliteBuilding.name === "Spaceport") {
+            var port = planetClicked.satelliteBuilding;
+            if (port.orders.length > 0) {
+              var order = port.orders[0];
+              currentText +=
+                "&nbsp;(" + order.unit.name + ", " +
+                order.timeRemaining + "<img src=\"./images/time.png\" alt=\"Time\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>";
+              if (port.orders.length != 1) {
+                currentText += ", +" + (port.orders.length - 1) + " more";
+              }
+              currentText += ")";
+            }
+            currentText += "&nbsp;<img src=\"images/hammer.png\" alt=\"Produce\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\" "+
+            "onclick=\"javascript:displaySpaceportBuildMenuFromCoord([" + planetClicked.position[0] + "," + planetClicked.position[1] + "]);\" " +
+            "/>";
+            if (planetClicked.order !== null) {
+
+            }
+          }
+          currentText += "</h4>";
+        }
       }
 
       currentText += "<p>" + biomeDesc[planetClicked.biome] + "</p>";
@@ -3124,6 +3277,10 @@ h3 span { font-size: 12px; }
 
     function displayPlayerResources() {
       var resourceTooltip = d3.select("#player-hud-resources");
+
+      if (playerCiv.baseResourcesFlow[0] === undefined) {
+        playerCiv.baseResourcesFlow = [0,0,0,0,0,0];
+      }
 
       resourceTooltip.html("" +
         "&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[0] + " / " + playerCiv.baseResourcesFlow[0] + "&emsp;&emsp;&emsp;" +
