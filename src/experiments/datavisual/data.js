@@ -150,7 +150,7 @@ var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 
 
 var temperatePreference = {}, coldPreference = {}, hotPreference = {};
 
-var ethics = {};
+var ethics = [];
 ethics.push({
   name: "Ascensionist",
   desc: "Desire to go beyond and break the chains of biological substance, perfection over species identity and autonomy — to become greater.",

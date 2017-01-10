@@ -1138,13 +1138,14 @@ h3 span { font-size: 12px; }
       else {
         planetPreference = hotPreference;
       }
+      civEthics = [ethics[Math.trunc(Math.random()*ethics.length)]];
       var civilization = {
         name: "Civilization" + i,
         speciesName: "Human" + i,
         id: i,
         civType: civType,
         planetPreference: planetPreference,
-        ethics: [exampleEthic],
+        ethics: civEthics,
         speciesMods: [],
         techLevel: 4,
         techsResearched: {},
@@ -1572,8 +1573,16 @@ h3 span { font-size: 12px; }
 				.attr("height", Math.max(720, height + margin.top + margin.bottom))
         .style("overflow", "visible")
 			.append("g")
+        .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom))
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .append("g");
 
+    function zoom() {
+      svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      //console.log("Zoom");
+      //d3.event.preventDefault();
+      //d3.event.stopPropagation();
+    }
 
     /*
 		svg.append("clipPath")
@@ -1641,6 +1650,8 @@ h3 span { font-size: 12px; }
           }
 					return returnColor;
 				}).on("click", function(d) {
+          if (d3.event.defaultPrevented) return;
+
 					d3.event.preventDefault();
 
           //console.log("click " + systemTooltipVisible);
