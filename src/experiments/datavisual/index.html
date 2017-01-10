@@ -199,7 +199,7 @@ p {
 }
 
 .col-md-3 {
-  line-height: 80%;
+  line-height: 90%;
 }
 
 .intro { height: 100px; width: 300px; }
@@ -1122,44 +1122,6 @@ h3 span { font-size: 12px; }
 
     var planetPositionsByBiome = {};
 
-    var biomes = [
-      ["Arid", "A", 0.2],
-      ["Icy", "I", 0.2],
-      ["Tundra", "Tn", 0.4],
-      ["Ocean", "O", 0.6],
-      ["Temperate", "Te", 1.0],
-      ["Tropical", "Tr", 0.6],
-      ["Toxic", "Tx", 0.0],
-      ["Gaia", "G", 1.0],
-      ["Ice Cream", "IC", 0.6],
-      ["Barren", "B", 0.0],
-      ["Cold Barren", "CB", 0.0],
-      ["Gas Giant", "GG", 0.0],
-      ["Primordial", "P", 0.6],
-      ["Asteroid", "x", 0.0]
-    ];
-
-    var biomeChances = [1,0.5,0.5,1,1,1,1,0.5,0.1,3,3,0.3,0.3,0]
-
-    var temperatePreferenceNum = [0.2, 0.2, 0.4, 0.6, 1.0, 0.6, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.6, 0.0];
-    var coldPreferenceNum =      [0.6, 1.0, 1.0, 0.4, 0.2, 0.0, 0.0, 0.6, 0.8, 0.0, 0.6, 0.0, 0.4, 0.0];
-    var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 0.0, 0.0, 0.6, 0.0];
-
-    var temperatePreference = {}, coldPreference = {}, hotPreference = {};
-
-    var exampleEthic = {
-      name: "Ascensionist",
-      desc: "Desire to go beyond and break the chains of biological substance, perfection over species identity and autonomy.",
-      mod: [-0.1,0,-0.1,0.1,0.1,0.1],
-      specialAbility: null
-    };
-
-    var examplePlanetMod = {
-      name: "Mineral Field",
-      desc: "This planet has rich, natural deposits of well-formed, high quality minerals.",
-      mod: [0.25,0,0,0,0,0]
-    };
-
     for (var i = 0; i < numMajorCivs; i++) {
       var color = d3.scale.linear()
         .domain([0, 20])
@@ -1183,6 +1145,7 @@ h3 span { font-size: 12px; }
         civType: civType,
         planetPreference: planetPreference,
         ethics: [exampleEthic],
+        speciesMods: [],
         techLevel: 4,
         techsResearched: {},
         techResearchingStar: null,
@@ -1230,6 +1193,7 @@ h3 span { font-size: 12px; }
         civType: civType,
         planetPreference: planetPreference,
         ethics: [exampleEthic],
+        speciesMods: [],
         techLevel: techLevel,
         techsResearched: {},
         techResearchingStar: null,
@@ -1264,6 +1228,7 @@ h3 span { font-size: 12px; }
       civType: "Information",
       planetPreference: null,
       ethics: [],
+      speciesMods: [],
       techLevel: 0,
       techsResearched: {},
       techResearchingStar: null,
@@ -1945,6 +1910,20 @@ svg.append("rect")
           }
         }
       }
+
+      var workers = [];
+      for (var j = 0; j < planet.population; j++) {
+        workers.push({
+          speciesName: civilizations[i].speciesName,
+          ethics: civilizations[i].ethics.slice(0)
+        });
+      }
+
+      var assignment = calculateAssignment(planet.tiles, planet.population, [2,2,2,1,1,1]);
+      for (var j = 0; j < assignment.length; j++) {
+        planet.tiles[assignment[j]].worker = workers[j];
+      }
+
       //moveFleet(fleet, destSector, destPosition);
     }
 
@@ -3287,12 +3266,12 @@ svg.append("rect")
       }
 
       resourceTooltip.html("" +
-        "&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[0] + " / " + playerCiv.baseResourcesFlow[0] + "&emsp;&emsp;&emsp;" +
-        "&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResources[1] + " / " + playerCiv.baseResourcesFlow[1] + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResources[0]) + " / " + Math.trunc(playerCiv.baseResourcesFlow[0]) + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResources[1]) + " / " + Math.trunc(playerCiv.baseResourcesFlow[1]) + "&emsp;&emsp;&emsp;" +
         "&emsp;<img src=\"./images/planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.worlds.length + "&emsp;&emsp;&emsp;" +
-        "&emsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[3] + "&emsp;&emsp;&emsp;" +
-        "&emsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[4] + "&emsp;&emsp;&emsp;" +
-        "&emsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.baseResourcesFlow[5] + "&emsp;&emsp;&emsp;"
+        "&emsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[3]) + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[4]) + "&emsp;&emsp;&emsp;" +
+        "&emsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[5]) + "&emsp;&emsp;&emsp;"
       );
     }
 
@@ -3514,6 +3493,11 @@ svg.append("rect")
                   sumYield[j] += tile.building.output[j];
                   sumMaint[j] += tile.building.maintenance[j];
                 }
+                if (tile.building.mod !== null && tile.building.mod !== undefined) {
+                  for (var j = 0; j < tile.building.mod.length; j++) {
+                    sumMod[j] += tile.building.mod[j];
+                  }
+                }
               }
               if (tile.worker !== null) {
                 for (var j = 0; j < tile.worker.ethics; j++) {
@@ -3539,6 +3523,13 @@ svg.append("rect")
               }
             }
 
+            for (var i = 0; i < civ.speciesMods.length; i++) {
+              var mod = civ.speciesMods[i].mod;
+              for (var k = 0; k < mod.length; k++) {
+                sumMod[k] += mod[k];
+              }
+            }
+
             planet.owner.baseResources[0] += (sumYield[0] + sumMaint[0]) * (1 + sumMod[0]);
             planet.owner.baseResources[1] += (sumYield[1] + sumMaint[1]) * (1 + sumMod[1]);
 
@@ -3558,8 +3549,21 @@ svg.append("rect")
             sumYield[2] = sumYield[2] - (planet.population * 1 + sumMaint[2]);
             planet.food += sumYield[2];
             if (planet.food > foodNeededToGrow) {
-              planet.population++;
-              planet.food = Math.round(planet.food / 4);
+              if (planet.population < planet.tiles.length) {
+                planet.population++;
+                var newWorker = {
+                  speciesName: civ.speciesName,
+                  ethics: civ.ethics.slice(0)
+                }
+                for (var i = 0; i < planet.tiles.length; i++) {
+                  var tile = planet.tiles[i];
+                  if (tile.worker === null) {
+                    tile.worker = newWorker;
+                    break;
+                  }
+                }
+                planet.food = Math.round(planet.food / 4);
+              }
             }
 
             for (var specRes in planet.specialResourcesFlow) {

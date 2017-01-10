@@ -28,27 +28,27 @@ specialResources["Crystal Cells"] = {name: "Crystal Cells", icon: "./images/crys
 
 //TODO: Convert data into CSV format
 var tileImprovements = [
-  {name: "Primitive Farm", output: [0,0,1,0,0,0], buildTime: 70, cost: [50,0,25,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Primitive City", output: [1,1,1,1,1,1], buildTime: 70, cost: [50,0,25,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Mine I", output: [2,0,0,0,0,0], buildTime: 70, cost: [60,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Mine II", output: [3,0,0,0,0,0], buildTime: 120, cost: [90,0,0,0,0,0], maintenance: [0,-2,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine I", techRestrict: "Mine II"},
-  {name: "Mine III", output: [4,0,0,0,0,0], buildTime: 200, cost: [120,0,0,0,0,0], maintenance: [0,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine II", techRestrict: "Mine III"},
-  {name: "Crystal Processor", output: [5,0,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
-  {name: "Platform I", output: [1,1,0,0,0,0], buildTime: 100, cost: [100,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: null},
-  {name: "Platform II", output: [1,2,0,0,0,0], buildTime: 160, cost: [150,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform I", techRestrict: "Platform II"},
-  {name: "Platform III", output: [1,3,0,0,0,0], buildTime: 250, cost: [200,50,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform II", techRestrict: "Platform III"},
-  {name: "Hydroponic Farm I", output: [0,0,2,0,0,0], buildTime: 70, cost: [50,0,25,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Hydroponic Farm II", output: [0,0,2,0,0,0], buildTime: 120, cost: [100,0,25,0,0,0], maintenance: [0,-2,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: "Hydroponic Farm I", techRestrict: "Hydroponic Farm II"},
-  {name: "Hydroponic Farm III", output: [0,0,2,0,0,0], buildTime: 200, cost: [150,0,25,0,0,0], maintenance: [0,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: "Hydroponic Farm II", techRestrict: "Hydroponic Farm III"},
-  {name: "Power Plant I", output: [0,2,0,0,0,0], buildTime: 70, cost: [50,50,0,0,0,0], maintenance: [0,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Power Plant II", output: [0,3,0,0,0,0], buildTime: 120, cost: [100,50,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant I", techRestrict: "Power Plant I"},
-  {name: "Power Plant III", output: [0,4,0,0,0,0], buildTime: 200, cost: [150,50,0,0,0,0], maintenance: [-2,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant II", techRestrict: "Power Plant II"},
-  {name: "Crystalline Power Plant", output: [0,6,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
-  {name: "Lab I", output: [0,0,0,1,1,1], buildTime: 100, cost: [150,50,0,0,0,0], maintenance: [0,-1,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
-  {name: "Star Observatory", output: [0,0,0,3,1,1], buildTime: 250, cost: [250,50,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Star Research I"},
-  {name: "Biological Survey", output: [0,0,0,1,3,1], buildTime: 250, cost: [250,50,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Society Research I"},
-  {name: "Engineering Facility", output: [0,0,0,1,1,3], buildTime: 250, cost: [250,50,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Production Research I"},
-  {name: "Colony", output: [0,0,3,3,3,3], buildTime: 250, cost: [250,0,50,0,0,0], maintenance: [-3,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null}
+  {name: "Primitive Farm", output: [0,0,1,0,0,0], buildTime: 70, cost: [50,0,25,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Primitive City", output: [1,1,1,1,1,1], buildTime: 70, cost: [50,0,25,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 0, techLevelRestrictMax: 3, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Mine I", output: [2,0,0,0,0,0], buildTime: 70, cost: [60,0,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Mine II", output: [3,0,0,0,0,0], buildTime: 120, cost: [90,0,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-2,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine I", techRestrict: "Mine II"},
+  {name: "Mine III", output: [4,0,0,0,0,0], buildTime: 200, cost: [120,0,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Mine II", techRestrict: "Mine III"},
+  {name: "Crystal Processor", output: [5,0,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
+  {name: "Platform I", output: [1,1,0,0,0,0], buildTime: 100, cost: [100,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: null},
+  {name: "Platform II", output: [1,2,0,0,0,0], buildTime: 160, cost: [150,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform I", techRestrict: "Platform II"},
+  {name: "Platform III", output: [1,3,0,0,0,0], buildTime: 250, cost: [200,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,0,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Sea", buildingRestrict: "Platform II", techRestrict: "Platform III"},
+  {name: "Hydroponic Farm I", output: [0,0,2,0,0,0], buildTime: 70, cost: [50,0,25,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-1,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Hydroponic Farm II", output: [0,0,2,0,0,0], buildTime: 120, cost: [100,0,25,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-2,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: "Hydroponic Farm I", techRestrict: "Hydroponic Farm II"},
+  {name: "Hydroponic Farm III", output: [0,0,2,0,0,0], buildTime: 200, cost: [150,0,25,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "Arable", terrainRestrict: "Land", buildingRestrict: "Hydroponic Farm II", techRestrict: "Hydroponic Farm III"},
+  {name: "Power Plant I", output: [0,2,0,0,0,0], buildTime: 70, cost: [50,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Power Plant II", output: [0,3,0,0,0,0], buildTime: 120, cost: [100,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant I", techRestrict: "Power Plant I"},
+  {name: "Power Plant III", output: [0,4,0,0,0,0], buildTime: 200, cost: [150,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [-2,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Power Plant II", techRestrict: "Power Plant II"},
+  {name: "Crystalline Power Plant", output: [0,6,0,0,0,0], buildTime: 100, cost: [50,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [-1,0,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null, specResRestrict: "Crystal Cells"},
+  {name: "Lab I", output: [0,0,0,1,1,1], buildTime: 100, cost: [150,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-1,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null},
+  {name: "Star Observatory", output: [0,0,0,3,1,1], buildTime: 250, cost: [250,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Star Research I"},
+  {name: "Biological Survey", output: [0,0,0,1,3,1], buildTime: 250, cost: [250,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Society Research I"},
+  {name: "Engineering Facility", output: [0,0,0,1,1,3], buildTime: 250, cost: [250,50,0,0,0,0], mod: [0,0,0,0,0,0], maintenance: [0,-2,-1,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: "Lab I", techRestrict: "Production Research I"},
+  {name: "Colony", output: [0,0,3,3,3,3], buildTime: 250, cost: [250,0,50,0,0,0], mod: [0,0,0,0,0,0], maintenance: [-3,-3,0,0,0,0], techLevelRestrictMin: 4, techLevelRestrictMax: 99, biomeRestrict: "NotToxic", terrainRestrict: "Land", buildingRestrict: null}
 ];
 
 var planetSatellites = [
@@ -124,6 +124,87 @@ biomeAbbrs["Gas Giant"] = "GG";
 biomeAbbrs["Primordial"] = "P";
 biomeAbbrs["Asteroid"] = "x";
 */
+
+var biomes = [
+  ["Arid", "A", 0.2],
+  ["Icy", "I", 0.2],
+  ["Tundra", "Tn", 0.4],
+  ["Ocean", "O", 0.6],
+  ["Temperate", "Te", 1.0],
+  ["Tropical", "Tr", 0.6],
+  ["Toxic", "Tx", 0.0],
+  ["Gaia", "G", 1.0],
+  ["Ice Cream", "IC", 0.6],
+  ["Barren", "B", 0.0],
+  ["Cold Barren", "CB", 0.0],
+  ["Gas Giant", "GG", 0.0],
+  ["Primordial", "P", 0.6],
+  ["Asteroid", "x", 0.0]
+];
+
+var biomeChances = [1,0.5,0.5,1,1,1,1,0.5,0.1,3,3,0.3,0.3,0]
+
+var temperatePreferenceNum = [0.2, 0.2, 0.4, 0.6, 1.0, 0.6, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.6, 0.0];
+var coldPreferenceNum =      [0.6, 1.0, 1.0, 0.4, 0.2, 0.0, 0.0, 0.6, 0.8, 0.0, 0.0, 0.0, 0.4, 0.0];
+var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 0.0, 0.0, 0.6, 0.0];
+
+var temperatePreference = {}, coldPreference = {}, hotPreference = {};
+
+var ethics = {};
+ethics.push({
+  name: "Ascensionist",
+  desc: "Desire to go beyond and break the chains of biological substance, perfection over species identity and autonomy — to become greater.",
+  mod: [-0.1,0,-0.1,0.1,0.1,0.1],
+  specialAbility: null
+});
+ethics.push({
+  name: "Perfectionist",
+  desc: "Desire to improve life to the best quality possible, while maintaining identity.",
+  mod: [-0.05,0.05,0.05,0,0,0],
+  specialAbility: null
+});
+ethics.push({
+  name: "Individualist",
+  desc: "Belief in the freedom, autonomy, and free will of individuals, whose lives intersect in complicated ways.",
+  mod: [0,0.15,0,0,0.1,0],
+  ethicDiv: 0.1,
+  specialAbility: null
+});
+ethics.push({
+  name: "Collectivist",
+  desc: "Belief in the health and well-being of the group above individuals, faith and trust in society.",
+  mod: [0.1,0,0.1,0.1,0,0],
+  ethicDiv: -0.1,
+  specialAbility: null
+});
+ethics.push({
+  name: "Scientific",
+  desc: "Belief in the power of knowledge, careful observation, and understanding of physical laws, to further the goals of the species.",
+  mod: [0,-0.1,0,0.05,0.05,0.05],
+  ethicDiv: 0.1,
+  specialAbility: null
+});
+ethics.push({
+  name: "Spiritualist",
+  desc: "Belief in the power of faith, as well as understanding of societies and greater beings, to further the mental prowess of the species.",
+  mod: [0,0,0,-0.05,0.15,-0.05],
+  ethicDiv: -0.1,
+  specialAbility: null
+});
+ethics.push({
+  name: "Pacifistic",
+  desc: "Harmony and cooperation above all, peace ensures prosperity and preserves the well-being of the galaxy.",
+  mod: [-0.05,-0.05,0,0,0.1,-0.05],
+  ethicDiv: 0,
+  specialAbility: null
+});
+
+
+var examplePlanetMod = {
+  name: "Mineral Field",
+  desc: "This planet has rich, natural deposits of well-formed, high quality minerals.",
+  mod: [0.25,0,0,0,0,0]
+};
 
 var biomeDesc = {};
 biomeDesc["Arid"] = "Dry and nearly barren, this planet is harsh for many forms of higher life.";
