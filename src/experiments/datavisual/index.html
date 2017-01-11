@@ -601,6 +601,8 @@ h3 span { font-size: 12px; }
 				width = $(window).width() - margin.left - margin.right,
 				height = $(window).height() - margin.top - margin.bottom;
 
+    var currentZoomLevel = 1;
+
 		var randomX = d3.random.normal(width / 2, 80),
 				randomY = d3.random.normal(height / 2, 80);
     /*var randomX = d3.randomUniform(width*0.25, width*0.75),
@@ -1579,9 +1581,11 @@ h3 span { font-size: 12px; }
 
     function zoom() {
       svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+      currentZoomLevel = d3.event.scale;
       //console.log("Zoom");
       //d3.event.preventDefault();
       //d3.event.stopPropagation();
+      updateGalaxyMap();
     }
 
     /*
@@ -1677,6 +1681,7 @@ h3 span { font-size: 12px; }
           displaySector(sector);
 
 				}).on("contextmenu", function(data, index) {
+          //if (d3.event.defaultPrevented) return;
 					d3.event.preventDefault();
 					hideTooltip();
 
@@ -1996,6 +2001,46 @@ svg.append("rect")
             }
             return returnColor;
           });
+
+        /*
+        if (currentZoomLevel >= 4) {
+          d3.selectAll(".hexagon")
+            .data(hexbin(planets))
+            .attr("x", function(d) {
+              return d.x;
+            })
+            .attr("y", function(d) {
+              svg.append("svg:image")
+                .attr("x", d.x - sectorRadius)
+                .attr("y", d.y - sectorRadius)
+                .attr('width', sectorRadius*2)
+                .attr('height', sectorRadius*2)
+                .attr("xlink:href","images/population.png")
+                .style("opacity", 0.5)
+                .style("pointer-events", "none");
+              return d.y;
+            });
+        }
+        */
+        
+      /*
+      var hexes = d3.selectAll(".hexagon")[0];
+      console.log(hexes);
+      for (var i = 0; i < hexes.length; i++) {
+        var hex = hexes[i];
+        //console.log(hex);
+        //hex.attr("src", "yes");
+
+        hex.append("svg:image")
+         .attr('x',9)
+         .attr('y',12)
+         .attr('width', 20)
+         .attr('height', 24)
+         .attr("xlink:href","images/population.png");
+
+      }
+      */
+
     }
 
     updateGalaxyMap();

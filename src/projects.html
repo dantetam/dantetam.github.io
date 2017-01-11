@@ -94,39 +94,60 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-		
+
     <div class="container">
 
       <div class="intro">
-				<h1>Opstrykon</h1>
-        <p class="lead">
-					I developed a <a href="https://github.com/dantetam/androidVertexBufferTest">full 4X strategy game</a> for Android (OpenGL ES) with linear algebra, rendering pipelines, and intricate game systems.<br>
-				</p>
-				<img src="./images/bg6.png" alt="">
-				
-        <h1>CivGame</h1>
-        <p class="lead">
-					I deployed a 63 class/35,000+ SLOC <a href="https://www.lwjgl.org/">LWJGL</a> game engine single-handedly in high school.<br>
-				</p>
-				<img src="./images/bg2.png" alt="">
-				
-				<h1>War of Stars and Castles</h1>
-        <p class="lead">
-					Inspired by many RPGs, I built a massive archipelago world. What remains of the project:<br>
-					beautiful landscapes, feudal island castles, underground magma chambers...
-				</p>
-				<img src="./images/proj2-1.png" alt="">
-				<img src="./images/proj2-2.png" alt="">
-				<p>
-					(There's more work of this style in my technical drawings.)
-				</p>
-				
-				<h1>Destiny and Desire</h1>
-        <p class="lead">
-					Developed during my internship at <a href="http://corp.roblox.com/">ROBLOX</a>. <br>
-					I built a roguelike (generated worlds, permadeath) while I was a rising junior in high school.
-				</p>
-				<img src="./images/proj3-1.jpg" alt="">
+
+        <div>
+  				<h1>Opstrykon&emsp;<a href="#" onclick="expandWebsite();">EXPAND</a></h1>
+          <p class="lead">
+  					I developed a <a href="https://github.com/dantetam/androidVertexBufferTest">full 4X strategy game</a> for Android (OpenGL ES) with linear algebra, rendering pipelines, and intricate game systems.<br>
+  				</p>
+  				<img src="./images/bg6.png" alt="">
+          <img class="extended-image2" src="./images/bg6.png" /><img class="extended-image2" src="./images/bg6.png" alt="" />
+          <img class="extended-image2" src="./images/bg6.png" /><img class="extended-image2" src="./images/bg6.png" alt="" />
+        </div>
+
+        <hr>
+
+        <div>
+          <h1>CivGame</h1>
+          <p class="lead">
+  					I deployed a 63 class/35,000+ SLOC <a href="https://www.lwjgl.org/">LWJGL</a> game engine single-handedly in high school.<br>
+  				</p>
+  				<img src="./images/bg2.png" alt="">
+          <img class="extended-image2" src="./images/bg2.png" /><img class="extended-image2" src="./images/bg2.png" alt="" />
+          <img class="extended-image2" src="./images/bg2.png" /><img class="extended-image2" src="./images/bg2.png" alt="" />
+        </div>
+
+        <hr>
+
+        <div>
+  				<h1>War of Stars and Castles</h1>
+          <p class="lead">
+  					Inspired by many RPGs, I built a massive archipelago world. What remains of the project:<br>
+  					beautiful landscapes, feudal island castles, underground magma chambers...
+  				</p>
+  				<img src="./images/proj2-1.png" alt="">
+  				<img src="./images/proj2-2.png" alt="">
+  				<p>
+  					(There's more work of this style in my technical drawings.)
+  				</p>
+          <img class="extended-image2" src="./images/proj2-1.png" /><img class="extended-image2" src="./images/proj2-1.png" alt="" />
+          <img class="extended-image2" src="./images/proj2-2.png" /><img class="extended-image2" src="./images/proj2-2.png" alt="" />
+        </div>
+
+        <hr> 
+
+        <div>
+  				<h1>Destiny and Desire</h1>
+          <p class="lead">
+  					Developed during my internship at <a href="http://corp.roblox.com/">ROBLOX</a>. <br>
+  					I built a roguelike (generated worlds, permadeath) while I was a rising junior in high school.
+  				</p>
+  				<img src="./images/proj3-1.jpg" alt="">
+        </div>
 
       </div>
 
@@ -140,6 +161,38 @@
     <script src="../dist/js/bootstrap.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
-		
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="https://d3js.org/d3-random.v1.min.js"></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script src="https://d3js.org/d3-array.v1.min.js"></script>
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+
+    <script>
+
+    function launchFullScreen(element) {
+      if (element.requestFullScreen) {
+        element.requestFullScreen();
+      } else if(element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+      } else if(element.webkitRequestFullScreen) {
+        element.webkitRequestFullScreen();
+      }
+    }
+    // Launch fullscreen for browsers that support it!
+    //launchFullScreen(document.documentElement); // the whole page
+    //launchFullScreen(document.getElementById("videoElement")); // any individual element
+
+    function expandWebsite() {
+      //launchFullScreen(document.documentElement);
+      d3.selectAll(".extended-image2").style("width", "0%");
+      d3.selectAll(".extended-image2")
+        .transition()
+        .duration(3000)
+        .style("width", "50%");
+    }
+
+    </script>
+
   </body>
 </html>
