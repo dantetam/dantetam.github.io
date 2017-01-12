@@ -138,15 +138,15 @@ var biomes = [
   ["Barren", "B", 0.0],
   ["Cold Barren", "CB", 0.0],
   ["Gas Giant", "GG", 0.0],
-  ["Primordial", "P", 0.6],
+  ["Primordial", "P", 0.4],
   ["Asteroid", "x", 0.0]
 ];
 
 var biomeChances = [1,0.5,0.5,1,1,1,1,0.5,0.1,3,3,0.3,0.3,0]
 
-var temperatePreferenceNum = [0.2, 0.2, 0.4, 0.6, 1.0, 0.6, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.6, 0.0];
+var temperatePreferenceNum = [0.2, 0.2, 0.4, 0.6, 1.0, 0.6, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0, 0.4, 0.0];
 var coldPreferenceNum =      [0.6, 1.0, 1.0, 0.4, 0.2, 0.0, 0.0, 0.6, 0.8, 0.0, 0.0, 0.0, 0.4, 0.0];
-var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 0.0, 0.0, 0.6, 0.0];
+var hotPreferenceNum =       [1.0, 0.0, 0.2, 0.6, 0.6, 0.8, 0.0, 1.0, 0.2, 0.0, 0.0, 0.0, 0.4, 0.0];
 
 var temperatePreference = {}, coldPreference = {}, hotPreference = {};
 

@@ -99,7 +99,7 @@
 
       <div class="intro">
 
-        <div>
+        <div id="#bookmark0">
   				<h1>Opstrykon&emsp;<a href="#" onclick="expandWebsite();">EXPAND</a></h1>
           <p class="lead">
   					I developed a <a href="https://github.com/dantetam/androidVertexBufferTest">full 4X strategy game</a> for Android (OpenGL ES) with linear algebra, rendering pipelines, and intricate game systems.<br>
@@ -111,7 +111,7 @@
 
         <hr>
 
-        <div>
+        <div id="#bookmark1">
           <h1>CivGame</h1>
           <p class="lead">
   					I deployed a 63 class/35,000+ SLOC <a href="https://www.lwjgl.org/">LWJGL</a> game engine single-handedly in high school.<br>
@@ -123,7 +123,7 @@
 
         <hr>
 
-        <div>
+        <div id="#bookmark2">
   				<h1>War of Stars and Castles</h1>
           <p class="lead">
   					Inspired by many RPGs, I built a massive archipelago world. What remains of the project:<br>
@@ -138,9 +138,9 @@
           <img class="extended-image2" src="./images/proj2-2.png" /><img class="extended-image2" src="./images/proj2-2.png" alt="" />
         </div>
 
-        <hr> 
+        <hr>
 
-        <div>
+        <div id="#bookmark3">
   				<h1>Destiny and Desire</h1>
           <p class="lead">
   					Developed during my internship at <a href="http://corp.roblox.com/">ROBLOX</a>. <br>
@@ -162,13 +162,21 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
 
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
 		<script src="https://d3js.org/d3-random.v1.min.js"></script>
     <script src="https://d3js.org/d3-timer.v1.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
 
+    <script src="../assets/js/smooth-scroll.js"></script>
+    <script src="../assets/js/keybinding.js"></script>
+
     <script>
+
+    smoothScroll.init();
+
+    var expansionEnabled = true;
+    var bookmark = 0;
 
     function launchFullScreen(element) {
       if (element.requestFullScreen) {
@@ -184,13 +192,36 @@
     //launchFullScreen(document.getElementById("videoElement")); // any individual element
 
     function expandWebsite() {
+      if (!expansionEnabled) return;
+      expansionEnabled = false;
       //launchFullScreen(document.documentElement);
       d3.selectAll(".extended-image2").style("width", "0%");
       d3.selectAll(".extended-image2")
         .transition()
         .duration(3000)
-        .style("width", "50%");
+        .style("width", "50%").each("end", function() {
+          //console.log("Ended");
+        });
     }
+
+    d3.select('body').call(d3.keybinding()
+      .on('←', function() {
+        bookmark--;
+        var anchor = document.querySelector("bookmark" + bookmark);
+        console.log("#bookmark" + bookmark);
+        smoothScroll.animateScroll(anchor);
+      })
+      .on('→', function() {
+        bookmark++;
+        var anchor = document.querySelector("#bookmark" + bookmark);
+        console.log("#bookmark" + bookmark);
+        smoothScroll.animateScroll(anchor);
+      })
+    );
+
+    </script>
+
+    <script>
 
     </script>
 

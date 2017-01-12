@@ -350,6 +350,7 @@ h3 span { font-size: 12px; }
     <script src="https://d3js.org/d3-timer.v1.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+    <script src="https://d3js.org/d3-queue.v2.min.js"></script>
 
     <script src="d3.hexbin.min.js"></script>
     <script type="text/javascript" src="data.js"></script>
@@ -595,6 +596,8 @@ h3 span { font-size: 12px; }
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
 
 		<script>
+
+    var q = d3_queue.queue();
 
 		//var margin = {top: 20, right: 100, bottom: 30, left: 100},
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
@@ -1585,7 +1588,11 @@ h3 span { font-size: 12px; }
       //console.log("Zoom");
       //d3.event.preventDefault();
       //d3.event.stopPropagation();
-      updateGalaxyMap();
+      /*
+      executeAsync(function() {
+        updateGalaxyMap();
+      });
+      */
     }
 
     /*
@@ -1816,7 +1823,6 @@ svg.append("rect")
 
     d3.select("body").on("contextmenu", function() {
 			d3.event.preventDefault();
-      console.log("yes");
 			hideTooltip();
       hideMenuBarTooltips();
 		});
@@ -2000,9 +2006,25 @@ svg.append("rect")
               returnColor = color(5);
             }
             return returnColor;
+          })
+          .style("stroke", function(d) {
+            var sector = sectors[[d.x, d.y]];
+            if (currentSectorSelected === sector) {
+              return "red";
+            }
+            if (currentPlanetSelected !== null) {
+              if (currentPlanetSelected.sector === sector) {
+                return "red";
+              }
+            }
+            if (currentFleetSelected !== null) {
+              if (currentFleetSelected.sector === sector) {
+                return "red";
+              }
+            }
+            return "none";
           });
 
-        /*
         if (currentZoomLevel >= 4) {
           d3.selectAll(".hexagon")
             .data(hexbin(planets))
@@ -2021,8 +2043,7 @@ svg.append("rect")
               return d.y;
             });
         }
-        */
-        
+
       /*
       var hexes = d3.selectAll(".hexagon")[0];
       console.log(hexes);
@@ -2041,6 +2062,19 @@ svg.append("rect")
       }
       */
 
+    }
+
+    /*
+    function updateGalaxyMapCallback(callback) {
+      setTimeout(function() {
+        updateGalaxyMap();
+        callback(null);
+      }, 1);
+    }
+    */
+
+    function executeAsync(func) {
+      setTimeout(func, 0)
     }
 
     updateGalaxyMap();
@@ -2235,6 +2269,9 @@ svg.append("rect")
           "</div>"
         );
       }
+      executeAsync(function() {
+        updateGalaxyMap();
+      });
     }
 
     function displaySatelliteBuildMenuFromCoord(planetPosition) {
@@ -2398,20 +2435,27 @@ svg.append("rect")
         .duration(200)
         .style("opacity", 0.9);
 
+      techStarMenu.style("pointer-events", "auto");
+      techSocietyMenu.style("pointer-events", "auto");
+      techProductionMenu.style("pointer-events", "auto");
+
       if (playerCiv.techResearchingStar !== null) {
-        techStarMenu.html("Researching " + playerCiv.techResearchingStar.name);
+        var tech = playerCiv.techResearchingStar;
+        techStarMenu.html("Researching " + tech.name + " (" + tech.researchCompleted + "/" + tech.researchNeeded + ")");
       }
       else {
         techStarMenu.html("No Universe Research");
       }
       if (playerCiv.techResearchingSociety !== null) {
-        techSocietyMenu.html("Researching " + playerCiv.techResearchingSociety.name);
+        var tech = playerCiv.techResearchingSociety;
+        techSocietyMenu.html("Researching " + tech.name + " (" + tech.researchCompleted + "/" + tech.researchNeeded + ")");
       }
       else {
         techSocietyMenu.html("No Society Research");
       }
       if (playerCiv.techResearchingProduction !== null) {
-        techProductionMenu.html("Researching " + playerCiv.techResearchingProduction.name);
+        var tech = playerCiv.techResearchingProduction;
+        techProductionMenu.html("Researching " + tech.name + " (" + tech.researchCompleted + "/" + tech.researchNeeded + ")");
       }
       else {
         techProductionMenu.html("No Production Research");
@@ -2420,7 +2464,7 @@ svg.append("rect")
       for (var i = 0; i < playerCiv.techChoicesStar.length; i++) {
         var tech = playerCiv.techChoicesStar[i];
         techStarMenu.html(techStarMenu.html() +
-          "<div onclick=\"javascript:requestResearchStarTech(&quot;" + i + "&quot;);\">" +
+          "<div onclick=\"javascript:requestResearchStarTech(" + i + "); displayTechMenu();\">" +
           tech.name + "&nbsp;" +
           tech.researchNeeded + "&nbsp;<img src=\"./images/star_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
           "</div>"
@@ -2429,7 +2473,7 @@ svg.append("rect")
       for (var i = 0; i < playerCiv.techChoicesSociety.length; i++) {
         var tech = playerCiv.techChoicesSociety[i];
         techSocietyMenu.html(techSocietyMenu.html() +
-          "<div onclick=\"javascript:requestResearchSocietyTech(&quot;" + i + "&quot;);\">" +
+          "<div onclick=\"javascript:requestResearchSocietyTech(" + i + "); displayTechMenu();\">" +
           tech.name + "&nbsp;" +
           tech.researchNeeded + "&nbsp;<img src=\"./images/society_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
           "</div>"
@@ -2438,7 +2482,7 @@ svg.append("rect")
       for (var i = 0; i < playerCiv.techChoicesProduction.length; i++) {
         var tech = playerCiv.techChoicesProduction[i];
         techProductionMenu.html(techProductionMenu.html() +
-          "<div onclick=\"javascript:requestResearchProductionTech(&quot;" + i + "&quot;);\">" +
+          "<div onclick=\"javascript:requestResearchProductionTech(" + i + "); displayTechMenu();\">" +
           tech.name + "&nbsp;" +
           tech.researchNeeded + "&nbsp;<img src=\"./images/production_research.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:100%;\"/>&nbsp;" +
           "</div>"
@@ -2687,11 +2731,11 @@ svg.append("rect")
       var tech = playerCiv.techChoicesStar[index];
       queueNewTech(playerCiv, tech);
     }
-    function requestResearchSocietyTech() {
+    function requestResearchSocietyTech(index) {
       var tech = playerCiv.techChoicesSociety[index];
       queueNewTech(playerCiv, tech);
     }
-    function requestResearchProductionTech() {
+    function requestResearchProductionTech(index) {
       var tech = playerCiv.techChoicesProduction[index];
       queueNewTech(playerCiv, tech);
     }
@@ -3039,6 +3083,9 @@ svg.append("rect")
           "</p>"
         );
       }
+      executeAsync(function() {
+        updateGalaxyMap();
+      });
     }
 
     function displayBattle(battle) {
@@ -3298,6 +3345,10 @@ svg.append("rect")
           planetTooltipTile.style("border", "none");
         }
       }
+
+      executeAsync(function() {
+        updateGalaxyMap();
+      });
     }
 
 		function namePlanets() {
