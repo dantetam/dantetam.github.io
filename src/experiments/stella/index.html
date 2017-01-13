@@ -2,11 +2,21 @@
 <meta charset="utf-8">
 <style>
 
+body {
+  height: 100%
+}
+
 footer {
-  clear: both;
   position: absolute;
-  height: 95%;
-  margin-top: -3em;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  height: 5%;
+}
+
+img {
+  margin: auto;
+  width: 10%;
 }
 
 </style>
@@ -120,8 +130,8 @@ footer {
 
     <div class="container">
 
-      <div id="fileParse">
-
+      <div class="intro" id="fileParse">
+        <h3>Hello, I'm Stella!</h3>
       </div>
       <!--
       <div class="intro">
@@ -148,7 +158,17 @@ footer {
     //function
 
     readWordNet("./dict/data.adj");
+    readWordNet("./dict/data.verb");
+    readWordNet("./dict/data.noun");
+    readWordNet("./dict/data.adv");
     readDefinitions("./definitions.txt");
+    readPrepositions("./prepositions.txt");
+
+    var command = parseCommand("search Google for some traitor");
+    console.log(command);
+
+    findAssociatedWords("define");
+
     </script>
 
     <footer>
