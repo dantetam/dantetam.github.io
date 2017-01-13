@@ -1498,6 +1498,8 @@ h3 span { font-size: 12px; }
 
     var messageTooltip = d3.select("#message-tooltip");
 
+    var empireMenu = d3.select("#empire-menu");
+
     var techMenu = d3.select("#tech-menu");
     var techStarMenu = d3.select("#tech-star-display");
     var techSocietyMenu = d3.select("#tech-society-display");
@@ -1551,20 +1553,14 @@ h3 span { font-size: 12px; }
 		}
 
     function hideMenuBarTooltips() {
-      techMenu.style("pointer-events", "none");
-      techMenu.transition()
-        .duration(200)
-        .style("opacity", 0);
-
-      diplomacyMenu.style("pointer-events", "none");
-      diplomacyMenu.transition()
-        .duration(200)
-        .style("opacity", 0);
-
-      contactMenu.style("pointer-events", "none");
-      contactMenu.transition()
-        .duration(200)
-        .style("opacity", 0);
+      var menusToHide = [empireMenu, techMenu, diplomacyMenu, contactMenu];
+      for (var i = 0; i < menusToHide.length; i++) {
+        menusToHide[i].style("pointer-events", "none");
+        menusToHide[i].transition()
+          .duration(200)
+          .style("opacity", 0);
+      }
+      console.log("done");
     }
 
     var starMapSvg = systemStarMap.append("svg")
@@ -2425,6 +2421,53 @@ svg.append("rect")
       else {
         planetBuildTooltip.html("<h4>Uncolonized (Cannot Build)</h4>");
       }
+    }
+
+    function displayEmpireMenu() {
+      hideMenuBarTooltips();
+
+      empireMenu.style("pointer-events", "auto");
+      empireMenu.transition()
+        .duration(200)
+        .style("opacity", 0.9);
+
+      empireMenu.html("<h4>" + playerCiv.name + "</h4>");
+      var sumPop = 0;
+      for (var i = 0; i < playerCiv.worlds.length; i++) {
+        sumPop += playerCiv.worlds[i].population;
+      }
+      if (playerCiv.worlds.length === 1) {
+        empireMenu.html(empireMenu.html() + "<p>" + sumPop + " pops in " + playerCiv.worlds.length + " world</p>")
+      }
+      else {
+        empireMenu.html(empireMenu.html() + "<p>" + sumPop + " pops in " + playerCiv.worlds.length + " worlds</p>")
+      }
+
+      if (playerCiv.baseResourcesFlow[0] === undefined) {
+        playerCiv.baseResourcesFlow = [0,0,0,0,0,0];
+      }
+      empireMenu.html(empireMenu.html() + "<p>" +
+        "&emsp;<img src=\"./images/minerals.png\" alt=\"Minerals\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResources[0]) + " / " + Math.trunc(playerCiv.baseResourcesFlow[0]) + "&emsp;" +
+        "&emsp;<img src=\"./images/energy.png\" alt=\"Energy\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResources[1]) + " / " + Math.trunc(playerCiv.baseResourcesFlow[1]) + "&emsp;" +
+        "&emsp;<img src=\"./images/planets.png\" alt=\"Planets\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + playerCiv.worlds.length + "&emsp;" +
+        "&emsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[3]) + "&emsp;" +
+        "&emsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[4]) + "&emsp;" +
+        "&emsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + Math.trunc(playerCiv.baseResourcesFlow[5]) + "&emsp;" +
+        "</p>"
+      );
+
+      var star = 0, society = 0, production = 0;
+      for (var i = 0; i < playerCiv.techsResearched.length; i++) {
+        var tech = playerCiv.techsResearched[i];
+        if (tech.techType === "Star") star++;
+        if (tech.techType === "Society") society++;
+        if (tech.techType === "Production") production++;
+      }
+      empireMenu.html(empireMenu.html() + "<p>" +
+        "&emsp;<img src=\"./images/star_research.png\" alt=\"Star Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + star + " techs&emsp;" +
+        "&emsp;<img src=\"./images/society_research.png\" alt=\"Society Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + society + " techs&emsp;" +
+        "&emsp;<img src=\"./images/production_research.png\" alt=\"Production Research\" width=\"50\" height=\"50\" style=\"max-height:20px; max-width:20px; width:10%;\"/>&emsp;" + production + " techs&emsp;" +
+        "</p>");
     }
 
     function displayTechMenu() {
