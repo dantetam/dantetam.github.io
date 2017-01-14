@@ -52,11 +52,11 @@ function readWordNet(file)
               wordsByName[word] = id;
             }
             else {
-
+              if (typeof wordsByName[word] !== "object") {
+                wordsByName[word] = [];
+              }
+              wordsByName[word].push(id);
             }
-            //if (wordsById[id] === undefined || wordsById[id] === null) {
-              //
-            //}
             wordsById[id].words.push(word);
           }
 
@@ -80,6 +80,8 @@ function readWordNet(file)
     }
   }
   rawFile.send(null);
+  rawFile.abort();
+  rawFile = null;
 }
 
 /*
@@ -98,20 +100,22 @@ function readDefinitions(file) {
 }
 
 function readPrepositions(file) {
-  var rawFile = new XMLHttpRequest();
-  rawFile.open("GET", file, false);
-  rawFile.onreadystatechange = function()
+  var rawFile2 = new XMLHttpRequest();
+  rawFile2.open("GET", file, false);
+  rawFile2.onreadystatechange = function()
   {
-    if (rawFile.readyState === 4)
+    if (rawFile2.readyState === 4)
     {
-      if (rawFile.status === 200 || rawFile.status == 0)
+      if (rawFile2.status === 200 || rawFile2.status == 0)
       {
-        var allText = rawFile.responseText;
+        var allText = rawFile2.responseText;
+        console.log(allText);
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
         var lines = allText.split("\n");
         for (var i = 0; i < lines.length; i++) {
           prepositions[lines[i]] = true;
+          console.log(prepositions[lines[i]]);
         }
       }
     }
