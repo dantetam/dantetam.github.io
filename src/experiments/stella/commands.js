@@ -1,26 +1,64 @@
 stella = {};
 
+var stellaChat = d3.select("#stella-chat");
+
 stella.tasks = [];
 
 stella.tasks.push({
   names: ["define", "explain", "tell"], //Possibly a priority list with more relevant words first?
   desc: "Define a word by dictionary definitions.",
-  execute: function() {return 5;}
+  execute: function(command) {
+    var wordsString = "";
+    var listToDefine = command.nouns.concat(command.verbs, command.adjectives, command.adjectiveSatellites, command.adverbs); //command.properNouns
+    for (var i = 0; i < listToDefine.length; i++) {
+      wordsString += listToDefine[i].words[0];
+      if (i !== listToDefine.length - 1) {
+        wordsString += ", ";
+      }
+    }
+    stellaChat.html("<h3>Define the following words: " + wordsString + ".</h3>" );
+    for (var i = 0; i < listToDefine.length; i++) {
+      var definition = listToDefine[i].definition;
+      stellaChat.html(stellaChat.html() + "<h4>" + listToDefine[i].words[0] + ": " + definition + "</h4>");
+    }
+  }
 });
 stella.tasks.push({
-  names: ["name", "is"],
+  names: ["name", "is", "call", "me"],
   desc: "Provide the user's name to Stella.",
-  execute: function() {return 5;}
+  execute: function(command) {
+    var properNounsString = "";
+    for (var i = 0; i < command.properNouns.length; i++) {
+      properNounsString += command.properNouns[i];
+      if (i !== command.properNouns.length - 1) {
+        properNounsString += " ";
+      }
+    }
+    username = properNounsString;
+    stellaChat.html("<h3>Nice to meet you, " + username + "!</h3>" );
+  }
 });
 stella.tasks.push({
   names: ["google", "search", "look"],
   desc: "Search Google for something.",
-  execute: function() {return 5;}
+  execute: function(command) {
+    var properNounsString = "";
+    for (var i = 0; i < command.properNouns.length; i++) {
+      properNounsString += command.properNouns[i];
+      if (i !== command.properNouns.length - 1) {
+        properNounsString += "+";
+      }
+    }
+    var win = window.open("https://www.google.com/#safe=on&q=" + properNounsString, '_blank');
+    win.focus();
+  }
 });
 
 function parseCommand(commandString) {
-  var tokens = commandString.split(" ");
+  var tokens = commandString.replace(/[^\w\s]/gi, '').split(" ");
   var command = {
+    fullCommand: commandString,
+    commandWords: [],
     nouns: [],
     verbs: [],
     adjectives: [],
@@ -29,6 +67,7 @@ function parseCommand(commandString) {
     properNouns: []
   };
   for (var i = 0; i < tokens.length; i++) {
+    if (specialWords.indexOf(tokens[i].toLowerCase()) !== -1) continue;
     var id = wordsByName[tokens[i].toLowerCase()];
     if (id !== undefined && id !== null) {
       if (typeof id === "number") id = [id];
@@ -50,6 +89,7 @@ function parseCommand(commandString) {
         command.properNouns.push(tokens[i]);
       }
       else {
+        //console.log(Object.keys(prepositions));
         if (prepositions[tokens[i]] === undefined || prepositions[tokens[i]] === null) {
           command.properNouns.push(tokens[i]);
         }
@@ -63,17 +103,17 @@ function parseCommand(commandString) {
 Given a word, it finds a list of direct similarly related words,
 a list of words in the direct definition, as well as the words in the related words' definitions.
 */
-function findAssociatedWords(word, degrees = 1) {
+function findAssociatedWords(word, degrees = 2) {
   var id = wordsByName[word];
   if (id === null || id === undefined) {
-    console.log(word);
-    console.log("Cannot find word: " + word);
+    //console.log(word);
+    //console.log("Cannot find word: " + word);
     return [[],[],[]];
   }
   if (typeof id === "object") id = id[0];
   var mainSynset = wordsById[id];
   if (mainSynset === null || mainSynset === undefined) {
-    console.log("Cannot find word " + word + ", with id " + id);
+    //console.log("Cannot find word " + word + ", with id " + id);
     return null;
   }
   var closed = [];
@@ -176,6 +216,8 @@ function findStellaTaskRelatedToCommand(commandString) {
     }
   }
 
+  var maxMatches = 0, maxIndex = -1;
+
   for (var i = 0; i < stella.tasks.length; i++) {
     var taskSynsetWords = [];
     var names = stella.tasks[i].names;
@@ -187,29 +229,34 @@ function findStellaTaskRelatedToCommand(commandString) {
         }
       }
     }
-    console.log(">>>>");
     var wordMatches = findMatchesInStringArrays(taskSynsetWords, relatedWords);
     var defMatches = findMatchesInStringArrays(taskSynsetWords, definitionWords);
     var matches = wordMatches.length + defMatches.length;
     console.log(matches + " matches for command '" + commandString + "' and task '" + stella.tasks[i].desc + "'");
+    if (matches > maxMatches || maxIndex == -1) {
+      maxIndex = i;
+      maxMatches = matches;
+    }
   }
+
+  return stella.tasks[maxIndex];
 }
 
 function findMatchesInStringArrays(list1, list2) {
   var temp = {};
-  var results = [];
+  var results = {};
   for (var i = 0; i < list1.length; i++) {
     temp[list1[i]] = true;
   }
   for (var i = 0; i < list2.length; i++) {
-    if (temp[list2[i]] === true) {
-      results.push(list2[i]);
+    if (temp[list2[i]] === true && results[list2[i]] === undefined) {
+      results[list2[i]] = true;
     }
   }
-  console.log(list1);
-  console.log(list2);
-  console.log(results);
-  return results;
+  //console.log(list1);
+  //console.log(list2);
+  //console.log(Object.keys(results));
+  return Object.keys(results);
 }
 
 

@@ -19,6 +19,10 @@ img {
   width: 10%;
 }
 
+input {
+  width: 50%;
+}
+
 </style>
 <html lang="en">
   <head>
@@ -130,8 +134,9 @@ img {
 
     <div class="container">
 
-      <div class="intro" id="fileParse">
-        <h3>Hello, I'm Stella!</h3>
+      <div class="intro" id="stella-intro">
+        <div id="stella-chat"><h3>Hi, I'm Stella!</h3></div>
+        <input type="text" id="user-input" value="">
       </div>
       <!--
       <div class="intro">
@@ -145,7 +150,7 @@ img {
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script>window.jQuery || document.write('<script src="../../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="../../../dist/js/bootstrap.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
@@ -155,21 +160,47 @@ img {
 
     <script>
 
-    //function
+    document.getElementById("user-input").value = "";
+
+    function updateDisplay() {
+
+    }
+
+    function executeCommand(commandString) {
+      var command = parseCommand(commandString);
+      var task = findStellaTaskRelatedToCommand(commandString);
+      task.execute(command);
+    }
 
     readWordNet("./dict/data.adj");
     readWordNet("./dict/data.verb");
     readWordNet("./dict/data.noun");
     readWordNet("./dict/data.adv");
-    readDefinitions("./definitions.txt");
-    //readPrepositions("./dict/prepositions.txt");
+    //readDefinitions("./definitions.txt");
+    readPrepositions("./dict/prepositions.txt");
 
-    var command = parseCommand("search Google for some traitor");
-    console.log(command);
+    
+
+    //var command = parseCommand("search Google for some traitor");
+    //console.log(command);
 
     findAssociatedWords("define");
 
-    findStellaTaskRelatedToCommand("search Google");
+    //var command = parseCommand("search Google for UC Berkeley");
+    //var task = findStellaTaskRelatedToCommand("search Google for UC Berkeley");
+    //task.execute(command);
+
+    //findStellaTaskRelatedToCommand("research");
+    //findStellaTaskRelatedToCommand("research Google");
+
+    document.getElementById("user-input")
+      .addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+          executeCommand(document.getElementById("user-input").value);
+          document.getElementById("user-input").value = "";
+        }
+      });
 
     </script>
 

@@ -1,8 +1,12 @@
-var wordsByName = {};
-var wordsById = {};
-var prepositions = {};
+var wordsByName = Object.create(null);
+var wordsById = Object.create(null);
+var prepositions = Object.create(null);
+
+var specialWords = ["stella", "dante", "me", "you"];
 
 var fileDisplayArea = document.getElementById('fileParse');
+
+var username = null;
 
 /*
 Takes a WordNet file and converts into JS data structures, where
@@ -19,11 +23,11 @@ function readWordNet(file)
   rawFile.open("GET", file, false);
   rawFile.onreadystatechange = function()
   {
-    if (rawFile.readyState === 4)
+    if (this.readyState === 4)
     {
-      if (rawFile.status === 200 || rawFile.status == 0)
+      if (this.status === 200 || this.status == 0)
       {
-        var allText = rawFile.responseText;
+        var allText = this.responseText;
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
         var lines = allText.split("\n");
@@ -104,22 +108,23 @@ function readPrepositions(file) {
   rawFile2.open("GET", file, false);
   rawFile2.onreadystatechange = function()
   {
-    if (rawFile2.readyState === 4)
+    if (this.readyState === 4)
     {
-      if (rawFile2.status === 200 || rawFile2.status == 0)
+      if (this.status === 200 || this.status == 0)
       {
-        var allText = rawFile2.responseText;
-        console.log(allText);
+        var allText = this.responseText;
+        console.log("Parsing prepositions with XMLHttpRequest");
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
         var lines = allText.split("\n");
         for (var i = 0; i < lines.length; i++) {
-          prepositions[lines[i]] = true;
-          console.log(prepositions[lines[i]]);
+          prepositions[lines[i].trim()] = true;
         }
       }
     }
   }
+  rawFile2.send(null);
+  rawFile2 = null;
 }
 
 
