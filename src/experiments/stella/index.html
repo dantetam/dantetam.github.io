@@ -138,6 +138,25 @@ input {
         <div id="stella-chat"><h3>Hi, I'm Stella!</h3></div>
         <input type="text" id="user-input" value="">
       </div>
+
+      <div
+        class="fb-like"
+        data-share="true"
+        data-width="450"
+        style="width: 10%; height: 10%"
+        data-show-faces="true"> here it is
+      </div>
+
+      <!--
+      <div class="fb-send-to-messenger"
+        messenger_app_id="APP_ID"
+        page_id="PAGE_ID"
+        data-ref="PASS_THROUGH_PARAM"
+        color="blue"
+        size="standard">
+      </div>
+      -->
+
       <!--
       <div class="intro">
 
@@ -161,6 +180,9 @@ input {
     <script>
 
     document.getElementById("user-input").value = "";
+
+    var pastCommands = [];
+    var pastCommandIndex = -1;
 
     function updateDisplay() {
 
@@ -197,10 +219,53 @@ input {
       .addEventListener("keyup", function(event) {
         event.preventDefault();
         if (event.keyCode === 13) {
-          executeCommand(document.getElementById("user-input").value);
+          var currentText = document.getElementById("user-input").value;
+          executeCommand(currentText);
+          pastCommands.push(currentText);
+          pastCommandIndex = pastCommands.length;
           document.getElementById("user-input").value = "";
         }
+        else if (event.keyCode === 38) { //up arrow
+          if (pastCommandIndex - 1 >= 0 && pastCommandIndex - 1 <= pastCommands.length) {
+            pastCommandIndex--;
+            if (pastCommandIndex === pastCommands.length) {
+              document.getElementById("user-input").value = "";
+            }
+            else {
+              document.getElementById("user-input").value = pastCommands[pastCommandIndex];
+            }
+          }
+        }
+        else if (event.keyCode === 40) { //down arrow
+          if (pastCommandIndex + 1 >= 0 && pastCommandIndex + 1 <= pastCommands.length) {
+            pastCommandIndex++;
+            if (pastCommandIndex === pastCommands.length) {
+              document.getElementById("user-input").value = "";
+            }
+            else {
+              document.getElementById("user-input").value = pastCommands[pastCommandIndex];
+            }
+          }
+        }
       });
+
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '1454216364589758',
+        xfbml      : true,
+        version    : 'v2.8'
+      });
+      //FB.AppEvents.logPageView();
+    };
+
+    function init(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) {return;}
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }
+    init(document, 'script', 'facebook-jssdk');
 
     </script>
 
@@ -209,6 +274,10 @@ input {
       <p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;<a href=http://wordnet.princeton.edu></a>&gt;</p>
     </footer>
     -->
+
+    <script>
+
+    </script>
 
   </body>
 </html>
