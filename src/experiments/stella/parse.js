@@ -3,6 +3,30 @@ var wordsById = Object.create(null);
 var prepositions = Object.create(null);
 
 var specialWords = ["stella", "dante", "me", "you"];
+var questionWords = ["can", "is", "what", "why", "where", "when", "who", "whom", "which", "whose", "how", "whither", "whence"];
+wordsById[9191919] = {
+  words: ["stella", "you"],
+  partOfSpeech: "n",
+  definition: "My name is Stella. I'm an artificial intelligence built on WordNet with d3.js as the front end. Dante Tam is my creator.",
+  nyms: {}
+};
+wordsById[9191920] = {
+  words: ["me"],
+  partOfSpeech: "n",
+  definition: "It's you, the user; the person I'm talking to; the tester",
+  nyms: {}
+};
+wordsById[9191921] = {
+  words: ["creator"],
+  partOfSpeech: "n",
+  definition: "Dante Tam; my creator; UC Berkeley CS major; 4x grand strategist",
+  nyms: {}
+};
+wordsByName["stella"] = 9191919; wordsByName["you"] = 9191919;
+wordsByName["me"] = 9191920;
+wordsByName["dante"] = 9191921;
+
+var specialWebsitesAndThings = ["google", "wikipedia", "facebook", "fb"];
 
 var fileDisplayArea = document.getElementById('fileParse');
 

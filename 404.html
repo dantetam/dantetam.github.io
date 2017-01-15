@@ -1,4 +1,12 @@
 <!DOCTYPE html>
+<style>
+
+img {
+  margin: auto;
+  width: 50%;
+}
+
+</style>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -62,12 +70,16 @@
       <div class="intro">
         <h1>404</h1>
         <p class="lead">
-					I'm sorry, this resource was not found. 
+					I'm sorry, this resource was not found.
 				</p>
+        <p>
+          For a web layout of this website, please take a look at <br>
+          <a href="http://github.com/dantetam/dantetam.github.io" target="_blank">the corresponding web repository</a>.
+        </p>
       </div>
 
 			<img src="./src/images/404cat.png" class="img-responsive .center-block" alt=""></img>
-			
+
     </div><!-- /.container -->
 
     <!-- Bootstrap core JavaScript
@@ -78,7 +90,7 @@
     <script src="./dist/js/bootstrap.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
-		
+
 		<script>
 		// Load this when the DOM is ready
 		$(function(){
@@ -86,7 +98,7 @@
 			pause: "false"
 		});
 		</script>
-		
+
 		<script>
 		$('#left-carousel').click(function() {
 			$('#carousel').carousel('pause');
@@ -94,7 +106,7 @@
 		$('#right-carousel').click(function() {
 			$('#carousel').carousel('pause');
 		});
-		</script>		
-		
+		</script>
+
   </body>
 </html>
