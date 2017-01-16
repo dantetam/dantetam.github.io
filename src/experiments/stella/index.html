@@ -143,7 +143,7 @@ input {
         class="fb-like"
         data-share="true"
         data-width="450"
-        style="width: 10%; height: 10%"
+        style="width: 10%; height: 10%;"
         data-show-faces="true"> here it is
       </div>
 
@@ -189,9 +189,19 @@ input {
     }
 
     function executeCommand(commandString) {
+      if (commandString.replace(/ /g,'').length === 0) {
+        return;
+      }
+
       var command = parseCommand(commandString);
       var task = findStellaTaskRelatedToCommand(commandString);
-      task.execute(command);
+
+      var qualifiers = getQualifiersFromTask(task);
+      var newParsed = parseNounVerbPredicate(commandString, qualifiers);
+
+      task.execute(command, newParsed);
+
+      console.log(newParsed);
     }
 
     readWordNet("./dict/data.adj");

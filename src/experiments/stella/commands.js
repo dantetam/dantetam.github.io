@@ -8,7 +8,7 @@ stella.tasks.push({
   fullName: "define",
   names: ["define", "explain", "tell"], //Possibly a priority list with more relevant words first?
   desc: "Define a word by dictionary definitions.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     var wordsString = "";
     var listToDefine = command.nouns.concat(command.verbs, command.adjectives, command.adjectiveSatellites, command.adverbs); //command.properNouns
     for (var i = 0; i < listToDefine.length; i++) {
@@ -35,7 +35,7 @@ stella.tasks.push({
     subject: ["subject", "topic", "heading"]
   },
   desc: "Open the user's email client.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     var tokens = command.fullCommand.split(" ");
     var recipients = "";
     var subject = "Inquiry - " + username;
@@ -44,7 +44,17 @@ stella.tasks.push({
         recipients += tokens[i] + ", "
       }
     }
-    var body = "Hello,%0D%0A%0D%0A%0D%0A%0D%0A" + //4 carriages and newlines
+    var bodyText = "";
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.body.indexOf(mainToken) !== -1) {
+        bodyText = nvpStructure[i].fullText;
+      }
+    }
+
+    var body = "Hello,%0D%0A%0D%0A" +
+      bodyText +
+      "%0D%0A%0D%0A" + //4 carriages and newlines
       "Sincerely,%0D%0A" +
       username + "%0D%0A%0D%0A" +
       "This message was sent by Stella, a sweet, language aware AI.%0D%0A" +
@@ -58,7 +68,7 @@ stella.tasks.push({
   fullName: "google",
   names: ["google", "search", "look"],
   desc: "Search Google for something.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     var properNounsString = "";
     for (var i = 0; i < command.properNouns.length; i++) {
       properNounsString += command.properNouns[i];
@@ -75,7 +85,7 @@ stella.tasks.push({
   fullName: "help",
   names: ["help", "about"],
   desc: "Provide information about Stella.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     stellaChat.html("<h3>Hi, my name is Stella. I love to learn about language and information.</h3>" +
       "<h4>Dante Tam, a CS major at UC berkeley, created me on January 12th, 2017.</h4>" +
       "<h4>Write me a note and I'll try to find the most relevant information and tasks.</h4>" +
@@ -88,9 +98,18 @@ stella.tasks.push({
   fullName: "integrate",
   names: ["integrate", "connect", "use"],
   desc: "Integrate Stella with services such as Facebook and Gmail.",
-  execute: function(command) {
-    stellaChat.html("<h3>I can integrate with the following services:</h3>"
+  execute: function(command, nvpStructure) {
+    stellaChat.html("<h3>I can integrate with the following services (WIP):</h3>"
     );
+  }
+});
+
+stella.tasks.push({
+  fullName: "jeopardy",
+  names: ["jeopardy", "answer", "question"],
+  desc: "Answer a question about anything as best as possible.",
+  execute: function(command, nvpStructure) {
+
   }
 });
 
@@ -101,7 +120,7 @@ stella.tasks.push({
     name: ["is", "me"]
   },
   desc: "Provide the user's name to Stella.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     //console.log(command);
     var properNounsString = "";
     for (var i = 0; i < command.properNouns.length; i++) {
@@ -119,7 +138,7 @@ stella.tasks.push({
   fullName: "wikipedia",
   names: ["wikipedia", "research", "search", "encyclopedia"],
   desc: "Search Wikipedia for something.",
-  execute: function(command) {
+  execute: function(command, nvpStructure) {
     var properNounsString = "";
     var listToDefine = command.nouns.concat(command.adjectives, command.adjectiveSatellites); //command.properNouns
     for (var i = 0; i < listToDefine.length; i++) {
@@ -191,6 +210,102 @@ function parseCommand(commandString) {
     }
   }
   return command;
+}
+
+function getQualifiersFromTask(task) {
+  if (task.qualifiers === undefined) {
+    return [];
+  }
+  var results = [];
+  var keys = Object.keys(task.qualifiers);
+  for (var i = 0; i < keys.length; i++) {
+    for (var j = 0; j < task.qualifiers[keys[i]].length; j++) {
+      results.push(task.qualifiers[keys[i]][j]);
+    }
+  }
+  return results;
+}
+
+/*
+Parse a command like "please send an email to dante at 7:00 am with the subject hi and body hello" into a data structure like
+"please / send -> an email / to -> dante / at -> 7:00 am / with the subject -> hi / and / body -> hello",
+using the parts of speech of the words to separate sentences into prepositional/verb/adjective-noun (adj_satellite-noun?) phrases.
+
+Qualifiers are optional special words that are intended to be used as like prepositions,
+or words that create new object phrases. For example, given an email command we would want "subject", "body", etc. as qualifiers,
+where we can then extract the requested contents of subject -> ... and body -> ...
+*/
+function parseNounVerbPredicate(commandString, qualifiers) {
+  var tokens = commandString.replace(/[^\w\s]/gi, '').toLowerCase().split(" ");
+  var processedTokens = [];
+  var result = [];
+
+  var lastTokenIsPreposition = false;
+  for (var i = 0; i < tokens.length; i++) {
+    var id = wordsByName[tokens[i]];
+    var synset;
+    if (id === null || id === undefined) {
+      synset = undefined;
+    }
+    else {
+      synset = wordsById[id];
+    }
+
+    //TODO: Simplify this odd logic
+    var isPreposition = (prepositions[tokens[i].toLowerCase()] !== undefined && prepositions[tokens[i].toLowerCase()] !== null);
+    isPreposition = isPreposition || qualifiers.indexOf(tokens[i].toLowerCase()) !== -1;
+    if ((isPreposition && !lastTokenIsPreposition) || result.length === 0) {
+      lastTokenIsPreposition = true;
+      result.push({
+        mainWord: tokens[i],
+        words: [],
+        specialWords: [],
+        fullText: ""
+      });
+    }
+    else if (result.length === 0) {
+      if (synset !== undefined) {
+        result.push({
+          mainWord: null,
+          words: [synset],
+          specialWords: [],
+          fullText: ""
+        });
+      }
+      else {
+        result.push({
+          mainWord: null,
+          words: [],
+          specialWords: [tokens[i]],
+          fullText: ""
+        });
+      }
+      lastTokenIsPreposition = true;
+    }
+    else {
+      if (synset === null || synset === undefined) {
+        lastTokenIsPreposition = false;
+        result[result.length - 1].specialWords.push(tokens[i]);
+        result[result.length - 1].fullText += tokens[i] + " ";
+      }
+      else if (synset.partOfSpeech === "n" || synset.partOfSpeech === "a" || synset.partOfSpeech === "s") {
+        lastTokenIsPreposition = false;
+        result[result.length - 1].words.push(synset);
+        result[result.length - 1].fullText += tokens[i] + " ";
+      }
+      else {
+        lastTokenIsPreposition = true;
+        result.push({
+          mainWord: synset,
+          words: [],
+          specialWords: [],
+          fullText: ""
+        });
+      }
+    }
+  }
+
+  return result;
 }
 
 /*
