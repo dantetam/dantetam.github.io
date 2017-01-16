@@ -38,17 +38,26 @@ stella.tasks.push({
   execute: function(command, nvpStructure) {
     var tokens = command.fullCommand.split(" ");
     var recipients = "";
-    var subject = "Inquiry - " + username;
+    var subject = "Inquiry:";
+    var bodyText = "";
+    if (username !== null && username !== undefined) {
+      subject = "Inquiry from " + username + ":";
+    }
     for (var i = 0; i < tokens.length; i++) {
       if (tokens[i].indexOf("@") !== -1 || tokens[i].indexOf(".com") !== -1 || tokens[i].indexOf(".org") !== -1 || tokens[i].indexOf(".net") !== -1) {
         recipients += tokens[i] + ", "
       }
     }
-    var bodyText = "";
     for (var i = 0; i < nvpStructure.length; i++) {
       var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.subject.indexOf(mainToken) !== -1) {
+        subject += " " + nvpStructure[i].fullText;
+      }
       if (this.qualifiers.body.indexOf(mainToken) !== -1) {
-        bodyText = nvpStructure[i].fullText;
+        bodyText += nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.recipient.indexOf(mainToken) !== -1) {
+        recipients += nvpStructure[i].fullText;
       }
     }
 
