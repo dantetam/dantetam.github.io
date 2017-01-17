@@ -70,6 +70,10 @@ stella.tasks.push({
       "dantetam.github.io/src/experiments/stella/index.html";
     var win = window.open("mailto:" + recipients + "?subject=" + subject + "&body=" + body + "", '_blank');
     win.focus();
+
+    d3.select("#authorize-button").style("opacity", 1);
+    d3.select("#logout-button").style("opacity", 1);
+    d3.select("#email-display").style("display", "block");
   }
 });
 
@@ -92,12 +96,13 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "help",
-  names: ["help", "about"],
+  names: ["help", "about", "stella"],
   desc: "Provide information about Stella.",
   execute: function(command, nvpStructure) {
     stellaChat.html("<h3>Hi, my name is Stella. I love to learn about language and information.</h3>" +
       "<h4>Dante Tam, a CS major at UC berkeley, created me on January 12th, 2017.</h4>" +
       "<h4>Write me a note and I'll try to find the most relevant information and tasks.</h4>" +
+      //"<h4>Please type 'commands' for a list of commands.</h4>"
       "<p>Princeton University \"About WordNet.\" WordNet. Princeton University. 2010. &lt;<a href=http://wordnet.princeton.edu>http://wordnet.princeton.edu</a>&gt;</p>"
     );
   }
@@ -110,8 +115,23 @@ stella.tasks.push({
   execute: function(command, nvpStructure) {
     stellaChat.html("<h3>I can integrate with the following services (WIP):</h3>"
     );
+    d3.select("#authorize-button").style("opacity", 1);
+    d3.select("#logout-button").style("opacity", 1);
+    d3.select("#email-display").style("display", "block");
   }
 });
+
+/*
+stella.tasks.push({
+  fullName: "gmail",
+  names: ["integrate", "connect", "read", "gmail", "email"],
+  desc: "Integrate Stella with services such as Facebook and Gmail.",
+  execute: function(command, nvpStructure) {
+    stellaChat.html("<h3>I can integrate with the following services (WIP):</h3>"
+    );
+  }
+});
+*/
 
 stella.tasks.push({
   fullName: "jeopardy",
@@ -489,6 +509,7 @@ function findMatchesInStringArrays(list1, list2) {
     temp[list1[i].toLowerCase()] = true;
   }
   for (var i = 0; i < list2.length; i++) {
+    if (list2[i] === undefined) continue;
     if (temp[list2[i].toLowerCase()] === true && results[list2[i].toLowerCase()] === undefined) {
       results[list2[i].toLowerCase()] = true;
     }

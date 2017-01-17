@@ -41,17 +41,19 @@ wordsById[id] = {
   nyms: {} //A dictionary of -nyms ordered by symbol keys e.g. {"&" : 001, 002, ...; "^" : 003, ...}
 };
 */
+
 function readWordNet(file)
 {
   var rawFile = new XMLHttpRequest();
-  rawFile.open("GET", file, false);
   rawFile.onreadystatechange = function()
   {
-    if (this.readyState === 4)
+    console.log("fired function " + file + ":" + rawFile.readyState + ", " + rawFile.status);
+    if (rawFile.readyState === 4)
     {
-      if (this.status === 200 || this.status == 0)
+      if (rawFile.status === 200 || rawFile.status == 0)
       {
-        var allText = this.responseText;
+        console.log(file + ":parse");
+        var allText = rawFile.responseText;
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
         var lines = allText.split("\n");
@@ -104,12 +106,13 @@ function readWordNet(file)
           }
 
         }
+        //rawFile.abort();
+        //rawFile = null;
       }
     }
   }
+  rawFile.open("GET", file, false);
   rawFile.send(null);
-  rawFile.abort();
-  rawFile = null;
 }
 
 /*
@@ -128,27 +131,28 @@ function readDefinitions(file) {
 }
 
 function readPrepositions(file) {
-  var rawFile2 = new XMLHttpRequest();
-  rawFile2.open("GET", file, false);
-  rawFile2.onreadystatechange = function()
+  var rawFile = new XMLHttpRequest();
+  rawFile.onreadystatechange = function()
   {
-    if (this.readyState === 4)
+    if (rawFile.readyState === 4)
     {
-      if (this.status === 200 || this.status == 0)
+      if (rawFile.status === 200 || rawFile.status == 0)
       {
-        var allText = this.responseText;
-        console.log("Parsing prepositions with XMLHttpRequest");
+        var allText = rawFile.responseText;
+        //console.log("Parsing prepositions with XMLHttpRequest");
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
         var lines = allText.split("\n");
         for (var i = 0; i < lines.length; i++) {
           prepositions[lines[i].trim()] = true;
         }
+        //rawFile.abort();
+        //rawFile = null;
       }
     }
   }
-  rawFile2.send(null);
-  rawFile2 = null;
+  rawFile.open("GET", file, false);
+  rawFile.send(null);
 }
 
 
