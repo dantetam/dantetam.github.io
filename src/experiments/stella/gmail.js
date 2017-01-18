@@ -39,7 +39,7 @@ function handleAuthResult(authResult) {
   }
 }
 
-function logOut() {
+function logOutGmail() {
   gapi.auth.signOut();
   $('.table-inbox tbody').html("");
 

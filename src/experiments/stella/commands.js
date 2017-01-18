@@ -390,7 +390,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     if ((newPhrase && !lastTokenIsPreposition) || result.length === 0) {
       lastTokenIsPreposition = true;
       result.push({
-        type: syntacticCat + "P";
+        type: syntacticCat + "P",
         mainWord: tokens[i],
         words: [],
         specialWords: [],
@@ -400,7 +400,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     else if (result.length === 0) {
       if (synset !== undefined) {
         result.push({
-          type: syntacticCat + "P";
+          type: syntacticCat + "P",
           mainWord: null,
           words: [synset],
           specialWords: [],
@@ -409,7 +409,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       }
       else {
         result.push({
-          type: syntacticCat + "P";
+          type: syntacticCat + "P",
           mainWord: null,
           words: [],
           specialWords: [tokens[i]],
@@ -432,7 +432,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       else {
         lastTokenIsPreposition = true;
         result.push({
-          type: syntacticCat + "P";
+          type: syntacticCat + "P",
           mainWord: synset,
           words: [],
           specialWords: [],

@@ -1,158 +1,111 @@
-var clientId = '424136181163-bv5drepde8ruaug755ilqck7i599s2ci.apps.googleusercontent.com';
-var apiKey = 'AIzaSyClTWJV_mKBgGjO4MZ4t2kxnilvNHSjHes';
-var scopes = 'https://www.googleapis.com/auth/gmail.readonly';
-
-function handleClientLoad() {
-  gapi.client.setApiKey(apiKey);
-  window.setTimeout(checkAuth, 1);
-}
-
-function checkAuth() {
-  gapi.auth.authorize({
-    client_id: clientId,
-    scope: scopes,
-    immediate: true,
-    cookie_policy: 'single_host_origin'
-  }, handleAuthResult);
-}
-
-function handleAuthClick() {
-  gapi.auth.authorize({
-    client_id: clientId,
-    scope: scopes,
-    immediate: false,
-    cookie_policy: 'single_host_origin'
-  }, handleAuthResult);
-  return false;
-}
-
-function handleAuthResult(authResult) {
-  if(authResult && !authResult.error) {
-    loadGmailApi();
-    //$('#authorize-button').remove();
-    $('.table-inbox').removeClass("hidden");
+// This is called with the results from from FB.getLoginStatus().
+function statusChangeCallback(response) {
+  console.log('statusChangeCallback');
+  console.log(response);
+  // The response object is returned with a status field that lets the
+  // app know the current login status of the person.
+  // Full docs on the response object can be found in the documentation
+  // for FB.getLoginStatus().
+  if (response.status === 'connected') {
+    // Logged into your app and Facebook.
+    testAPI();
+  } else if (response.status === 'not_authorized') {
+    // The person is logged into Facebook, but not your app.
+    //document.getElementById('status').innerHTML = 'Please log ' +
+      //'into this app.';
+    console.log("Please log into this app.");
   } else {
-    //$('#authorize-button').removeClass("hidden");
-    $('#authorize-button').on('click', function(){
-      handleAuthClick();
-    });
+    // The person is not logged into Facebook, so we're not sure if
+    // they are logged into this app or not.
+    //document.getElementById('status').innerHTML = 'Please log ' +
+      //'into Facebook.';
+    console.log("Please log into Facebook.");
   }
 }
 
-function logOut() {
-  gapi.auth.signOut();
-  $('.table-inbox tbody').html("");
-
-  d3.select("#authorize-button").style("opacity", 0);
-  d3.select("#logout-button").style("opacity", 0);
-  d3.select("#email-display").style("display", "none");
-  //$('body').html("");
-}
-
-function loadGmailApi() {
-  gapi.client.load('gmail', 'v1', displayInbox);
-}
-
-function displayInbox() {
-  var request = gapi.client.gmail.users.messages.list({
-    'userId': 'me',
-    'labelIds': 'INBOX',
-    'maxResults': 50
+// This function is called when someone finishes with the Login
+// Button.  See the onlogin handler attached to it in the sample
+// code below.
+function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
   });
+}
 
-  request.execute(function(response) {
-    $.each(response.messages, function() {
-      var messageRequest = gapi.client.gmail.users.messages.get({
-        'userId': 'me',
-        'id': this.id
+/*
+window.fbAsyncInit = function() {
+FB.init({
+  appId      : '{your-app-id}',
+  cookie     : true,  // enable cookies to allow the server to access
+                      // the session
+  xfbml      : true,  // parse social plugins on this page
+  version    : 'v2.8' // use graph api version 2.8
+});
+
+
+// Now that we've initialized the JavaScript SDK, we call
+// FB.getLoginStatus().  This function gets the state of the
+// person visiting this page and can return one of three states to
+// the callback you provide.  They can be:
+//
+// 1. Logged into your app ('connected')
+// 2. Logged into Facebook, but not your app ('not_authorized')
+// 3. Not logged into Facebook and can't tell if they are logged into
+//    your app or not.
+//
+// These three cases are handled in the callback function.
+
+FB.getLoginStatus(function(response) {
+  statusChangeCallback(response);
+});
+
+};
+
+*/
+
+// Load the SDK asynchronously
+/*
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+*/
+
+// Here we run a very simple test of the Graph API after login is
+// successful.  See statusChangeCallback() for when this call is made.
+function testAPI() {
+  console.log('Welcome!  Fetching your information.... ');
+  FB.api('/me', function(response) {
+    console.log(response);
+    console.log('Successful login for: ' + response.name);
+    //document.getElementById('status').innerHTML =
+      //'Thanks for logging in, ' + response.name + '!';
+  });
+  var message = {
+    "recipient": {
+      "id": "+1(415)264-9122"
+    },
+    "message": {
+      "text": "Hello, world! This is an automated message sent by Stella, a sweet, language aware AI."
+    }
+  }
+  $.post("https://graph.facebook.com/v2.6/me/messages?access_token=1454216364589758", message, function(result) {
+
+  });
+}
+
+function logOutFacebook() {
+  FB.getLoginStatus(function(response) {
+    if (response.status === 'connected') {
+      //FB.logout(function(response) {
+        //
+      //});
+      FB.api("/me/permissions", "delete", function(response) {
+
       });
-      messageRequest.execute(appendMessageRow);
-    });
-  });
-}
-
-function appendMessageRow(message) {
-  $('.table-inbox tbody').append(
-    '<tr>\
-      <td>'+getHeader(message.payload.headers, 'From')+'</td>\
-      <td>'+getHeader(message.payload.headers, 'Subject')+'</td>\
-      <td>'+getHeader(message.payload.headers, 'Date')+'</td>\
-    </tr>'
-  );
-}
-
-function appendMessageRow(message) {
-  $('.table-inbox tbody').append(
-    '<tr>\
-      <td>'+getHeader(message.payload.headers, 'From')+'</td>\
-      <td>\
-        <a href="#message-modal-' + message.id +
-          '" data-toggle="modal" id="message-link-' + message.id+'">' +
-          getHeader(message.payload.headers, 'Subject') +
-        '</a>\
-      </td>\
-      <td>'+getHeader(message.payload.headers, 'Date')+'</td>\
-    </tr>'
-  );
-  $('body').append(
-    '<div class="modal fade" id="message-modal-' + message.id +
-        '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">\
-      <div class="modal-dialog modal-lg">\
-        <div class="modal-content">\
-          <div class="modal-header">\
-            <button type="button"\
-                    class="close"\
-                    data-dismiss="modal"\
-                    aria-label="Close">\
-              <span aria-hidden="true">&times;</span></button>\
-            <h4 class="modal-title" id="myModalLabel">' +
-              getHeader(message.payload.headers, 'Subject') +
-            '</h4>\
-          </div>\
-          <div class="modal-body">\
-            <iframe id="message-iframe-'+message.id+'" style="width: 100%;" height="' + ($(window).height() * 0.8) + '" srcdoc="<p>Loading...</p>">\
-            </iframe>\
-          </div>\
-        </div>\
-      </div>\
-    </div>'
-  );
-  $('#message-link-'+message.id).on('click', function() {
-    var ifrm = $('#message-iframe-'+message.id)[0].contentWindow.document;
-    $('body', ifrm).html(getBody(message.payload));
-  });
-}
-
-function getHeader(headers, index) {
-  var header = '';
-  $.each(headers, function() {
-    if (this.name === index) {
-      header = this.value;
     }
   });
-  return header;
-}
-function getBody(message) {
-  var encodedBody = '';
-  if (typeof message.parts === 'undefined') {
-    encodedBody = message.body.data;
-  }
-  else {
-    encodedBody = getHTMLPart(message.parts);
-  }
-  encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
-  return decodeURIComponent(escape(window.atob(encodedBody)));
-}
-function getHTMLPart(arr) {
-  for (var x = 0; x <= arr.length; x++) {
-    if (typeof arr[x].parts === 'undefined') {
-      if (arr[x].mimeType === 'text/html') {
-        return arr[x].body.data;
-      }
-    }
-    else {
-      return getHTMLPart(arr[x].parts);
-    }
-  }
-  return '';
 }
