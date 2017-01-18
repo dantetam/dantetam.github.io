@@ -1,6 +1,8 @@
 var wordsByName = Object.create(null);
 var wordsById = Object.create(null);
 var prepositions = Object.create(null);
+var conjunctions = Object.create(null);
+var determiners = Object.create(null);
 
 var specialWords = ["stella", "dante", "me", "you"];
 var questionWords = ["can", "is", "what", "why", "where", "when", "who", "whom", "which", "whose", "how", "whither", "whence"];
@@ -106,8 +108,8 @@ function readWordNet(file)
           }
 
         }
-        //rawFile.abort();
-        //rawFile = null;
+        rawFile.abort();
+        rawFile = null;
       }
     }
   }
@@ -130,29 +132,63 @@ function readDefinitions(file) {
 
 }
 
-function readPrepositions(file) {
+function readFile(file, dataFunction) {
   var rawFile = new XMLHttpRequest();
-  rawFile.onreadystatechange = function()
-  {
-    if (rawFile.readyState === 4)
-    {
-      if (rawFile.status === 200 || rawFile.status == 0)
-      {
+  rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4) {
+      if (rawFile.status === 200 || rawFile.status == 0) {
         var allText = rawFile.responseText;
-        //console.log("Parsing prepositions with XMLHttpRequest");
-        //fileDisplayArea.innerText = allText;
-        //d3.select("#fileParse").html(allText);
-        var lines = allText.split("\n");
-        for (var i = 0; i < lines.length; i++) {
-          prepositions[lines[i].trim()] = true;
-        }
-        //rawFile.abort();
-        //rawFile = null;
+        dataFunction(allText);
+        rawFile.abort();
+        rawFile = null;
       }
     }
   }
   rawFile.open("GET", file, false);
   rawFile.send(null);
+}
+
+function readPrepositions(file) {
+  var dataFunction = function(allText) {
+    var lines = allText.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      prepositions[lines[i].trim()] = true;
+    }
+  }
+  readFile(file, dataFunction);
+}
+
+function readConjunctions(file) {
+  var dataFunction = function(allText) {
+    var lines = allText.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      conjunctions[lines[i].trim()] = true;
+    }
+  }
+  readFile(file, dataFunction);
+}
+
+function readDeterminers(file) {
+  var dataFunction = function(allText) {
+    var lines = allText.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      determiners[lines[i].trim()] = true;
+    }
+  }
+  readFile(file, dataFunction);
+}
+
+function readLexemeExceptions(file) {
+  var dataFunction = function(allText) {
+    var lines = allText.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      var words = lines[i].split(" ");
+      var derived = words[0], original = words[1];
+      var id = wordsByName[original];
+      wordsByName[derived] = id;
+    }
+  }
+  readFile(file, dataFunction);
 }
 
 

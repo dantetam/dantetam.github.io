@@ -5,6 +5,15 @@ var stellaChat = d3.select("#stella-chat");
 stella.tasks = [];
 
 stella.tasks.push({
+  fullName: "analyze",
+  names: ["analyze", "infer", "tell"],
+  desc: "Analyze a body of text, an email, etc.",
+  execute: function(command, nvpStructure) {
+
+  }
+});
+
+stella.tasks.push({
   fullName: "define",
   names: ["define", "explain", "tell"], //Possibly a priority list with more relevant words first?
   desc: "Define a word by dictionary definitions.",
@@ -78,6 +87,56 @@ stella.tasks.push({
 });
 
 stella.tasks.push({
+  fullName: "facebook",
+  names: ["facebook", "message", "messenger", "fb"],
+  qualifiers: {
+    recipient: ["to"],
+    body: ["about", "contain", "text", "message"]
+  },
+  desc: "Enable FaceBook integration, including sending messages.",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var recipients = "";
+    var subject = "Inquiry:";
+    var bodyText = "";
+    if (username !== null && username !== undefined) {
+      subject = "Inquiry from " + username + ":";
+    }
+    for (var i = 0; i < tokens.length; i++) {
+      if (tokens[i].indexOf("@") !== -1 || tokens[i].indexOf(".com") !== -1 || tokens[i].indexOf(".org") !== -1 || tokens[i].indexOf(".net") !== -1) {
+        recipients += tokens[i] + ", "
+      }
+    }
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.subject.indexOf(mainToken) !== -1) {
+        subject += " " + nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.body.indexOf(mainToken) !== -1) {
+        bodyText += nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.recipient.indexOf(mainToken) !== -1) {
+        recipients += nvpStructure[i].fullText;
+      }
+    }
+
+    var body = "Hello,%0D%0A%0D%0A" +
+      bodyText +
+      "%0D%0A%0D%0A" + //4 carriages and newlines
+      "Sincerely,%0D%0A" +
+      username + "%0D%0A%0D%0A" +
+      "This message was sent by Stella, a sweet, language aware AI.%0D%0A" +
+      "dantetam.github.io/src/experiments/stella/index.html";
+    var win = window.open("mailto:" + recipients + "?subject=" + subject + "&body=" + body + "", '_blank');
+    win.focus();
+
+    d3.select("#authorize-button").style("opacity", 1);
+    d3.select("#logout-button").style("opacity", 1);
+    d3.select("#email-display").style("display", "block");
+  }
+});
+
+stella.tasks.push({
   fullName: "google",
   names: ["google", "search", "look"],
   desc: "Search Google for something.",
@@ -96,7 +155,7 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "help",
-  names: ["help", "about", "stella"],
+  names: ["help", "about", "you"],
   desc: "Provide information about Stella.",
   execute: function(command, nvpStructure) {
     stellaChat.html("<h3>Hi, my name is Stella. I love to learn about language and information.</h3>" +
@@ -184,7 +243,7 @@ stella.tasks.push({
 });
 
 function parseCommand(commandString) {
-  var tokens = commandString.replace(/[^\w\s]/gi, '').split(" ");
+  var tokens = commandString.split(" ");
   var command = {
     fullCommand: commandString,
     commandWords: [],
@@ -196,9 +255,33 @@ function parseCommand(commandString) {
     adverbs: [],
     properNouns: [],
     questionWords: [],
+    quotes: [],
     isQuestion: false
   };
-  if (commandString.indexOf("?"))
+  if (commandString.indexOf("?")) {
+
+  }
+
+  var inQuote = false;
+  var currentQuote = "";
+  var quoteLocations = [];
+  for (var i = 0; i < commandString.length; i++) {
+    if (commandString.charAt(i) === '"' || commandString.charAt(i) === "'") {
+      quoteLocations.push(i);
+      inQuote = !inQuote;
+      if (!inQuote) {
+        command.quotes.push(currentQuote);
+        currentQuote = "";
+      }
+    }
+    if (inQuote) {
+      currentQuote += commandString.charAt(i);
+    }
+  }
+  for (var i = quoteLocations.length - 1; i >= 0; i -= 2) {
+    commandString = commandString.substring(0, quoteLocations[i - 1]) + commandString.substring(quoteLocations[i - 1], commandString.length);
+  }
+
   for (var i = 0; i < tokens.length; i++) {
     /*if (specialWords.indexOf(tokens[i].toLowerCase()) !== -1) {
       command.specialExceptionWords.push(tokens[i].toLowerCase());
@@ -216,7 +299,7 @@ function parseCommand(commandString) {
       command.properNouns.push(tokens[i]);
       continue;
     }
-    var id = wordsByName[tokens[i].toLowerCase()];
+    var id = wordsByName[tokens[i].replace(/[^\w\s]/gi, '').toLowerCase()];
     if (id !== undefined && id !== null) {
       if (typeof id === "number") id = [id];
       for (var j = 0; j < id.length; j++) {
@@ -280,12 +363,34 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       synset = wordsById[id];
     }
 
-    //TODO: Simplify this odd logic
+    //We see the variable isPreposition, under the following conditions:
+    //the word is directly found in the list of prepositions,
+    //the word is directly found in the list of conjunctions,
+    //the word is directly found in the list of question words,
+    //or the word is marked as a custom qualifier.
     var isPreposition = (prepositions[tokens[i].toLowerCase()] !== undefined && prepositions[tokens[i].toLowerCase()] !== null);
-    isPreposition = isPreposition || qualifiers.indexOf(tokens[i].toLowerCase()) !== -1;
-    if ((isPreposition && !lastTokenIsPreposition) || result.length === 0) {
+    var isConjunction = (conjunctions[tokens[i].toLowerCase()] !== undefined && conjunctions[tokens[i].toLowerCase()] !== null);
+    var isDeterminer = (determiners[tokens[i].toLowerCase()] !== undefined && determiners[tokens[i].toLowerCase()] !== null);
+    var isQuestionWord = (questionWords[tokens[i].toLowerCase()] !== undefined && questionWords[tokens[i].toLowerCase()] !== null);
+    var isQualifier = qualifiers.indexOf(tokens[i].toLowerCase()) !== -1;
+
+    var syntacticCat = "";
+    var newPhrase = isPreposition || isConjunction || isDeterminer || isQuestionWord;
+    if (newPhrase) {
+      if (isPreposition) syntacticCat = "P";
+      else if (isConjunction) syntacticCat = "C";
+      else if (isDeterminer) syntacticCat = "D";
+      else if (isQuestionWord) syntacticCat = "D";
+    }
+    else {
+      syntacticCat = synset.partOfSpeech.toUpperCase();
+    }
+
+    //TODO: Simplify this odd logic
+    if ((newPhrase && !lastTokenIsPreposition) || result.length === 0) {
       lastTokenIsPreposition = true;
       result.push({
+        type: syntacticCat + "P";
         mainWord: tokens[i],
         words: [],
         specialWords: [],
@@ -295,6 +400,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     else if (result.length === 0) {
       if (synset !== undefined) {
         result.push({
+          type: syntacticCat + "P";
           mainWord: null,
           words: [synset],
           specialWords: [],
@@ -303,6 +409,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       }
       else {
         result.push({
+          type: syntacticCat + "P";
           mainWord: null,
           words: [],
           specialWords: [tokens[i]],
@@ -325,6 +432,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       else {
         lastTokenIsPreposition = true;
         result.push({
+          type: syntacticCat + "P";
           mainWord: synset,
           words: [],
           specialWords: [],
@@ -518,6 +626,18 @@ function findMatchesInStringArrays(list1, list2) {
   //console.log(list2);
   //console.log(Object.keys(results));
   return Object.keys(results);
+}
+
+function findWordMap(text, exceptions=[], splitByChar=" ") {
+  var results = {};
+  var tokens = text.split(splitByChar);
+  for (var i = 0; i < tokens.length; i++) {
+    if (results[tokens[i]] === undefined) {
+      results[tokens[i]] = 0;
+    }
+    results[tokens[i]]++;
+  }
+  return results;
 }
 
 
