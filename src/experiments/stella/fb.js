@@ -93,7 +93,7 @@ function testAPI() {
     }
   }
   $.post("https://graph.facebook.com/v2.6/me/messages?access_token=1454216364589758", message, function(result) {
-
+    console.log(result);
   });
 }
 

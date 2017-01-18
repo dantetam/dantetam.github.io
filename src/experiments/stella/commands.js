@@ -236,6 +236,9 @@ stella.tasks.push({
       }
     }
     listToDefine = listToDefine.concat(command.properNouns);
+    for (var i = 0; i < command.properNouns.length; i++) {
+      properNounsString += command.properNouns[i] + "+";
+    }
     //properNounsString.replace(" ", "+");
     var win = window.open("https://en.wikipedia.org/w/index.php?search=" + properNounsString, '_blank');
     win.focus();
@@ -374,6 +377,8 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     var isQuestionWord = (questionWords[tokens[i].toLowerCase()] !== undefined && questionWords[tokens[i].toLowerCase()] !== null);
     var isQualifier = qualifiers.indexOf(tokens[i].toLowerCase()) !== -1;
 
+    console.log(isConjunction + " " + tokens[i].toLowerCase());
+
     var syntacticCat = "";
     var newPhrase = isPreposition || isConjunction || isDeterminer || isQuestionWord;
     if (newPhrase) {
@@ -383,7 +388,12 @@ function parseNounVerbPredicate(commandString, qualifiers) {
       else if (isQuestionWord) syntacticCat = "D";
     }
     else {
-      syntacticCat = synset.partOfSpeech.toUpperCase();
+      if (synset === undefined || synset === null) {
+        syntacticCat = "N";
+      }
+      else {
+        syntacticCat = synset.partOfSpeech.toUpperCase();
+      }
     }
 
     //TODO: Simplify this odd logic
@@ -629,14 +639,49 @@ function findMatchesInStringArrays(list1, list2) {
 }
 
 function findWordMap(text, exceptions=[], splitByChar=" ") {
-  var results = {};
-  var tokens = text.split(splitByChar);
+  var results = {
+    mainLinkedWords: {},
+    otherWords: {}
+  };
+  var tokens = text.replace(/\n/g, " ").toLowerCase().split(splitByChar);
   for (var i = 0; i < tokens.length; i++) {
-    if (results[tokens[i]] === undefined) {
-      results[tokens[i]] = 0;
+    if (exceptions.indexOf(tokens[i]) !== -1) {
+      continue;
     }
-    results[tokens[i]]++;
+    if (tokens[i].indexOf("[[") !== -1) {
+      var newToken;
+      if (tokens[i].indexOf("|") !== -1) {
+        var split = tokens[i].split("|"); //This token is of the form [[ realWord (article name) | displayWord]]
+        newToken = split[0].replace(/[^\w\s]/gi, '');
+      }
+      else {
+        newToken = tokens[i].replace(/[^\w\s]/gi, '');
+      }
+      if (results.mainLinkedWords[tokens[i]] === undefined) {
+        results.mainLinkedWords[newToken] = 0;
+      }
+      results.mainLinkedWords[newToken]++;
+    }
+    else {
+      if (results.otherWords[tokens[i]] === undefined) {
+        results.otherWords[tokens[i]] = 0;
+      }
+      results.otherWords[tokens[i]]++;
+    }
   }
+  var sortedMain = Object.keys(results.mainLinkedWords).sort(function(a,b) {return results.mainLinkedWords[b] - results.mainLinkedWords[a];});
+  var sortedOther = Object.keys(results.otherWords).sort(function(a,b) {return results.otherWords[b] - results.otherWords[a];});
+
+  var sortedOtherCount = [];
+  for (var i = 0; i < sortedOther.length; i++) {
+    var key = sortedOther[i];
+    //console.log(key);
+    sortedOtherCount.push(results.otherWords[key]);
+  }
+
+  console.log(sortedOther);
+  console.log(sortedOtherCount);
+
   return results;
 }
 
