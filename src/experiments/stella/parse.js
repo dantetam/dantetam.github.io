@@ -32,7 +32,7 @@ var specialWebsitesAndThings = ["google", "wikipedia", "facebook", "fb"];
 
 var fileDisplayArea = document.getElementById('fileParse');
 
-var username = null;
+var username = Cookies.get('userdata-username') !== undefined ? Cookies.get('userdata-username') : null;
 
 /*
 Takes a WordNet file and converts into JS data structures, where

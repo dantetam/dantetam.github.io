@@ -37,13 +37,24 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "email",
-  names: ["email", "gmail", "e-mail", "send"],
+  names: ["email", "gmail", "e-mail", "check", "look", "read"],
+  desc: "Open the user's email client in the site.",
+  execute: function(command, nvpStructure) {
+    d3.select("#authorize-button").style("opacity", 1);
+    d3.select("#logout-button").style("opacity", 1);
+    d3.select("#email-display").style("display", "block");
+  }
+});
+
+stella.tasks.push({
+  fullName: "email-write",
+  names: ["email", "gmail", "e-mail", "send", "write", "compose"],
   qualifiers: {
     recipient: ["to"],
     body: ["about", "contain", "body", "text"],
     subject: ["subject", "topic", "heading"]
   },
-  desc: "Open the user's email client.",
+  desc: "Open the user's email client and write an email.",
   execute: function(command, nvpStructure) {
     var tokens = command.fullCommand.split(" ");
     var recipients = "";
@@ -210,15 +221,16 @@ stella.tasks.push({
   desc: "Provide the user's name to Stella.",
   execute: function(command, nvpStructure) {
     //console.log(command);
-    var properNounsString = "";
-    for (var i = 0; i < command.properNouns.length; i++) {
-      properNounsString += command.properNouns[i];
-      if (i !== command.properNouns.length - 1) {
-        properNounsString += " ";
+    var newName = "";
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.name.indexOf(mainToken) !== -1) {
+        newName += nvpStructure[i].fullText.trim();
       }
     }
-    username = properNounsString;
-    stellaChat.html("<h3>Nice to meet you, " + username + "!</h3>" );
+    username = newName;
+    stellaChat.html("<h3>Nice to meet you, " + newName + "!</h3>" );
+    Cookies.set('userdata-username', newName, {expires: 700});
   }
 });
 
@@ -351,7 +363,7 @@ or words that create new object phrases. For example, given an email command we 
 where we can then extract the requested contents of subject -> ... and body -> ...
 */
 function parseNounVerbPredicate(commandString, qualifiers) {
-  var tokens = commandString.replace(/[^\w\s]/gi, '').toLowerCase().split(" ");
+  var tokens = commandString.replace(/[^\w\s]/gi, '').split(" ");
   var processedTokens = [];
   var result = [];
 
@@ -377,7 +389,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     var isQuestionWord = (questionWords[tokens[i].toLowerCase()] !== undefined && questionWords[tokens[i].toLowerCase()] !== null);
     var isQualifier = qualifiers.indexOf(tokens[i].toLowerCase()) !== -1;
 
-    console.log(isConjunction + " " + tokens[i].toLowerCase());
+    //console.log(isConjunction + " " + tokens[i].toLowerCase());
 
     var syntacticCat = "";
     var newPhrase = isPreposition || isConjunction || isDeterminer || isQuestionWord;
@@ -397,7 +409,7 @@ function parseNounVerbPredicate(commandString, qualifiers) {
     }
 
     //TODO: Simplify this odd logic
-    if ((newPhrase && !lastTokenIsPreposition) || result.length === 0) {
+    if ((newPhrase && !lastTokenIsPreposition) || result.length === 0 || isQualifier) {
       lastTokenIsPreposition = true;
       result.push({
         type: syntacticCat + "P",
@@ -574,7 +586,7 @@ function findStellaTaskRelatedToCommand(commandString) {
 
   //console.log(parsed);
   var taskRelatedWords = findAssociatedWords(parsed.specialWebsitesAndThings[i]);
-  console.log(taskRelatedWords);
+  //console.log(taskRelatedWords);
   for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
   for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
   for (var j = 0; j < taskRelatedWords[1].length; j++) relatedSynsets.push(taskRelatedWords[1][j]);
@@ -648,6 +660,9 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
     if (exceptions.indexOf(tokens[i]) !== -1) {
       continue;
     }
+    if (tokens[i].indexOf("{{") !== -1 || tokens[i].indexOf("File:") !== -1) {
+      continue;
+    }
     if (tokens[i].indexOf("[[") !== -1) {
       var newToken;
       if (tokens[i].indexOf("|") !== -1) {
@@ -682,7 +697,7 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
   console.log(sortedOther);
   console.log(sortedOtherCount);
 
-  return results;
+  return {results: results, sortedOther: sortedOther, sortedOtherCount: sortedOtherCount};
 }
 
 

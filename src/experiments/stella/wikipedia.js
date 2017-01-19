@@ -7,8 +7,8 @@ function getWikipediaContentForSubjects(subjects) {
         var pageContent = pages[keys[j]]["revisions"][0]["*"];
         //pageContent = pageContent.replace(/[^\w\s]/gi, '');
         var wordMap = findWordMap(pageContent);
-        console.log(pageContent);
-        console.log(wordMap);
+        //console.log(pageContent);
+        //console.log(wordMap);
       }
     }
   }

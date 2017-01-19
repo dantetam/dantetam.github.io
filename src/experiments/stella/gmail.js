@@ -72,16 +72,25 @@ function displayInbox() {
 }
 
 function appendMessageRow(message) {
+  var labelsString = "";
+  for (var i = 0; i < message.labelIds.length; i++) {
+    labelsString += message.labelIds[i] + " ";
+  }
   $('.table-inbox tbody').append(
     '<tr>\
       <td>'+getHeader(message.payload.headers, 'From')+'</td>\
       <td>'+getHeader(message.payload.headers, 'Subject')+'</td>\
+      <td>'+labelsString+'</td>\
       <td>'+getHeader(message.payload.headers, 'Date')+'</td>\
     </tr>'
   );
 }
 
 function appendMessageRow(message) {
+  var labelsString = "";
+  for (var i = 0; i < message.labelIds.length; i++) {
+    labelsString += message.labelIds[i] + " ";
+  }
   $('.table-inbox tbody').append(
     '<tr>\
       <td>'+getHeader(message.payload.headers, 'From')+'</td>\
@@ -91,6 +100,7 @@ function appendMessageRow(message) {
           getHeader(message.payload.headers, 'Subject') +
         '</a>\
       </td>\
+      <td>'+labelsString+'</td>\
       <td>'+getHeader(message.payload.headers, 'Date')+'</td>\
     </tr>'
   );

@@ -23,6 +23,12 @@ input {
   width: 50%;
 }
 
+#map {
+  height: 400px;
+  width: 100%;
+}
+
+
 </style>
 <html lang="en">
   <head>
@@ -66,6 +72,8 @@ input {
 
     <script src="d3.hexbin.min.js"></script>
     <script type="text/javascript" src="data.js"></script>
+
+    <script src="./maps.js"></script>
 
   </head>
 
@@ -156,11 +164,14 @@ input {
 
       <button id="fb-logout-button" class="btn" onclick="javascript:logOutFacebook();" style="opacity: 1;">Log Out Facebook</button>
 
+      <div id="map"></div>
+
       <table id="email-display" class="table table-striped table-inbox hidden" style="display: none;">
         <thead>
           <tr>
             <th>From</th>
             <th>Subject</th>
+            <th>Labels</th>
             <th>Date/Time</th>
           </tr>
         </thead>
@@ -193,6 +204,7 @@ input {
     <script src="../../../dist/js/bootstrap.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="cookie.js"></script>
 
     <script src="./parse.js"></script>
     <script src="./commands.js"></script>
@@ -288,6 +300,21 @@ input {
         }
       });
 
+    /*
+    function initMap() {
+      var uluru = {lat: -25.363, lng: 131.044};
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: uluru
+      });
+      var marker = new google.maps.Marker({
+        position: uluru,
+        map: map
+      });
+      //console.log("initialized map");
+    }
+    */
+
     window.fbAsyncInit = function() {
       FB.init({
         appId      : '1454216364589758',
@@ -312,7 +339,11 @@ input {
 
     <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
     <script src="./wikipedia.js"></script>
-    
+
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTWJV_mKBgGjO4MZ4t2kxnilvNHSjHes&libraries=places&callback=initMap" async defer>
+    </script>
+
     <!--
     <footer>
       <p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;<a href=http://wordnet.princeton.edu></a>&gt;</p>
