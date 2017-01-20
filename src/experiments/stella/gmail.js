@@ -1,6 +1,6 @@
 var clientId = '424136181163-bv5drepde8ruaug755ilqck7i599s2ci.apps.googleusercontent.com';
 var apiKey = 'AIzaSyClTWJV_mKBgGjO4MZ4t2kxnilvNHSjHes';
-var scopes = 'https://www.googleapis.com/auth/gmail.readonly';
+var scopes = 'https://www.googleapis.com/auth/gmail.readonly' + ' ' + 'https://www.googleapis.com/auth/calendar';
 
 function handleClientLoad() {
   gapi.client.setApiKey(apiKey);
@@ -29,6 +29,8 @@ function handleAuthClick() {
 function handleAuthResult(authResult) {
   if(authResult && !authResult.error) {
     loadGmailApi();
+    loadCalendarApi();
+    //testRequestCreateEvent();
     //$('#authorize-button').remove();
     $('.table-inbox').removeClass("hidden");
   } else {
@@ -38,6 +40,53 @@ function handleAuthResult(authResult) {
     });
   }
 }
+
+/**
+ * Load Google Calendar client library. List upcoming events
+ * once client library is loaded.
+ */
+function loadCalendarApi() {
+  gapi.client.load('calendar', 'v3', function() {
+    //testRequestCreateEvent(); 
+    listUpcomingEvents();
+  });
+}
+
+/**
+ * Print the summary and start datetime/date of the next ten events in
+ * the authorized user's calendar. If no events are found an
+ * appropriate message is printed.
+ */
+function listUpcomingEvents() {
+  var request = gapi.client.calendar.events.list({
+    'calendarId': 'primary',
+    'timeMin': (new Date('2000-1-1')).toISOString(),
+    'showDeleted': false,
+    'singleEvents': true,
+    'maxResults': 10,
+    'orderBy': 'startTime'
+  });
+
+  request.execute(function(resp) {
+    var events = resp.items;
+    console.log('Upcoming events:');
+
+    if (events.length > 0) {
+      for (i = 0; i < events.length; i++) {
+        var event = events[i];
+        var when = event.start.dateTime;
+        if (!when) {
+          when = event.start.date;
+        }
+        console.log(event.summary + ' (' + when + ')')
+      }
+    } else {
+      console.log('No upcoming events found.');
+    }
+
+  });
+}
+
 
 function logOutGmail() {
   gapi.auth.signOut();

@@ -1,18 +1,32 @@
 var map;
 var infowindow;
 
+var userLocation = null;
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(function(position) {userLocation = position;}, function(err) {}, {timeout:10000});
+} else {
+  console.log("Geolocation is not supported by this browser.");
+}
+
 function initMap() {
-  var pyrmont = {lat: -33.867, lng: 151.195};
+  var coord;
+  if (userLocation !== null) {
+    coord = {lat: userLocation.coords.latitude, lng: userLocation.coords.longitude};
+  }
+  else {
+    coord = {lat: -33.867, lng: 151.195}; //"Pyrmont, Sydney, Australia"
+  }
 
   map = new google.maps.Map(document.getElementById('map'), {
-    center: pyrmont,
+    center: coord,
     zoom: 15
   });
 
   infowindow = new google.maps.InfoWindow();
   var service = new google.maps.places.PlacesService(map);
   service.nearbySearch({
-    location: pyrmont,
+    location: coord,
     radius: 500,
     type: ['store']
   }, mapCallback);
@@ -34,6 +48,7 @@ function createMarker(place) {
   });
 
   google.maps.event.addListener(marker, 'click', function() {
+    console.log(place);
     infowindow.setContent(place.name);
     infowindow.open(map, this);
   });

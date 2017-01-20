@@ -173,7 +173,7 @@ stella.tasks.push({
       "<h4>Dante Tam, a CS major at UC berkeley, created me on January 12th, 2017.</h4>" +
       "<h4>Write me a note and I'll try to find the most relevant information and tasks.</h4>" +
       //"<h4>Please type 'commands' for a list of commands.</h4>"
-      "<p>Princeton University \"About WordNet.\" WordNet. Princeton University. 2010. &lt;<a href=http://wordnet.princeton.edu>http://wordnet.princeton.edu</a>&gt;</p>"
+      "<p>Princeton University \"About WordNet.\" WordNet. Princeton University. 2010. &lt;<a href=https://wordnet.princeton.edu>https://wordnet.princeton.edu</a>&gt;</p>"
     );
   }
 });
@@ -231,6 +231,77 @@ stella.tasks.push({
     username = newName;
     stellaChat.html("<h3>Nice to meet you, " + newName + "!</h3>" );
     Cookies.set('userdata-username', newName, {expires: 700});
+  }
+});
+
+stella.tasks.push({
+  fullName: "schedule",
+  names: ["calendar", "schedule", "appointment", "alarm", "set"],
+  qualifiers: {
+    time: ["at", "on"],
+    delay: ["in", "after"],
+    //here: ["here", "my", "home"]
+  },
+  desc: "Search Google Maps for a location or a path from one place to another.",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var startLocation = null, destination = null, query = [];
+
+    for (var i = 0; i < tokens.length; i++) {
+      if (tokens[i].indexOf("here") !== -1 || tokens[i].indexOf("my") !== -1 || tokens[i].indexOf("home") !== -1) {
+        startLocation = userLocation;
+      }
+    }
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.destination.indexOf(mainToken) !== -1) {
+        destination += nvpStructure[i].fullText + " ";
+      }
+      if (this.qualifiers.startingLocation.indexOf(mainToken) !== -1) {
+        startLocation += nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.query.indexOf(mainToken) !== -1) {
+        query.push(nvpStructure[i].fullText);
+      }
+    }
+
+    
+  }
+});
+
+stella.tasks.push({
+  fullName: "search-map",
+  names: ["map", "direction", "search", "location", "find"],
+  qualifiers: {
+    destination: ["of", "to"],
+    startingLocation: ["from", "starting"],
+    query: ["nearby", "near", "nearest", "close", "closest"],
+    //here: ["here", "my", "home"]
+  },
+  desc: "Search Google Maps for a location or a path from ",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var startLocation = null, destination = null, query = [];
+
+    for (var i = 0; i < tokens.length; i++) {
+      if (tokens[i].indexOf("here") !== -1 || tokens[i].indexOf("my") !== -1 || tokens[i].indexOf("home") !== -1) {
+        startLocation = userLocation;
+      }
+    }
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.destination.indexOf(mainToken) !== -1) {
+        destination += nvpStructure[i].fullText + " ";
+      }
+      if (this.qualifiers.startingLocation.indexOf(mainToken) !== -1) {
+        startLocation += nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.query.indexOf(mainToken) !== -1) {
+        query.push(nvpStructure[i].fullText);
+      }
+    }
+
+
   }
 });
 
