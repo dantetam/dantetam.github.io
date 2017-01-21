@@ -342,13 +342,13 @@ input {
     <script src="./wikipedia.js"></script>
 
     <script>
+
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);
-      var energy = getEnergy(wordMap, "This is a sentence about water and ice and freshwater.");
-      console.log("Energy of text in relation to 'Water' " + energy);
-      var energy = getEnergy(wordMap, "This is a sentence not really related to the topics at hand. Cool.");
-      console.log("Energy of text in relation to 'Water' " + energy);
+      var energy = getEnergy(wordMap, pageContent);
+      removeAllTokens(pageContent);
     });
+
     </script>
 
     <script

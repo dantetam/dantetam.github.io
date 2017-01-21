@@ -47,13 +47,26 @@ function getMainBoxData(subjects) {
   //where the nearest town/object(park,mine,etc.) is documented.
 }
 
+var defaultTokens = ["{{/}}", "[[/]]", "</>"];
+function removeAllTokens(text, tokens=defaultTokens) {
+  console.log(text);
+  //for (var i = 0; i < tokens.length; i++) {
+    text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>) */g, "");
+    //text = text.replace(/(\[\[File.*?\]\]) */g, "");
+    text = text.replace(/(\[\[File.*?\]\]) */g, "");
+
+  //}
+  console.log(text);
+}
+
 function getEnergy(mainTopicWikipediaData, text) {
   var energy = 0;
   var sentences = text.split(".");
   for (var i = 0; i < sentences.length; i++) {
-    console.log(sentence);
     var sentence = sentences[i].replace(/[^\w\s]/gi, "");
+    console.log(sentence);
     energy += getEnergySentence(mainTopicWikipediaData, sentence);
+    console.log(sentence + ". has energy " + getEnergySentence(mainTopicWikipediaData, sentence));
   }
   return energy;
 }
@@ -61,9 +74,9 @@ function getEnergy(mainTopicWikipediaData, text) {
 function getEnergySentence(mainTopicWikipediaData, sentence) {
   var tokens = sentence.split(" ");
   var energy = 0;
-  console.log(mainTopicWikipediaData.results.otherWords);
+  //console.log(mainTopicWikipediaData.results.otherWords);
   for (var i = 0; i < tokens.length; i++) {
-    console.log(tokens[i]);
+    //console.log(tokens[i]);
     if (tokens[i] in prepositions) continue;
     if (!(tokens[i] in mainTopicWikipediaData.results.otherWords)) continue;
     var wordPrevalence = mainTopicWikipediaData.results.otherWords[tokens[i]];
