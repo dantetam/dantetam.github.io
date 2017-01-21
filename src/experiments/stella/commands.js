@@ -5,9 +5,23 @@ var stellaChat = d3.select("#stella-chat");
 stella.tasks = [];
 
 stella.tasks.push({
+  fullName: "adventure",
+  names: ["adventure", "explore", "google", "maps", "random"],
+  desc: "Create a new adventure which consists of multiple random stops in a normal path.",
+  execute: function(command, nvpStructure) {
+
+  }
+});
+
+stella.tasks.push({
   fullName: "analyze",
   names: ["analyze", "infer", "tell"],
   desc: "Analyze a body of text, an email, etc.",
+  qualifiers: {
+    location: ["around", "near", "at"],
+    stops: ["stops", "waypoints", "layovers"],
+    distance: ["distance", "radius"]
+  },
   execute: function(command, nvpStructure) {
 
   }
@@ -236,36 +250,19 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "schedule",
-  names: ["calendar", "schedule", "appointment", "alarm", "set"],
+  names: ["calendar", "schedule", "appointment", "alarm", "set", "reminder"],
   qualifiers: {
     time: ["at", "on"],
     delay: ["in", "after"],
     //here: ["here", "my", "home"]
   },
-  desc: "Search Google Maps for a location or a path from one place to another.",
+  desc: "Schedule an appointment or reminder through Stella's version of Keep.",
   execute: function(command, nvpStructure) {
     var tokens = command.fullCommand.split(" ");
     var startLocation = null, destination = null, query = [];
 
-    for (var i = 0; i < tokens.length; i++) {
-      if (tokens[i].indexOf("here") !== -1 || tokens[i].indexOf("my") !== -1 || tokens[i].indexOf("home") !== -1) {
-        startLocation = userLocation;
-      }
-    }
-    for (var i = 0; i < nvpStructure.length; i++) {
-      var mainToken = nvpStructure[i].mainWord;
-      if (this.qualifiers.destination.indexOf(mainToken) !== -1) {
-        destination += nvpStructure[i].fullText + " ";
-      }
-      if (this.qualifiers.startingLocation.indexOf(mainToken) !== -1) {
-        startLocation += nvpStructure[i].fullText;
-      }
-      if (this.qualifiers.query.indexOf(mainToken) !== -1) {
-        query.push(nvpStructure[i].fullText);
-      }
-    }
+    //Use the Trello API or Stella's version of Keep.
 
-    
   }
 });
 
@@ -301,6 +298,15 @@ stella.tasks.push({
       }
     }
 
+
+  }
+});
+
+stella.tasks.push({
+  fullName: "trello",
+  names: ["trello", "plan", "note", "write"],
+  desc: "Integrate with the Trello API, and work with its boards and plans.",
+  execute: function(command, nvpStructure) {
 
   }
 });
@@ -765,8 +771,8 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
     sortedOtherCount.push(results.otherWords[key]);
   }
 
-  console.log(sortedOther);
-  console.log(sortedOtherCount);
+  //console.log(sortedOther);
+  //console.log(sortedOtherCount);
 
   return {results: results, sortedOther: sortedOther, sortedOtherCount: sortedOtherCount};
 }
