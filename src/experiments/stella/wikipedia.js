@@ -1,4 +1,4 @@
-function getWikipediaContentForSubjects(subjects, finalCallback) {
+function getWikipediaContentForSubjects(subjects, finalCallback=null) {
   var result = [];
   var callback = function(rawContent) {
     var pages = rawContent["query"]["pages"];
@@ -11,6 +11,9 @@ function getWikipediaContentForSubjects(subjects, finalCallback) {
         //console.log(pageContent);
         //console.log(wordMap);
         result.push(pageContent);
+        if (finalCallback !== null) {
+          finalCallback(pageContent);
+        }
       }
     }
   }
@@ -18,7 +21,6 @@ function getWikipediaContentForSubjects(subjects, finalCallback) {
     //xdr("https://en.wikipedia.org/w/api.php?action=query&titles=" + subjects[i] + "&prop=revisions&format=json", "GET", callback);
     callWikipediaAPI(subjects[i], callback);
   }
-  finalCallback(result);
 }
 //getWikipediaContentForSubjects(["Water"]);
 
@@ -47,10 +49,10 @@ function getMainBoxData(subjects) {
 
 function getEnergy(mainTopicWikipediaData, text) {
   var energy = 0;
-  var sentences = text.split(/\n/g).split(".");
+  var sentences = text.split(".");
   for (var i = 0; i < sentences.length; i++) {
-    var sentence = sentences[i];
     console.log(sentence);
+    var sentence = sentences[i].replace(/[^\w\s]/gi, "");
     energy += getEnergySentence(mainTopicWikipediaData, sentence);
   }
   return energy;
@@ -58,13 +60,17 @@ function getEnergy(mainTopicWikipediaData, text) {
 
 function getEnergySentence(mainTopicWikipediaData, sentence) {
   var tokens = sentence.split(" ");
-  
+  var energy = 0;
+  console.log(mainTopicWikipediaData.results.otherWords);
+  for (var i = 0; i < tokens.length; i++) {
+    console.log(tokens[i]);
+    if (tokens[i] in prepositions) continue;
+    if (!(tokens[i] in mainTopicWikipediaData.results.otherWords)) continue;
+    var wordPrevalence = mainTopicWikipediaData.results.otherWords[tokens[i]];
+    energy += wordPrevalence;
+  }
+  return energy;
 }
-
-getWikipediaContentForSubjects(["Water"], function(data) {
-  var wordMap = findWordMap(pageContent);
-  getEnergy(wordMap, pageContent);
-});
 
 
 

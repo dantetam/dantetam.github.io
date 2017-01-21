@@ -341,6 +341,16 @@ input {
     <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
     <script src="./wikipedia.js"></script>
 
+    <script>
+    getWikipediaContentForSubjects(["Water"], function(pageContent) {
+      var wordMap = findWordMap(pageContent);
+      var energy = getEnergy(wordMap, "This is a sentence about water and ice and freshwater.");
+      console.log("Energy of text in relation to 'Water' " + energy);
+      var energy = getEnergy(wordMap, "This is a sentence not really related to the topics at hand. Cool.");
+      console.log("Energy of text in relation to 'Water' " + energy);
+    });
+    </script>
+
     <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTWJV_mKBgGjO4MZ4t2kxnilvNHSjHes&libraries=places&callback=initMap">
     </script>

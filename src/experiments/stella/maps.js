@@ -10,6 +10,7 @@ if (navigator.geolocation) {
 }
 
 function initMap() {
+  /*
   var coord;
   if (userLocation !== null) {
     coord = {lat: userLocation.coords.latitude, lng: userLocation.coords.longitude};
@@ -30,6 +31,7 @@ function initMap() {
     radius: 500,
     type: ['store']
   }, mapCallback);
+  */
 }
 
 function mapCallback(results, status) {

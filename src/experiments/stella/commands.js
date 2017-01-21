@@ -732,6 +732,8 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
     mainLinkedWords: {},
     otherWords: {}
   };
+  console.log(">>>");
+  console.log(text);
   var tokens = text.replace(/\n/g, " ").toLowerCase().split(splitByChar);
   for (var i = 0; i < tokens.length; i++) {
     if (exceptions.indexOf(tokens[i]) !== -1) {
