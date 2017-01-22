@@ -346,6 +346,8 @@ input {
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);
       var energy = getEnergy(wordMap, pageContent);
+      var topSentences = getTopSentencesFromText(wordMap, pageContent);
+      console.log(topSentences);
       removeAllTokens(pageContent);
     });
 
