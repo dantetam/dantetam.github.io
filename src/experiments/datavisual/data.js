@@ -239,6 +239,72 @@ techEra0.push({name: "Colony Ships", type: "Society", researchNeeded: 300, unit:
 
 techEra0.push({name: "Spaceport II", type: "Production", researchNeeded: 300, satellite: "Spaceport II"});
 
+var nameFileNames = ["AI","ART1","ART2","ART3","AVI1","AVI2","AVI3","Extradimensional","FUN1","FUN2","FUN3",
+                     "Human","Human2","MAM1","MAM2","MAM3","MAM4","MAM5","MOL1","MOL2","MOL3","Prethoryn",
+                     "PRT1","PRT2","REP1","REP2","REP3"];
+var keyNameWords = ["full_names", "generic", "names"];
+
+function parseNameFile(data) {
+  //console.log(data);
+  var split = data.replace("\n", " ").split(/\{|\}/);
+  var parseNamesNextToken = false;
+  for (var i = 0; i < split.length; i++) {
+    var token = split[i].trim();
+    if (parseNamesNextToken) {
+      parseNamesNextToken = false;
+      console.log(token);
+    }
+    else {
+      for (var j = 0; j < keyNameWords.length; j++) {
+        if (token.indexOf(keyNameWords[j]) !== -1) {
+          parseNamesNextToken;
+          break;
+        }
+      }
+    }
+  }
+}
+
+function parseFiles() {
+  for (var i = 0; i < nameFileNames.length; i++) {
+    var url = "./name_lists/" + nameFileNames[i] + ".txt";
+    readFile(url, parseNameFile);
+  }
+}
+
+function readFile(file, dataFunction) {
+  var rawFile = new XMLHttpRequest();
+  rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4) {
+      if (rawFile.status === 200 || rawFile.status == 0) {
+        var allText = rawFile.responseText;
+        dataFunction(allText);
+        rawFile.abort();
+        rawFile = null;
+      }
+    }
+  }
+  rawFile.open("GET", file, false);
+  rawFile.send(null);
+}
+
+/*
+function getJsonpUrl(url, callback) {
+  $(document).ready(function() {
+    $.ajax({
+      url: url,
+      dataType: 'txt',
+      success: function(dataWeGotViaJsonp) {
+        //console.log(dataWeGotViaJsonp);
+        callback(dataWeGotViaJsonp);
+      }
+    });
+  });
+}
+*/
+
+parseFiles();
+
 
 
 
