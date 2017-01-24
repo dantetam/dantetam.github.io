@@ -108,7 +108,7 @@ function getTopSentencesFromText(mainTopicWikipediaData, text, numToSummarize=50
   var results = [];
   for (var i = 0; i < numToSummarize; i++) {
     results.push(sentences[sorted[i]]);
-    console.log(energySentence[sorted[i]]);
+    //console.log(energySentence[sorted[i]]);
   }
   return results;
 }

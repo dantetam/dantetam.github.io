@@ -47,8 +47,8 @@ function handleAuthResult(authResult) {
  */
 function loadCalendarApi() {
   gapi.client.load('calendar', 'v3', function() {
-    //testRequestCreateEvent(); 
-    listUpcomingEvents();
+    //testRequestCreateEvent();
+    //listUpcomingEvents();
   });
 }
 

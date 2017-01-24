@@ -709,11 +709,19 @@ function findStellaTaskRelatedToCommand(commandString) {
   return stella.tasks[maxIndex];
 }
 
-function findMatchesInStringArrays(list1, list2) {
+function findMatchesInStringArrays(list1, list2, disregard=[]) {
   var temp = {};
   var results = {};
   for (var i = 0; i < list1.length; i++) {
-    temp[list1[i].toLowerCase()] = true;
+    var token = list1[i].toLowerCase();
+    var disregardToken = false;
+    for (var j = 0; j < disregard.length; j++) {
+      if (disregard[j][token] !== undefined) {
+        disregardToken = true;
+        break;
+      }
+    }
+    temp[token] = !disregardToken;
   }
   for (var i = 0; i < list2.length; i++) {
     if (list2[i] === undefined) continue;

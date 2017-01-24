@@ -211,6 +211,7 @@ input {
     <script src="./gmail.js"></script>
     <script src="./google-calendar.js"></script>
     <script src="./fb.js"></script>
+    <script src="./textrank.js"></script>
 
     <script>
 
@@ -347,7 +348,7 @@ input {
       var wordMap = findWordMap(pageContent);
       var energy = getEnergy(wordMap, pageContent);
       var topSentences = getTopSentencesFromText(wordMap, pageContent);
-      console.log(topSentences);
+      //console.log(topSentences);
       removeAllTokens(pageContent);
     });
 

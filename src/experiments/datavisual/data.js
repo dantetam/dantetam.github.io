@@ -244,20 +244,27 @@ var nameFileNames = ["AI","ART1","ART2","ART3","AVI1","AVI2","AVI3","Extradimens
                      "PRT1","PRT2","REP1","REP2","REP3"];
 var keyNameWords = ["full_names", "generic", "names"];
 
-function parseNameFile(data) {
+var names = {};
+
+function parseNameFile(fileName, data) {
   //console.log(data);
+  names[fileName] = [];
   var split = data.replace("\n", " ").split(/\{|\}/);
   var parseNamesNextToken = false;
   for (var i = 0; i < split.length; i++) {
     var token = split[i].trim();
     if (parseNamesNextToken) {
       parseNamesNextToken = false;
+      var allNamesInFile = token.replace('"', "").split(" ");
+      for (var j = 0; j < allNamesInFile.length; j++) {
+        names[fileName].push(allNamesInFile[j]);
+      }
       console.log(token);
     }
     else {
       for (var j = 0; j < keyNameWords.length; j++) {
         if (token.indexOf(keyNameWords[j]) !== -1) {
-          parseNamesNextToken;
+          parseNamesNextToken = true;
           break;
         }
       }
