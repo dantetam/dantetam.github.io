@@ -148,6 +148,8 @@ function readFile(file, dataFunction) {
   rawFile.send(null);
 }
 
+readFile("https://en.wikipedia.org/wiki/Water", function(data) {});
+
 function readPrepositions(file) {
   var dataFunction = function(allText) {
     var lines = allText.split("\n");

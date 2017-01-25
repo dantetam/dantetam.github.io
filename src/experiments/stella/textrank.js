@@ -1,18 +1,18 @@
 function getIndicesOf(str, searchStr, caseSensitive=false) {
-    var searchStrLen = searchStr.length;
-    if (searchStrLen == 0) {
-        return [];
-    }
-    var startIndex = 0, index, indices = [];
-    if (!caseSensitive) {
-        str = str.toLowerCase();
-        searchStr = searchStr.toLowerCase();
-    }
-    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
-        indices.push(index);
-        startIndex = index + searchStrLen;
-    }
-    return indices;
+  var searchStrLen = searchStr.length;
+  if (searchStrLen == 0) {
+    return [];
+  }
+  var startIndex = 0, index, indices = [];
+  if (!caseSensitive) {
+    str = str.toLowerCase();
+    searchStr = searchStr.toLowerCase();
+  }
+  while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+    indices.push(index);
+    startIndex = index + searchStrLen;
+  }
+  return indices;
 }
 
 //An investigation of text summarizing methods.
@@ -152,6 +152,31 @@ function summarizeText(text, numToSummarize=10, iterations=10) {
 function biasedSummarizeText(topic, text, numToSummarize=50) {
 
 }
+
+function testCallBack(data) {
+  console.log("Found");
+  console.log(data);
+}
+
+function getNews() {
+  var currentDate = new Date();
+  var dateString = currentDate.toISOString().split("T")[0];
+  var url = "http://eventregistry.org/json/topDailyShares?action=getArticles&count=10&date=" + dateString + "&callback=testCallBack";
+  $(document).ready(function() {
+    $.ajax({
+      url: url,
+      dataType: 'jsonp',
+      success: function(dataWeGotViaJsonp) {
+        //console.log(dataWeGotViaJsonp);
+        //callback(dataWeGotViaJsonp);
+      }
+    });
+  });
+}
+
+//getNews();
+
+//https://api.twitter.com/oauth/authorize?oauth_token=a7Kw3diw6YqJRsmhFvkWBljaa 
 
 
 
