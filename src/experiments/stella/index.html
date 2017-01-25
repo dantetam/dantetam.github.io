@@ -344,11 +344,35 @@ input {
 
     <script>
 
+var tempText = "Hurricane Gilbert swept toward the Dominican Republic Sunday, and the Civil De−\
+fense alerted its heavily populated south coast to prepare for high winds, heavy rains\
+and high seas. The National Hurricane Center in Miami reported its position at 2 am \
+Sunday at latitude 16.1 north, longitude 67.5 west, about 140 miles south of Ponce, \
+Puerto Rico, and 200 miles southeast of Santo Domingo. The National Weather Service \
+in San Juan, Puerto Rico, said Gilbert was moving westward at 15 mph with a 'broad \
+area of cloudiness and heavy weather' rotating around the center of the storm. Strong\
+winds associated with Gilbert brought coastal flooding, strong southeast winds and up\
+to 12 feet to Puerto Rico’s south coast \
+Tropical storm Gilbert in the eastern Carribean strenghtened into a hurricane Saturday \
+night. The National Hurricane Center in Miami reported its position at 2 am Sunday to \
+be about 140 miles south of Puerto Rico and 200 miles southeast of Santo Domingo. It \
+is moving westward at 15 mph with a broad area of cloudiness and heavy weather with \
+sustained winds of 75 mph gusting to 92 mph. The Dominican Republic’s Civil Defense \
+in San Juan, Puerto Rico issued a flood watch for Puerto Rico and the Virgin Islands until \
+at least 6 p.m. Sunday \
+Hurricane Gilbert is moving toward the Dominican Republic, where the residents of \
+the south coast, especially the Barahona Province, have been alerted to prepare for \
+200 miles southeast of Santo Domingo and moving westward at 15 mph with winds \
+of 75 mph. Flooding is expected in Puerto Rico and in the Virgin Islands. The second \
+hurricane of the season, Florence, is now over the southern United States and down− \
+graded to a tropical storm";
+
+                  summarizeText(tempText, numToSummarize=3, iterations=10);
+
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);
       var energy = getEnergy(wordMap, pageContent);
       var topSentences = getTopSentencesFromText(wordMap, pageContent);
-      //console.log(topSentences);
       removeAllTokens(pageContent);
     });
 
