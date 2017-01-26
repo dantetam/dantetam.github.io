@@ -30,7 +30,7 @@ stella.tasks.push({
 stella.tasks.push({
   fullName: "date",
   names: ["date", "time", "what"],
-  desc: "Analyze a body of text, an email, etc.",
+  desc: "Show the current date and time.",
   execute: function(command, nvpStructure) {
     currentDate = new Date();
     stellaChat.html("<h4>" + "The time is currently " + "<br>" + currentDate.toDateString() + " " + currentDate.toISOString().split("T")[1].replace("Z", "") + "</h4>");
@@ -255,6 +255,25 @@ stella.tasks.push({
     username = newName;
     stellaChat.html("<h3>Nice to meet you, " + newName + "!</h3>" );
     Cookies.set('userdata-username', newName, {expires: 700});
+  }
+});
+
+stella.tasks.push({
+  fullName: "references",
+  names: ["reference", "citation", "paper", "source", "academic"],
+  desc: "List all the references that Stella relies on.",
+  execute: function(command, nvpStructure) {
+    currentDate = new Date();
+
+    stellaChat.html("<h4>References</h4>");
+    stellaChat.html(stellaChat.html() +
+      '<p>With help from the APIs: Google (Calendar, Gmail, Maps); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry.</p>' +
+      '<p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;http://wordnet.princeton.edu&gt;</p>' +
+      '<p>Mihalcea, Tarau. "TextRank: Bringing Order into Texts." University of North Texas. 2005. &lt;https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf&gt;</p>' +
+      '<p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>' +
+      '<p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>' +
+      '<p>Icons from game-icons.net.</p>'
+    );
   }
 });
 

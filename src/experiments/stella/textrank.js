@@ -159,7 +159,6 @@ function testCallBack(data) {
 }
 
 function getNews() {
-  var currentDate = new Date();
   var dateString = currentDate.toISOString().split("T")[0];
   var url = "http://eventregistry.org/json/topDailyShares?action=getArticles&count=10&date=" + dateString + "&callback=testCallBack";
   $(document).ready(function() {
@@ -176,7 +175,7 @@ function getNews() {
 
 //getNews();
 
-//https://api.twitter.com/oauth/authorize?oauth_token=a7Kw3diw6YqJRsmhFvkWBljaa 
+//https://api.twitter.com/oauth/authorize?oauth_token=a7Kw3diw6YqJRsmhFvkWBljaa
 
 
 
