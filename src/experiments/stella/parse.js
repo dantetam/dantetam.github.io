@@ -34,6 +34,8 @@ var fileDisplayArea = document.getElementById('fileParse');
 
 var username = Cookies.get('userdata-username') !== undefined ? Cookies.get('userdata-username') : null;
 
+var currentDate = new Date();
+
 /*
 Takes a WordNet file and converts into JS data structures, where
 wordsById[id] = {
@@ -148,7 +150,7 @@ function readFile(file, dataFunction) {
   rawFile.send(null);
 }
 
-readFile("https://en.wikipedia.org/wiki/Water", function(data) {});
+//readFile("https://en.wikipedia.org/wiki/Water", function(data) {});
 
 function readPrepositions(file) {
   var dataFunction = function(allText) {

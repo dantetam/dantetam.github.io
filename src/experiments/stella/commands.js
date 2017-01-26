@@ -28,6 +28,16 @@ stella.tasks.push({
 });
 
 stella.tasks.push({
+  fullName: "date",
+  names: ["date", "time", "what"],
+  desc: "Analyze a body of text, an email, etc.",
+  execute: function(command, nvpStructure) {
+    currentDate = new Date();
+    stellaChat.html("<h4>" + "The time is currently " + "<br>" + currentDate.toDateString() + " " + currentDate.toISOString().split("T")[1].replace("Z", "") + "</h4>");
+  }
+});
+
+stella.tasks.push({
   fullName: "define",
   names: ["define", "explain", "tell"], //Possibly a priority list with more relevant words first?
   desc: "Define a word by dictionary definitions.",
@@ -250,7 +260,7 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "schedule",
-  names: ["calendar", "schedule", "appointment", "alarm", "set", "reminder"],
+  names: ["calendar", "schedule", "appointment", "alarm", "set", "reminder", "hour", "minutes", "day", "week", "month"],
   qualifiers: {
     time: ["at", "on"],
     delay: ["in", "after"],
@@ -258,6 +268,8 @@ stella.tasks.push({
   },
   desc: "Schedule an appointment or reminder through Stella's version of Keep.",
   execute: function(command, nvpStructure) {
+    currentDate = new Date();
+
     var tokens = command.fullCommand.split(" ");
     var startLocation = null, destination = null, query = [];
 

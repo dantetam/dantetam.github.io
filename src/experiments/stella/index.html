@@ -64,11 +64,13 @@ input {
 
 		<!--<script src="d3.v3.min.js"></script>-->
 		<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-		<script src="https://d3js.org/d3-random.v1.min.js"></script>
+		<!--
+    <script src="https://d3js.org/d3-random.v1.min.js"></script>
     <script src="https://d3js.org/d3-timer.v1.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
     <script src="https://d3js.org/d3-queue.v2.min.js"></script>
+    -->
 
     <script src="d3.hexbin.min.js"></script>
     <script type="text/javascript" src="data.js"></script>
@@ -78,7 +80,7 @@ input {
   </head>
 
   <body>
-    <nav class="navbar navbar-intro navbar-fixed-top navie">
+    <nav class="navbar navbar-intro navbar-fixed-top navie" id="mainNavbar" style="opacity: 0;">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -144,6 +146,9 @@ input {
 
       <div class="intro" id="stella-intro">
         <div id="stella-chat"><h3>Hi, I'm Stella!</h3></div>
+        <img src="./images/blue_stella_hexagon.png" style="width: 256px; height: 256px;"></img>
+        <!-- <img src="./images/stella_hexagon2.png" style="width: 512px; height: 512px;"></img> -->
+        <br><br>
         <input type="text" id="user-input" value="">
       </div>
 
@@ -151,18 +156,19 @@ input {
         class="fb-like"
         data-share="true"
         data-width="450"
-        style="width: 10%; height: 10%;"
-        data-show-faces="true">Loading FB integration...
+        style="width: 10%; height: 10%; opacity: 0;"
+        data-show-faces="true"
+        >Loading FB integration...
       </div>
 
       <button id="authorize-button" class="btn btn-primary" style="opacity: 0;">Integrate Gmail</button>
       <button id="logout-button" class="btn" onclick="javascript:logOutGmail();" style="opacity: 0;">Log Out Gmail</button>
 
       <!--<div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="true"></div>-->
-      <fb:login-button scope="public_profile,email,pages_messaging" onlogin="checkLoginState();">
+      <fb:login-button scope="public_profile,email,pages_messaging" onlogin="checkLoginState();" style="opacity: 0;">
       </fb:login-button>
 
-      <button id="fb-logout-button" class="btn" onclick="javascript:logOutFacebook();" style="opacity: 1;">Log Out Facebook</button>
+      <button id="fb-logout-button" class="btn" onclick="javascript:logOutFacebook();" style="opacity: 0;">Log Out Facebook</button>
 
       <div id="map"></div>
 
@@ -214,6 +220,20 @@ input {
     <script src="./textrank.js"></script>
 
     <script>
+
+    //Show navbar when mouse moves toward top
+    d3.select("#mainNavbar").on("mouseenter", function() {
+      console.log("data");
+      d3.select("#mainNavbar").transition()
+        .duration(200)
+        .style("opacity", 1); //.style("pointer-events", "auto");
+    });
+    d3.select("#mainNavbar").on("mouseleave", function() {
+      console.log("data");
+      d3.select("#mainNavbar").transition()
+        .duration(200)
+        .style("opacity", 0); //.style("pointer-events", "none");
+    });
 
     document.getElementById("user-input").value = "";
 
