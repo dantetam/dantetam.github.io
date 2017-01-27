@@ -333,6 +333,9 @@ stella.tasks.push({
   }
 });
 
+//Summarize:
+//Searches the web for encyclopedia articles, news articles, and other information as part of its research and summarization features.
+
 stella.tasks.push({
   fullName: "trello",
   names: ["trello", "plan", "note", "write"],
