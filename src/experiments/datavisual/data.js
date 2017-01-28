@@ -100,7 +100,7 @@ var tileTerrains = [
 ];
 
 var numStars = 300;
-var numPlanets = 1000;
+var numPlanets = 3000;
 var numAsteroids = 1000;
 
 var sectorRadius = 10;
