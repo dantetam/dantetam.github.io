@@ -227,13 +227,11 @@ input {
 
     //Show navbar when mouse moves toward top
     d3.select("#mainNavbar").on("mouseenter", function() {
-      console.log("data");
       d3.select("#mainNavbar").transition()
         .duration(200)
         .style("opacity", 1); //.style("pointer-events", "auto");
     });
     d3.select("#mainNavbar").on("mouseleave", function() {
-      console.log("data");
       d3.select("#mainNavbar").transition()
         .duration(200)
         .style("opacity", 0); //.style("pointer-events", "none");
