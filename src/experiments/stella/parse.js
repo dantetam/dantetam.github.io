@@ -134,6 +134,7 @@ function readDefinitions(file) {
 
 }
 
+/*
 function readFile(file, dataFunction) {
   var rawFile = new XMLHttpRequest();
   rawFile.onreadystatechange = function() {
@@ -149,6 +150,7 @@ function readFile(file, dataFunction) {
   rawFile.open("GET", file, false);
   rawFile.send(null);
 }
+*/
 
 //readFile("https://en.wikipedia.org/wiki/Water", function(data) {});
 
