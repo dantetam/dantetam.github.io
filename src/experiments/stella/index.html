@@ -80,6 +80,7 @@ input {
     <script type="text/javascript" src="data.js"></script>
 
     <script src="./maps.js"></script>
+    <script src="./searchweb.js"></script>
 
   </head>
 
@@ -215,7 +216,15 @@ input {
             s.parentNode.insertBefore(gcse, s);
           })();
         </script>
-        <gcse:search></gcse:search>
+      </div>
+
+      <div id="searchResults">
+        <gcse:searchbox gname="storesearch" newWindow="false"></gcse:searchbox>
+        <gcse:searchresults gname="storesearch" newWindow="false"></gcse:searchresults>
+      </div>
+
+      <div>
+        <button class="testButton" onclick="lookGcseResults">Test GCSE Results</button>
       </div>
 
     </div><!-- /.container -->
@@ -238,6 +247,18 @@ input {
     <script src="./textrank.js"></script>
 
     <script>
+
+    d3.select("#searchResults").on("click", function() {
+      testFunc();
+    })
+
+    document.getElementById("searchResults")
+      .addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+          console.log("Search results");
+        }
+      });
 
     //Show navbar when mouse moves toward top
     d3.select("#mainNavbar").on("mouseenter", function() {
