@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<table xmlns="http://query.yahooapis.com/v1/schema/table.xsd" https="true">
+  <bindings>
+    <select itemPath="" produces="XML" >
+      <urls>
+
+      </urls>
+      <paging model="offset">
+        <start id="start_index" default="0" />
+        <pagesize id="max_results" max="100" />
+        <total default="20" />
+      </paging>
+      <inputs>
+        <key id="term" type="xs:string" paramType="query" required="true" />
+        <key id="ck" type="xs:string" paramType="variable" required="true" />
+        <key id="cs" type="xs:string" paramType="variable" required="true" />
+      </inputs>
+    </select>
+  </bindings>
+</table>
+
+<html>
+  <head>
+    <title>Dante Tam</title>
+    <style type='text/css'>
+      #results{ width: 40%; margin-left: 30%; border: 1px solid gray; padding: 5px; height: 200px; overflow: auto; }
+    </style>
+
+    <script src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
+    <script src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
+
+    <execute><![CDATA[
+    // Include the OAuth libraries from oauth.net
+    y.include("http://oauth.googlecode.com/svn/code/javascript/oauth.js");
+    y.include("http://oauth.googlecode.com/svn/code/javascript/sha1.js");
+
+    // Collect all the parameters
+    var encodedurl = request.url;
+    var accessor = { consumerSecret: cs, tokenSecret: ""};
+    var message = { action: encodedurl, method: "GET", parameters: [["oauth_consumer_key",ck],["oauth_version","1.0"]]};
+    OAuth.setTimestampAndNonce(message);
+
+    // Sign the request
+    OAuth.SignatureMethod.sign(message, accessor);
+
+    try {
+       // get the content from service along with the OAuth header, and return the result back out
+       response.object = request.contentType('application/xml').header("Authorization", OAuth.getAuthorizationHeader("dantetam.github.io/src/experiments/yahoo/index.html", message.parameters)).get().response;
+    } catch(err) {
+       response.object = {'result':'failure', 'error': err};
+    }
+    ]]>
+    </execute>
+
+    <script type='text/javascript'>
+    var body = document.getElementsByTagName('body')[0];
+
+    function topStories(o){
+      var items = o.query.results.item;
+      var output = '';
+      //var no_items=items.length;
+      var numItems = 10;
+      for(var i = 0; i < numItems; i++){
+        var title = items[i].title;
+        var link = items[i].link;
+        var desc = items[i].description;
+        output += "<h3><a href='" + link + "'>"+title+"</a></h3>" + desc + "<hr/>";
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.onload = function() {
+
+        }
+        script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + "http://en.wikipedia.org/wiki/Afghanistan" + '%22&format=json&diagnostics=false&callback=printStory';
+        console.log('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&diagnostics=false&callback=printStory');
+        body.appendChild(script);
+      }
+      document.getElementById('results').innerHTML = output;
+    }
+
+    function printStory(data) {
+      console.log("Data");
+      console.log(data);
+    }
+    </script>
+
+  </head>
+  <body>
+    <div id='results'></div>
+    <script src='http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20rss%20where%20url%3D%22http%3A%2F%2Frss.news.yahoo.com%2Frss%2Ftopstories%22&format=json&diagnostics=false&callback=topStories'></script>
+
+  </body>
+</html>

@@ -62,14 +62,11 @@ console.log("http://google.com".split("/"));
 */
 
 function lookGcseResults() {
-  console.log("doing it");
   var elems = document.getElementsByClassName("gsc-webResult gsc-result");
   if (elems.length === 0) {
-    console.log("Waiting...");
     setTimeout(lookGcseResults, 500);
   }
   else {
-    console.log("Done.");
     for (var i = 0; i < elems.length; i++) {
       var elem = elems[i];
       console.log(elem);
@@ -77,6 +74,20 @@ function lookGcseResults() {
   }
 }
 
-function testFunc() {
-  console.log("hi");
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//A comment to hold the line.
