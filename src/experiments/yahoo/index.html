@@ -27,8 +27,12 @@
       #results{ width: 40%; margin-left: 30%; border: 1px solid gray; padding: 5px; height: 200px; overflow: auto; }
     </style>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+
     <script src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
     <script src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
+    <script src="./xml2json.js"></script>
 
     <execute><![CDATA[
     // Include the OAuth libraries from oauth.net
@@ -55,6 +59,7 @@
 
     <script type='text/javascript'>
     var body = document.getElementsByTagName('body')[0];
+    var x2js = new X2JS();
 
     function topStories(o){
       var items = o.query.results.item;
@@ -65,15 +70,28 @@
         var title = items[i].title;
         var link = items[i].link;
         var desc = items[i].description;
-        output += "<h3><a href='" + link + "'>"+title+"</a></h3>" + desc + "<hr/>";
+        output += "<h3><a href='" + link + "'>" + title + "</a></h3>" + desc + "<hr/>";
         var script = document.createElement('script');
         script.type = 'text/javascript';
         script.onload = function() {
 
         }
-        script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + "http://en.wikipedia.org/wiki/Afghanistan" + '%22&format=json&diagnostics=false&callback=printStory';
-        console.log('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&diagnostics=false&callback=printStory');
+        script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&format=json&diagnostics=false&callback=printStory';
+        console.log('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&format=json&diagnostics=false&callback=printStory');
         body.appendChild(script);
+
+        /*
+        $(document).ready(function() {
+          $.ajax({
+            url: 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&format=xml&diagnostics=false&callback=printStory',
+            dataType: 'jsonp',
+            success: function(dataWeGotViaJsonp) {
+              //console.log(dataWeGotViaJsonp);
+              printS(dataWeGotViaJsonp);
+            }
+          });
+        });
+        */
       }
       document.getElementById('results').innerHTML = output;
     }
@@ -81,7 +99,25 @@
     function printStory(data) {
       console.log("Data");
       console.log(data);
+      var xml = x2js.json2xml_str(data);
+      console.log(xml);
+      var text = $(xml).text();
+      console.log(text);
     }
+
+    //Mutate the JSON in place destructively by recursively trimming certain branches of the JSON "tree"
+    function cullJson(json, tokens) {
+      var keys = Object.keys(json);
+      for (var i = 0; i < keys.length; i++) {
+        if (tokens.indexOf(keys[i]) !== -1) {
+          json[keys[i]] = undefined;
+        }
+        else {
+          cullJson(json[keys[i]], tokens);
+        }
+      }
+    }
+
     </script>
 
   </head>
