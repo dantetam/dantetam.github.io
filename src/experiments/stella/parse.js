@@ -6,6 +6,9 @@ var determiners = Object.create(null);
 
 var specialWords = ["stella", "dante", "me", "you"];
 var questionWords = ["can", "is", "what", "why", "where", "when", "who", "whom", "which", "whose", "how", "whither", "whence"];
+var firstPersonPronouns = ["I", "i", "me", "you"];
+var secondPersonPronouns = ["them", "you", "her", "him", "it", "that", "this"];
+var thirdPersonPronouns = ["he", "she", "it", "they"];
 wordsById[9191919] = {
   words: ["stella", "you"],
   partOfSpeech: "n",

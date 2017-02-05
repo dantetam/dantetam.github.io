@@ -96,21 +96,52 @@
       document.getElementById('results').innerHTML = output;
     }
 
+    String.prototype.replaceAll = function(str1, str2, ignore)
+    {
+      return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+    }
+
+    //Only use with trusted sources. This could potentially execute arbitrary JS code.
+    function getTextFromHtml(html) {
+      var tmp = document.createElement("DIV");
+      tmp.innerHTML = html;
+      $(tmp).find("p").each(function() {
+        console.log(this);
+      });
+      return tmp.textContent || tmp.innerText || "";
+    }
+
     function printStory(data) {
       //console.log("Data");
       //console.log(data);
       //cullJson(data, ["script", "class"])
       var xml = x2js.json2xml_str(data);
+
       //console.log(xml);
 
-      //var text = $(xml).text();
-      //console.log(text);
+      var text = getTextFromHtml(xml).replaceAll('&quot;', '"');
+      console.log(text);
 
+      /*
+      var text = $(xml).text().replace(/<\[^>\]*>/g, "").replace(/<\"^>\"*>/g, "");
+
+      text = text.replaceAll('&quot;', "");
+
+      console.log(text);
+      */
+
+      //$(xml).text() + "\n";
+
+      //var paragraph = document.createElement('p');
+      //paragraph.textContent = xml;
+      //console.log($(paragraph).text());
+      /*
       var parsedTextOnly;
       $('p,h1,h2,h3,h4,h5').each(function() {
         parsedTextOnly += $(this).text() + "\n";
       });
-      console.log(parsedTextOnly);
+      */
+      //console.log(parsedTextOnly);
     }
 
     //Mutate the JSON in place destructively by recursively trimming certain branches of the JSON "tree"

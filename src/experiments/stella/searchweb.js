@@ -61,6 +61,30 @@ console.log(checkIfValidSite("http://durrrr.com/durrrr.edu"));
 console.log("http://google.com".split("/"));
 */
 
+String.prototype.replaceAll = function(str1, str2, ignore)
+{
+  return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
+}
+
+//Only use with trusted sources. This could potentially execute arbitrary JS code.
+function getTextFromHtml(html) {
+  var tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  $(tmp).find("p").each(function() {
+    console.log(this);
+  });
+  return tmp.textContent || tmp.innerText || "";
+}
+
+var body = document.getElementsByTagName('body')[0];
+var x2js = new X2JS();
+
+function linkAnalyzeCallback(data) {
+  var xml = x2js.json2xml_str(data);
+  var text = getTextFromHtml(xml).replaceAll('&quot;', '"');
+  console.log(text);
+}
+
 function lookGcseResults() {
   var elems = document.getElementsByClassName("gsc-webResult gsc-result");
   if (elems.length === 0) {
@@ -69,8 +93,27 @@ function lookGcseResults() {
   else {
     for (var i = 0; i < elems.length; i++) {
       var elem = elems[i];
-      console.log(elem);
+      var links = $(elem).find("a.gs-title");
+      if (links.length !== 0) {
+        var link = links[0].href;
+        if (checkIfValidSite(link)) {
+          var script = document.createElement('script');
+          script.type = 'text/javascript';
+          script.onload = function() {
+
+          }
+          script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&format=json&diagnostics=false&callback=linkAnalyzeCallback';
+          console.log('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22' + link + '%22&format=json&diagnostics=false&callback=linkAnalyzeCallback');
+          document.getElementsByTagName('body')[0].appendChild(script);
+        }
+      }
+      //console.log(elem);
     }
+    var parsedTextOnly = "";
+    $('.gsc-webResult, .gsc-result').each(function() {
+      parsedTextOnly += $(this).text() + "\n";
+    });
+    //console.log(parsedTextOnly);
   }
 }
 

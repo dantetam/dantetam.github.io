@@ -200,12 +200,14 @@ function sentimentAnalysisText(textSentences) {
 }
 
 //sentimentAnalysis("That's really unfortunate to be in Hell.");
+/*
 sentimentAnalysisText([
   "No arts; no letters; no society; and which is worst of all, continual fear and danger of violent death; and the life of man solitary, poor, nasty, brutish, and short.",
   "For such is the nature of man, that howsoever they may acknowledge many others to be more witty, or more eloquent, or more learned; Yet they will hardly believe there be many so wise as themselves: For they see their own wit at hand, and other mens at a distance.",
   "The source of every crime, is some defect of the understanding; or some error in reasoning; or some sudden force of the passions.",
   "Defect in the understanding is ignorance; in reasoning, erroneous opinion."
 ])
+*/
 //getNews();
 
 //https://api.twitter.com/oauth/authorize?oauth_token=a7Kw3diw6YqJRsmhFvkWBljaa
