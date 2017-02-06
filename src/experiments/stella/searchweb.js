@@ -21,8 +21,10 @@ function parseTrustedWebsites() {
   var callback = function(allText) {
     var lines = allText.split("\n");
     for (var i = 0; i < lines.length; i++) {
+      if (lines[i].trim().length === 0) continue;
       var site = lines[i].trim().split(",")[1];
       trustedWebsites[site] = true;
+      trustedWebsites["www." + site] = true;
     }
   }
   readFile("./trusted-websites.txt", callback);
@@ -66,13 +68,34 @@ String.prototype.replaceAll = function(str1, str2, ignore)
   return this.replace(new RegExp(str1.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignore?"gi":"g")),(typeof(str2)=="string")?str2.replace(/\$/g,"$$$$"):str2);
 }
 
+jQuery.fn.removeAttributes = function() {
+  return this.each(function() {
+    var attributes = $.map(this.attributes, function(item) {
+      return item.name;
+    });
+    var img = $(this);
+    $.each(attributes, function(i, item) {
+    img.removeAttr(item);
+    });
+  });
+}
+
 //Only use with trusted sources. This could potentially execute arbitrary JS code.
 function getTextFromHtml(html) {
   var result = "";
   var tmp = document.createElement("DIV");
   tmp.innerHTML = html;
   $(tmp).find("p").each(function() {
-    result += this.textContent || this.innerText || "";
+    //console.log(this);
+
+    var element = this.querySelectorAll("class,aria-hidden,a");
+    for (var index = element.length - 1; index >= 0; index--) {
+      element[index].parentNode.removeChild(element[index]);
+    }
+
+    console.log(this);
+
+    result += (this.textContent || "") + "\n";
   });
   return result;
 }
@@ -129,15 +152,15 @@ function json2xml(o, tab="") {
 function linkAnalyzeCallback(data) {
   console.log(data);
   var xml = json2xml(data);
-  console.log(xml);
+  //console.log(xml);
   var temp = getTextFromHtml(xml);
   console.log(temp);
 }
 
 function lookGcseResults() {
   var elems = document.getElementsByClassName("gsc-webResult gsc-result");
-  if (elems.length === 0) {
-    setTimeout(lookGcseResults, 500);
+  if (elems.length <= 5) {
+    setTimeout(lookGcseResults, 2500);
   }
   else {
     for (var i = 0; i < elems.length; i++) {
@@ -145,6 +168,7 @@ function lookGcseResults() {
       var links = $(elem).find("a.gs-title");
       if (links.length !== 0) {
         var link = links[0].href;
+        //console.log(link + ", Valid: " + checkIfValidSite(link));
         if (checkIfValidSite(link)) {
           var script = document.createElement('script');
           script.type = 'text/javascript';
