@@ -1,4 +1,5 @@
 trustedWebsites = Object.create(null);
+trustedWebsitesList = null;
 extraTrustedDomainLevels = {"edu": true, "gov": true};
 
 function readFile(file, dataFunction) {
@@ -26,6 +27,7 @@ function parseTrustedWebsites() {
       trustedWebsites[site] = true;
       trustedWebsites["www." + site] = true;
     }
+    trustedWebsitesList = Object.keys(trustedWebsites);
   }
   readFile("./trusted-websites.txt", callback);
 }
@@ -43,8 +45,14 @@ function checkIfValidSite(siteUrl) {
     if (token in trustedWebsites) {
       return true;
     }
+    for (var j = 0; j < trustedWebsitesList.length; j++) {
+      if (token.indexOf(trustedWebsitesList[j]) !== -1) {
+        return true;
+      }
+    }
+
     var moreTokens = token.split(".");
-    for (j = 0; j < moreTokens.length; j++) {
+    for (var j = 0; j < moreTokens.length; j++) {
       var moreToken = moreTokens[j];
       if (moreToken in extraTrustedDomainLevels) {
         return true;
@@ -88,14 +96,19 @@ function getTextFromHtml(html) {
   $(tmp).find("p").each(function() {
     //console.log(this);
 
-    var element = this.querySelectorAll("class,aria-hidden,a");
+    var element = this.querySelectorAll("class,aria-hidden,a,itemprop,data-aria-label-part,lang,br,style");
     for (var index = element.length - 1; index >= 0; index--) {
       element[index].parentNode.removeChild(element[index]);
     }
 
-    console.log(this);
+    //console.log(this);
 
-    result += (this.textContent || "") + "\n";
+    if (this.textContent === null || this.textContent === undefined || this.textContent === "") {
+
+    }
+    else {
+      result += (this.textContent || "") + "\n";
+    }
   });
   return result;
 }
@@ -150,11 +163,11 @@ function json2xml(o, tab="") {
 
 
 function linkAnalyzeCallback(data) {
-  console.log(data);
+  //console.log(data);
   var xml = json2xml(data);
   //console.log(xml);
   var temp = getTextFromHtml(xml);
-  console.log(temp);
+  //console.log(temp);
 }
 
 function lookGcseResults() {
@@ -168,7 +181,7 @@ function lookGcseResults() {
       var links = $(elem).find("a.gs-title");
       if (links.length !== 0) {
         var link = links[0].href;
-        //console.log(link + ", Valid: " + checkIfValidSite(link));
+        console.log(link + ", Valid: " + checkIfValidSite(link));
         if (checkIfValidSite(link)) {
           var script = document.createElement('script');
           script.type = 'text/javascript';

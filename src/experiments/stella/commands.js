@@ -267,12 +267,15 @@ stella.tasks.push({
 
     stellaChat.html("<h4>References</h4>");
     stellaChat.html(stellaChat.html() +
-      '<p>With help from the APIs: Google (Calendar, Gmail, Maps); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry.</p>' +
+      '<p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry; Yahoo (YQL)</p>' +
       '<p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;http://wordnet.princeton.edu&gt;</p>' +
       '<p>Mihalcea, Tarau. "TextRank: Bringing Order into Texts." University of North Texas. 2005. &lt;https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf&gt;</p>' +
       '<p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>' +
+      '<p>Pak, Paroubek. Twitter as a Corpus for Sentiment Analysis and Opinion Mining. Universit ́e de Paris-Sud, Laboratoire LIMSI-CNRS. 2011. &lt; http://web.archive.org/web/20111119181304/http://deepthoughtinc.com/wp-content/uploads/2011/01/Twitter-as-a-Corpus-for-Sentiment-Analysis-and-Opinion-Mining.pdf &gt;</p>' +
       '<p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>' +
-      '<p>Icons from game-icons.net.</p>'
+      '<p>Icons from game-icons.net.</p>' +
+      '<p>Built by Dante Tam, as a curiosity and study in ML, NLP, and information science.</p>' +
+      '<p>Contact datam@berkeley.edu</p>'
     );
   }
 });

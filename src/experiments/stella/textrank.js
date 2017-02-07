@@ -26,6 +26,37 @@ function sentenceSimilarity(text1, text2) {
   return matches.length / (Math.log(tokens1.length) + Math.log(tokens2.length));
 }
 
+function keywordSimilarity(text1, text2) {
+  var tokens1 = text1.replace(/[^\w\s]/gi, '').split(" ");
+  var tokens2 = text2.replace(/[^\w\s]/gi, '').split(" ");
+  var keywords1 = Object.create(null);
+  var keyWords2 = Object.create(null);
+  for (var i = 0; i < tokens1.length; i++) {
+    if (keyWords1[tokens1[i]] === undefined) {
+      keyWords1[tokens1[i]] = 0;
+    }
+    keyWords1[tokens1[i]]++;
+  }
+  for (var i = 0; i < tokens2.length; i++) {
+    if (keyWords2[tokens2[i]] === undefined) {
+      keyWords2[tokens2[i]] = 0;
+    }
+    keyWords2[tokens2[i]]++;
+  }
+  var result = Object.create(null);
+  var listKeywords = Object.keys(keyWords1);
+  var otherKeywords = Object.keys(keyWords2);
+  for (var i = 0; i < listKeywords.length; i++) {
+    if (listKeywords[i] in otherKeywords) {
+      result[listKeywords[i]] = keywords1[listKeywords[i]] * keywords2[listKeywords[i]];
+    }
+    else {
+      continue;
+    }
+  }
+  return result;
+}
+
 function createGraphFromSentences(listSentences, threshold=0.75) {
   var graph = [];
   for (var i = 0; i < listSentences.length; i++) {
