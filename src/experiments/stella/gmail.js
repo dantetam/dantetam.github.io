@@ -28,8 +28,8 @@ function handleAuthClick() {
 
 function handleAuthResult(authResult) {
   if(authResult && !authResult.error) {
-    loadGmailApi();
-    loadCalendarApi();
+    //loadGmailApi();
+    //loadCalendarApi();
     //testRequestCreateEvent();
     //$('#authorize-button').remove();
     $('.table-inbox').removeClass("hidden");
