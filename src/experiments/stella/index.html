@@ -226,7 +226,7 @@ input {
         <button class="testButton" onclick="lookGcseResults">Test GCSE Results</button>
       </div>
       -->
-    
+
     </div><!-- /.container -->
 
     <!-- Bootstrap core JavaScript
@@ -430,7 +430,7 @@ of 75 mph. Flooding is expected in Puerto Rico and in the Virgin Islands. The se
 hurricane of the season, Florence, is now over the southern United States and down− \
 graded to a tropical storm";
 
-                  summarizeText(tempText, numToSummarize=3, iterations=10);
+                  summarizeText(tempText, summarizeInNumSentences=3, iterations=10);
 
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);

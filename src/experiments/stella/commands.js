@@ -747,7 +747,7 @@ function findStellaTaskRelatedToCommand(commandString) {
   return stella.tasks[maxIndex];
 }
 
-function findMatchesInStringArrays(list1, list2, disregard=[]) {
+function findMatchesInStringArrays(list1, list2, disregard=[], disregardNonWords=false) {
   var temp = {};
   var results = {};
   for (var i = 0; i < list1.length; i++) {
@@ -757,6 +757,11 @@ function findMatchesInStringArrays(list1, list2, disregard=[]) {
       if (disregard[j][token] !== undefined) {
         disregardToken = true;
         break;
+      }
+    }
+    if (disregardNonWords) {
+      if (wordsByName[token] === undefined) {
+        disregardToken = true;
       }
     }
     temp[token] = !disregardToken;

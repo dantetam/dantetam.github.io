@@ -22,7 +22,7 @@ function getIndicesOf(str, searchStr, caseSensitive=false) {
 function sentenceSimilarity(text1, text2) {
   var tokens1 = text1.replace(/[^\w\s]/gi, '').split(" ");
   var tokens2 = text2.replace(/[^\w\s]/gi, '').split(" ");
-  var matches = findMatchesInStringArrays(tokens1, tokens2, disregard=[prepositions]);
+  var matches = findMatchesInStringArrays(tokens1, tokens2, disregard=[prepositions], disregardNonWords=false);
   return matches.length / (Math.log(tokens1.length) + Math.log(tokens2.length));
 }
 
@@ -57,7 +57,7 @@ function keywordSimilarity(text1, text2) {
   return result;
 }
 
-function createGraphFromSentences(listSentences, threshold=0.75) {
+function createGraphFromSentences(listSentences, threshold=0.75, replaceBelowThreshold=0.15) {
   var graph = [];
   for (var i = 0; i < listSentences.length; i++) {
     var node = {
@@ -71,7 +71,7 @@ function createGraphFromSentences(listSentences, threshold=0.75) {
       if (senSimil > threshold) {
         node.neighbors[j] = senSimil;
       }
-      //node.neighbors[j] = senSimil > threshold ? senSimil : 0.125;
+      //node.neighbors[j] = senSimil > threshold ? senSimil : replaceBelowThreshold;
     }
     graph.push(node);
   }
@@ -133,6 +133,10 @@ function iterateTextrankGraph(graph, d=0.85) {
       var nodeJ = graph[nodeIAdj[j]];
       var weightIJ = nodeI.neighbors[nodeIAdj[j]];
 
+      if (weightIJ === undefined) {
+        weightIJ = 1;
+      }
+
       var nodeJAdj = Object.keys(nodeJ.neighbors);
       var jkSum = 0;
       for (var k = 0; k < nodeJAdj.length; k++) {
@@ -140,7 +144,11 @@ function iterateTextrankGraph(graph, d=0.85) {
         jkSum += weightJK;
       }
 
+      if (jkSum === 0) jkSum = 1;
+
       sum += weightIJ * nodeJ.importance / jkSum;
+
+      console.log(sum);
     }
 
     var newScore = (1-d) + d*sum;
@@ -160,12 +168,12 @@ var sentences = ["This is a sentence about water.", "Water is a word in this sen
                  "Prepositions for and not but or yet so"]
                  */
 
-function summarizeText(text, numToSummarize=10, iterations=10) {
+function summarizeText(text, summarizeInNumSentences=10, iterations=10, threshold=0.75, replaceBelowThreshold=0.15) {
   var sentences = text.split(".");
   for (var i = 0; i < sentences.length; i++) {
     sentences[i] = sentences[i].replace(/[^\w\s]/gi, "");
   }
-  var graph = createGraphFromSentences(sentences);
+  var graph = createGraphFromSentences(sentences, threshold, replaceBelowThreshold);
   for (var i = 0; i < iterations; i++) {
     iterateTextrankGraph(graph);
   }
@@ -175,9 +183,10 @@ function summarizeText(text, numToSummarize=10, iterations=10) {
   }
   */
   graph.sort(function(a,b) {return b.importance - a.importance;});
-  for (var i = 0; i < numToSummarize; i++) {
+  for (var i = 0; i < summarizeInNumSentences; i++) {
     console.log(graph[i]);
   }
+  return graph.slice(0, summarizeInNumSentences);
 }
 
 function biasedSummarizeText(topic, text, numToSummarize=50) {

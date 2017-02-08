@@ -27,7 +27,7 @@ function handleAuthClick() {
 }
 
 function handleAuthResult(authResult) {
-  if(authResult && !authResult.error) {
+  if (authResult && !authResult.error) {
     //loadGmailApi();
     //loadCalendarApi();
     //testRequestCreateEvent();

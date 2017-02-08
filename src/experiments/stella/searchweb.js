@@ -167,20 +167,23 @@ the superset of an infrequent itemset is also an infrequent itemset.
 This helps us to establish correlations between words correctly and quickly in our sentence parser.
 */
 function aprioriFrequentItemsets(wordsTotal, sentenceMaps) {
-  var candidates = makePermutations(wordsTotal, 1);
-  var i = 0;
+  //var candidates = makePermutations(wordsTotal, 1);
+  var i = 1;
   while (true) {
-    var itemSets = makePermutations(candidates, 1);
+    var itemSets = makePermutations(wordsTotal, i);
+    i++;
+    if (itemSets.length === 0 || i >= 10) break;
     for (j = 0; j < itemSets.length; j++) {
-      var count = aprioriFrequentItemsetsHelper(itemSets[i], sentenceMaps);
+      var count = aprioriFrequentItemsetsHelper(itemSets[j], sentenceMaps);
       if (count >= 0.2 * sentenceMaps.length) {
-        console.log(itemSets[i] + ", found association " + count + "/" + sentenceMaps.length);
+        console.log(itemSets[j] + ", found association, " + count + "/" + sentenceMaps.length);
       }
       else {
-        for (var k = 0; k < itemSets[i].length; k++) {
-          var index = array.indexOf(item);
+        console.log(itemSets[j] + ", did not find association, " + count + "/" + sentenceMaps.length);
+        for (var k = 0; k < itemSets[j].length; k++) {
+          var index = wordsTotal.indexOf(item);
           if (index !== -1) {
-            candidates.splice(index, 1);
+            wordsTotal.splice(index, 1);
           }
         }
       }
@@ -190,7 +193,7 @@ function aprioriFrequentItemsets(wordsTotal, sentenceMaps) {
 function aprioriFrequentItemsetsHelper(itemSet, sentenceMaps) {
   var count = 0;
   for (var i = 0; i < sentenceMaps.length; i++) {
-    if (lookForItemsetInMap(sentenceMaps[i], itemSets)) {
+    if (lookForItemsetInMap(sentenceMaps[i], itemSet)) {
       count++;
     }
   }
@@ -205,8 +208,9 @@ function lookForItemsetInMap(map, set) {
   return true;
 }
 function makePermutations(set, size) {
+  //console.log("making permutations " + set.length + " " + size);
   if (set.length < size) {
-    return [null];
+    return [];
   }
   if (set.length == size) {
     return [set];
@@ -250,28 +254,31 @@ function linkAnalyzeCallback(data) {
   var sentences = temp.split("\n");
   var newSentences = [];
   var wordsTotal = [];
-  for (var i = 0; i < sentences.length; i++) {
-    var sentence = sentences[i];
+  for (var k = 0; k < sentences.length; k++) {
+    var sentence = sentences[k];
 
     var words = sentence.split(" ");
     for (var j = 0; j < words.length; j++) {
-      wordsTotal.push(words[i]);
+      wordsTotal.push(words[j]);
     }
 
     var structure = parseCommand(sentence);
 
     var newSentence = "";
     for (var i = 0; i < structure.nouns.length; i++) newSentence += structure.nouns[i] + " ";
-    for (var i = 0; i < structure.adjectives.length; i++) newSentence += structure.adjectives[i] + " ";
+    //for (var i = 0; i < structure.adjectives.length; i++) newSentence += structure.adjectives[i] + " ";
     for (var i = 0; i < structure.properNouns.length; i++) newSentence += structure.properNouns[i] + " ";
-    for (var i = 0; i < structure.commandWords.length; i++) newSentence += structure.commandWords[i] + " ";
+    //for (var i = 0; i < structure.commandWords.length; i++) newSentence += structure.commandWords[i] + " ";
     for (var i = 0; i < structure.specialWebsitesAndThings.length; i++) newSentence += structure.specialWebsitesAndThings[i] + " ";
 
     var map = findWordMapForText(newSentence);
     newSentences.push(map);
   }
+  wordsTotal = wordsTotal.unique();
 
-  aprioriFrequentItemsets(wordsTotal, newSentences);
+  summarizeText(temp, summarizeInNumSentences=10, iterations=10, threshold=0.01, replaceBelowThreshold=0.01);
+
+  //aprioriFrequentItemsets(wordsTotal, newSentences);
 
 }
 
