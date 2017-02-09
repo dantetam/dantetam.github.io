@@ -276,6 +276,7 @@ stella.tasks.push({
       '<p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>' +
       '<p>Pak, Paroubek. Twitter as a Corpus for Sentiment Analysis and Opinion Mining. Universit ́e de Paris-Sud, Laboratoire LIMSI-CNRS. 2011. &lt; http://web.archive.org/web/20111119181304/http://deepthoughtinc.com/wp-content/uploads/2011/01/Twitter-as-a-Corpus-for-Sentiment-Analysis-and-Opinion-Mining.pdf &gt;</p>' +
       '<p>Tan, Steinbach, Kumar. "Association Analysis: Basic Concepts and Algorithms." Introduction to Data Mining. Pearson, 2005. &lt; https://www-users.cs.umn.edu/~kumar/dmbook/ch6.pdf &gt;</p>' +
+      '<p>Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14, no. 3, pp 130-137.</p>' +
       '<p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>' +
       '<p>Icons from game-icons.net.</p>' +
       '<p>Built by Dante Tam, as a curiosity and study in ML, NLP, and information science.</p>' +
@@ -860,8 +861,7 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
 }
 
 //The term frequency - inverse document frequency algorithm for determining the importance of every word in a document
-//It is simply the actual word count divided by its normal "background" rate of appearance, which acknowledges some words appear more frequently than others
-
+//It is simply the actual word count divided by its normal "background" rate of appearance, which acknowledges some words appear more frequently than others.
 function frequencyMap(documentWordMappings) {
   var totalWordsPerDoc = Object.create(null);
   var results = Object.create(null);
@@ -894,7 +894,13 @@ function frequencyMap(documentWordMappings) {
   }
   return results;
 }
-
+function frequencyMapText(texts) {
+  var results = [];
+  for (var i = 0; i < texts.length; i++) {
+    results.push(findWordMapForText(texts[i]));
+  }
+  return frequencyMap(results);
+}
 
 
 
