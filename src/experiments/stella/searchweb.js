@@ -34,6 +34,8 @@ function parseTrustedWebsites() {
 
 parseTrustedWebsites();
 
+//Return true if the site, in its full url form, has a main domain on the trusted websites list,
+//or has a domain level that is automatically trusted (.edu or .gov).
 function checkIfValidSite(siteUrl) {
   var tokens = siteUrl.split("/");
   //var foundTopLevelDomain = false;
@@ -83,7 +85,7 @@ jQuery.fn.removeAttributes = function() {
     });
     var img = $(this);
     $.each(attributes, function(i, item) {
-    img.removeAttr(item);
+      img.removeAttr(item);
     });
   });
 }
@@ -276,7 +278,7 @@ function linkAnalyzeCallback(data) {
   }
   wordsTotal = wordsTotal.unique();
 
-  summarizeText(temp, summarizeInNumSentences=10, iterations=10, threshold=0.01, replaceBelowThreshold=0.01);
+  //summarizeText(temp, summarizeInNumSentences=10, iterations=10, threshold=0.01, replaceBelowThreshold=0.01);
 
   //aprioriFrequentItemsets(wordsTotal, newSentences);
 

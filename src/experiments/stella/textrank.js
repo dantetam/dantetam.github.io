@@ -22,10 +22,14 @@ function getIndicesOf(str, searchStr, caseSensitive=false) {
 function sentenceSimilarity(text1, text2) {
   var tokens1 = text1.replace(/[^\w\s]/gi, '').split(" ");
   var tokens2 = text2.replace(/[^\w\s]/gi, '').split(" ");
+  if (tokens1.length === 0 || tokens2.length === 0) {
+    return 0.01;
+  }
   var matches = findMatchesInStringArrays(tokens1, tokens2, disregard=[prepositions], disregardNonWords=false);
   return matches.length / (Math.log(tokens1.length) + Math.log(tokens2.length));
 }
 
+//Compute a "dot product" of a vectorized body of text. Another metric of sentence similarity.
 function keywordSimilarity(text1, text2) {
   var tokens1 = text1.replace(/[^\w\s]/gi, '').split(" ");
   var tokens2 = text2.replace(/[^\w\s]/gi, '').split(" ");
@@ -148,7 +152,7 @@ function iterateTextrankGraph(graph, d=0.85) {
 
       sum += weightIJ * nodeJ.importance / jkSum;
 
-      console.log(sum);
+      //console.log(sum);
     }
 
     var newScore = (1-d) + d*sum;
@@ -172,6 +176,12 @@ function summarizeText(text, summarizeInNumSentences=10, iterations=10, threshol
   var sentences = text.split(".");
   for (var i = 0; i < sentences.length; i++) {
     sentences[i] = sentences[i].replace(/[^\w\s]/gi, "");
+  }
+  for (var i = sentences.length - 1; i >= 0; i--) {
+    sentences[i] = sentences[i].trim();
+    if (sentences[i].length === 0) {
+      sentences.splice(i, 1);
+    }
   }
   var graph = createGraphFromSentences(sentences, threshold, replaceBelowThreshold);
   for (var i = 0; i < iterations; i++) {

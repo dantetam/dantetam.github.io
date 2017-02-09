@@ -8,6 +8,11 @@ stella.tasks.push({
   fullName: "adventure",
   names: ["adventure", "explore", "google", "maps", "random"],
   desc: "Create a new adventure which consists of multiple random stops in a normal path.",
+  qualifiers: {
+    location: ["around", "near", "at"],
+    stops: ["stops", "waypoints", "layovers"],
+    distance: ["distance", "radius"]
+  },
   execute: function(command, nvpStructure) {
 
   }
@@ -17,11 +22,6 @@ stella.tasks.push({
   fullName: "analyze",
   names: ["analyze", "infer", "tell"],
   desc: "Analyze a body of text, an email, etc.",
-  qualifiers: {
-    location: ["around", "near", "at"],
-    stops: ["stops", "waypoints", "layovers"],
-    distance: ["distance", "radius"]
-  },
   execute: function(command, nvpStructure) {
 
   }
@@ -173,8 +173,11 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "google",
-  names: ["google", "search", "look"],
+  names: ["google", "search", "look", "find"],
   desc: "Search Google for something.",
+  qualifiers: {
+    search: ["google", "for", "find"],
+  },
   execute: function(command, nvpStructure) {
     var properNounsString = "";
     for (var i = 0; i < command.properNouns.length; i++) {
@@ -296,7 +299,17 @@ stella.tasks.push({
     var tokens = command.fullCommand.split(" ");
     var startLocation = null, destination = null, query = [];
 
+    var time = "Now", delay = "1 day";
     //Use the Trello API or Stella's version of Keep.
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.time.indexOf(mainToken) !== -1) {
+        time = nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.delay.indexOf(mainToken) !== -1) {
+        delay = nvpStructure[i].fullText;
+      }
+    }
 
   }
 });
@@ -353,6 +366,9 @@ stella.tasks.push({
   fullName: "wikipedia",
   names: ["wikipedia", "research", "search", "encyclopedia"],
   desc: "Search Wikipedia for something.",
+  qualifiers: {
+    topic: ["for", ""]
+  },
   execute: function(command, nvpStructure) {
     var properNounsString = "";
     var listToDefine = command.nouns.concat(command.adjectives, command.adjectiveSatellites); //command.properNouns
@@ -843,6 +859,41 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
   return {results: results, sortedOther: sortedOther, sortedOtherCount: sortedOtherCount};
 }
 
+//The term frequency - inverse document frequency algorithm for determining the importance of every word in a document
+//It is simply the actual word count divided by its normal "background" rate of appearance, which acknowledges some words appear more frequently than others
+
+function frequencyMap(documentWordMappings) {
+  var totalWordsPerDoc = Object.create(null);
+  var results = Object.create(null);
+  for (var i = 0; i < documentWordMappings.length; i++) {
+    var exclude = Object.create(null);
+    var docWords = Object.keys(documentWordMappings[i])
+    for (var j = 0; j < docWords.length; j++) {
+      if (!(docWords[i] in exclude)) {
+        exclude[docWords[i]] = true;
+        if (totalWordsPerDoc[docWords[i]] === undefined) {
+          totalWordsPerDoc[docWords[i]] = 0;
+        }
+        totalWordsPerDoc[docWords[i]]++;
+      }
+    }
+  }
+  for (var i = 0; i < documentWordMappings.length; i++) {
+    var doc = documentWordMappings[i];
+    var docWords = Object.keys(doc);
+    for (var j = 0; j < docWords.length; j++) {
+      var ftd = doc[docWords[j]]; //f(t,d), the raw frequency of the term t in document d
+      var nt = totalWordsPerDoc[docWords[j]]; //n_t, the number of documents containing term t
+      var tf = 1 + Math.log(ftd);
+      var idf = Math.log(1 + documentWordMappings.length / nt);
+      if (results[docWords[j]] === undefined) {
+        results[docWords[j]] = 0;
+      }
+      results[docWords[j]] += tf/idf;
+    }
+  }
+  return results;
+}
 
 
 
