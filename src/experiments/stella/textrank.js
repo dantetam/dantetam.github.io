@@ -25,7 +25,10 @@ function sentenceSimilarity(text1, text2) {
   if (tokens1.length === 0 || tokens2.length === 0) {
     return 0.01;
   }
-  var matches = findMatchesInStringArrays(tokens1, tokens2, disregard=[prepositions], disregardNonWords=false);
+  var matches = findMatchesInStringArrays(tokens1, tokens2, disregard=[prepositions], disregardNonWords=false, stemForms=true);
+  if (tokens1.length <= 1 || tokens2.length <= 1) {
+    return matches.length;
+  }
   return matches.length / (Math.log(tokens1.length) + Math.log(tokens2.length));
 }
 
@@ -72,10 +75,7 @@ function createGraphFromSentences(listSentences, threshold=0.75, replaceBelowThr
     for (var j = 0; j < listSentences.length; j++) {
       if (i === j) continue;
       var senSimil = sentenceSimilarity(listSentences[i], listSentences[j]);
-      if (senSimil > threshold) {
-        node.neighbors[j] = senSimil;
-      }
-      //node.neighbors[j] = senSimil > threshold ? senSimil : replaceBelowThreshold;
+      node.neighbors[j] = senSimil > threshold ? senSimil : replaceBelowThreshold;
     }
     graph.push(node);
   }

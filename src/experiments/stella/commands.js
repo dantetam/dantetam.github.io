@@ -405,8 +405,8 @@ function parseCommand(commandString) {
     quotes: [],
     isQuestion: false
   };
-  if (commandString.indexOf("?")) {
-
+  if (commandString.indexOf("?") !== -1) {
+    command.isQuestion = true;
   }
 
   var inQuote = false;
@@ -434,6 +434,7 @@ function parseCommand(commandString) {
       command.specialExceptionWords.push(tokens[i].toLowerCase());
       continue;
     }*/
+    tokens[i] = stemmer(tokens[i]);
     if (specialWebsitesAndThings.indexOf(tokens[i].toLowerCase()) !== -1) {
       command.specialWebsitesAndThings.push(tokens[i].toLowerCase());
       continue;
@@ -764,11 +765,14 @@ function findStellaTaskRelatedToCommand(commandString) {
   return stella.tasks[maxIndex];
 }
 
-function findMatchesInStringArrays(list1, list2, disregard=[], disregardNonWords=false) {
+function findMatchesInStringArrays(list1, list2, disregard=[], disregardNonWords=false, stemForms=false) {
   var temp = {};
   var results = {};
   for (var i = 0; i < list1.length; i++) {
     var token = list1[i].toLowerCase();
+    if (stemForms) {
+      token = stemmer(token);
+    }
     var disregardToken = false;
     for (var j = 0; j < disregard.length; j++) {
       if (disregard[j][token] !== undefined) {
@@ -785,7 +789,11 @@ function findMatchesInStringArrays(list1, list2, disregard=[], disregardNonWords
   }
   for (var i = 0; i < list2.length; i++) {
     if (list2[i] === undefined) continue;
-    if (temp[list2[i].toLowerCase()] === true && results[list2[i].toLowerCase()] === undefined) {
+    var token = list2[i].toLowerCase();
+    if (stemForms) {
+      token = stemmer(token);
+    }
+    if (temp[token] === true && results[token] === undefined) {
       results[list2[i].toLowerCase()] = true;
     }
   }
