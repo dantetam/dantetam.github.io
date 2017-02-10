@@ -75,7 +75,13 @@ function createGraphFromSentences(listSentences, threshold=0.75, replaceBelowThr
     for (var j = 0; j < listSentences.length; j++) {
       if (i === j) continue;
       var senSimil = sentenceSimilarity(listSentences[i], listSentences[j]);
-      node.neighbors[j] = senSimil > threshold ? senSimil : replaceBelowThreshold;
+      //node.neighbors[j] = senSimil > threshold ? senSimil : replaceBelowThreshold;
+      if (senSimil > threshold) {
+        node.neighbors[j] = senSimil;
+      }
+      else if (replaceBelowThreshold > 0) {
+        node.neighbors[j] = replaceBelowThreshold;
+      }
     }
     graph.push(node);
   }
@@ -172,6 +178,8 @@ var sentences = ["This is a sentence about water.", "Water is a word in this sen
                  "Prepositions for and not but or yet so"]
                  */
 
+//TODO: Weight sentences that are in front first. Make sure the summary doesn't jump across the page.
+//Also weigh words differently such that sentence similarity means more i.e. focuses on better quality relations
 function summarizeText(text, summarizeInNumSentences=10, iterations=10, threshold=0.75, replaceBelowThreshold=0.15) {
   var sentences = text.split(".");
   for (var i = 0; i < sentences.length; i++) {

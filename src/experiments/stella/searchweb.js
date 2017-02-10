@@ -278,7 +278,7 @@ function linkAnalyzeCallback(data) {
   }
   wordsTotal = wordsTotal.unique();
 
-  //summarizeText(temp, summarizeInNumSentences=10, iterations=10, threshold=0.01, replaceBelowThreshold=0.01);
+  summarizeText(temp, summarizeInNumSentences=10, iterations=2, threshold=0.01, replaceBelowThreshold=0.01);
 
   //aprioriFrequentItemsets(wordsTotal, newSentences);
 
