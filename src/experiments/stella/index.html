@@ -310,16 +310,16 @@ input {
       console.log(newParsed);
     }
 
-    readWordNet("./dict/data.adj");
-    readWordNet("./dict/data.verb");
-    readWordNet("./dict/data.noun");
-    readWordNet("./dict/data.adv");
+    readWordNet("./data.adj");
+    readWordNet("./data.verb");
+    readWordNet("./data.noun");
+    readWordNet("./data.adv");
     //readDefinitions("./definitions.txt");
     readPrepositions("./dict/prepositions.txt");
     readConjunctions("./dict/conjunctions.txt");
-    readLexemeExceptions("./dict/noun.exc");
-    readLexemeExceptions("./dict/verb.exc");
-    readLexemeExceptions("./dict/adj.exc");
+    readLexemeExceptions("./noun.exc");
+    readLexemeExceptions("./verb.exc");
+    readLexemeExceptions("./adj.exc");
 
     //var command = parseCommand("search Google for some traitor");
     //console.log(command);
@@ -436,6 +436,11 @@ graded to a tropical storm";
 
     summarizeText(tempText, summarizeInNumSentences=8, iterations=10);
 
+    quickAnalysisText("No arts; no letters; no society; and which is worst of all, continual fear and danger of violent death; and the life of man solitary, poor, nasty, brutish, and short. For such is the nature of man, that howsoever they may acknowledge many others to be more witty, or more eloquent, or more learned; Yet they will hardly believe there be many so wise as themselves: For they see their own wit at hand, and other mens at a distance. The source of every crime, is some defect of the understanding; or some error in reasoning; or some sudden force of the passions. Defect in the understanding is ignorance; in reasoning, erroneous opinion.");
+    quickAnalysisText(tempText);
+
+    console.log(wordsByName["eloquent"] + "<<<<");
+
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);
       var energy = getEnergy(wordMap, pageContent);
@@ -456,7 +461,7 @@ graded to a tropical storm";
     -->
 
     <script>
-
+    stockSymbolLookup(["Apple", "Twitter", "Facebook", "Google", "IBM"]);
     </script>
 
   </body>

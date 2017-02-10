@@ -52,6 +52,7 @@ wordsById[id] = {
 function readWordNet(file)
 {
   var rawFile = new XMLHttpRequest();
+  //rawFile.responseType = "document";
   rawFile.onreadystatechange = function()
   {
     console.log("fired function " + file + ":" + rawFile.readyState + ", " + rawFile.status);

@@ -648,8 +648,8 @@ function findAssociatedWords(word, degrees = 2) {
     }
   }
 
-  //console.log("Final result: ");
-  //console.log(closed);
+  console.log("Final result: ");
+  console.log(closed);
 
   var definition = {};
   var mainDefWords = mainSynset.definition.toLowerCase().replace(/[^\w\s]/gi, '').split(" ");

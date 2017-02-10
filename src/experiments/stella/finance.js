@@ -1,6 +1,6 @@
 // url='http://chartapi.finance.yahoo.com/instrument/1.0/YHOO%2CAAPL%2CGOOG%2CMSFT/chartdata;type=quote;range=1d/xml'
 
-function pss(data) {
+function parseStockSymbol(data) {
   //console.log("Call");
   console.log(data);
 }
@@ -17,13 +17,11 @@ function stockSymbolLookup(companyNames) {
     script.onload = function() {
 
     }
-    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=pss';
+    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=parseStockSymbol';
     //console.log('http://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=parseStockSymbol')
     document.getElementsByTagName('body')[0].appendChild(script);
   }
 }
-
-stockSymbolLookup(["Apple", "Twitter", "Facebook", "Google"]);
 
 function getDataForSymbols(listOfStockSymbols) {
   var tickerString = "";

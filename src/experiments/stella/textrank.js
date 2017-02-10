@@ -268,6 +268,30 @@ sentimentAnalysisText([
 */
 //getNews();
 
+function quickAnalysisText(text) {
+  var map = findWordMap(text);
+  var lines = text.split("/\n|./");
+
+  var totalLength = 0, recognizedWords = 0;
+  var avgLength = 0;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    var tokens = line.split(" ");
+    for (var j = 0; j < tokens.length; j++) {
+      var token = tokens[j];
+      //console.log(token + " " + wordsByName[token]);
+      if (token in wordsByName || stemmer(token) in wordsByName) {
+        recognizedWords++;
+      }
+      totalLength++;
+      avgLength += token.length;
+    }
+  }
+  avgLength /= totalLength;
+
+  console.log("Total word count: " + totalLength + ", recognized percentage: " + recognizedWords/totalLength + ", average length of words: " + avgLength);
+}
+
 //https://api.twitter.com/oauth/authorize?oauth_token=a7Kw3diw6YqJRsmhFvkWBljaa
 
 
