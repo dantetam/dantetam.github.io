@@ -1,8 +1,19 @@
 // url='http://chartapi.finance.yahoo.com/instrument/1.0/YHOO%2CAAPL%2CGOOG%2CMSFT/chartdata;type=quote;range=1d/xml'
 
+var latestQuery = []; //Handle all the callback nonsense globally
+var latestQueryLen = 0;
+
 function parseStockSymbol(data) {
   //console.log("Call");
-  console.log(data);
+  var results = data["ResultSet"]["Result"];
+  //for (var i = 0; i < results.length; i++) {
+  //console.log(results[0]);
+  latestSymbolQuery.push(results[0].symbol);
+  //}
+  //console.log(latestSymbolQuery.length + " " + latestQueryLen)
+  if (latestSymbolQuery.length === latestQueryLen) {
+    getDataForSymbols(latestSymbolQuery);
+  }
 }
 
 function pause(milliseconds) {
@@ -11,22 +22,23 @@ function pause(milliseconds) {
 }
 
 function jsonCallback() {
-  console.log("hiii");
+  //console.log("hiii");
 }
 
 function stockSymbolLookup(companyNames) {
+  latestSymbolQuery = [];
+  latestQueryLen = companyNames.length;
   for (var i = 0; i < companyNames.length; i++) {
-    /*
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.onload = function() {
 
     }
-    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en';
-    //console.log('http://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=parseStockSymbol')
+    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=US&lang=en-US&diagnostics=false&callback=parseStockSymbol';
+    console.log('https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=US&lang=en-US&diagnostics=false&callback=parseStockSymbol')
     document.getElementsByTagName('body')[0].appendChild(script);
-    */
 
+    /*
     var url = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=CA&lang=en-CA&diagnostics=true&callback=parseStockSymbol';
 
     $(document).ready(function() {
@@ -42,6 +54,7 @@ function stockSymbolLookup(companyNames) {
         }
       });
     });
+    */
   }
 }
 
