@@ -262,6 +262,41 @@ stella.tasks.push({
 });
 
 stella.tasks.push({
+  fullName: "record",
+  names: ["record", "tally", "log", "write", "down", "keep"],
+  qualifiers: {
+    expenseReg: [new RegExp('@\\b(' + word + ')\\b', 'gi')],
+    date: ["today", "now", "yesterday", "week", "month", "year"],
+    //here: ["here", "my", "home"]
+  },
+  desc: "Record something like an expense or an apppointment. Generally in the past.",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var expense = "", date = "", notes = "";
+
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      for (var j = 0; j < this.qualifiers.expenseReg.length; j++) {
+        var token = this.qualifiers.expenseReg[i];
+        if (mainToken.match(token)) {
+          expense += nvpStructure[i].fullText + " ";
+        }
+      }
+      if (this.qualifiers.expense.indexOf(mainToken) !== -1) {
+        expense += nvpStructure[i].fullText;
+      }
+      else if (this.qualifiers.date.indexOf(mainToken) !== -1) {
+        date += nvpStructure[i].fullText;
+      }
+      else {
+        notes += nvpStructure[i].fullText;
+      }
+    }
+
+  }
+});
+
+stella.tasks.push({
   fullName: "references",
   names: ["reference", "citation", "paper", "source", "academic", "cite", "thesis"],
   desc: "List all the references that Stella relies on.",
@@ -804,13 +839,15 @@ function findMatchesInStringArrays(list1, list2, disregard=[], disregardNonWords
 }
 
 function findWordMapForText(text) {
+  text = text.replace(/[^\w\s?.!]|_/g, "");
   var results = Object.create(null);
-  var tokens = text.split("/");
+  var tokens = text.split(/\s+/g)
   for (var i = 0; i < tokens.length; i++) {
-    if (!(tokens[i] in results)) {
-      results[tokens[i]] = 0;
+    var token = tokens[i].toLowerCase();
+    if (!(token in results)) {
+      results[token] = 0;
     }
-    results[tokens[i]]++;
+    results[token]++;
   }
   return results;
 }
@@ -821,8 +858,6 @@ function findWordMap(text, exceptions=[], splitByChar=" ") {
     mainLinkedWords: {},
     otherWords: {}
   };
-  console.log(">>>");
-  console.log(text);
   var tokens = text.replace(/\n/g, " ").toLowerCase().split(splitByChar);
   for (var i = 0; i < tokens.length; i++) {
     if (exceptions.indexOf(tokens[i]) !== -1) {
@@ -875,14 +910,14 @@ function frequencyMap(documentWordMappings) {
   var results = Object.create(null);
   for (var i = 0; i < documentWordMappings.length; i++) {
     var exclude = Object.create(null);
-    var docWords = Object.keys(documentWordMappings[i])
+    var docWords = Object.keys(documentWordMappings[i]);
     for (var j = 0; j < docWords.length; j++) {
-      if (!(docWords[i] in exclude)) {
-        exclude[docWords[i]] = true;
-        if (totalWordsPerDoc[docWords[i]] === undefined) {
-          totalWordsPerDoc[docWords[i]] = 0;
+      if (!(docWords[j] in exclude)) {
+        exclude[docWords[j]] = true;
+        if (totalWordsPerDoc[docWords[j]] === undefined) {
+          totalWordsPerDoc[docWords[j]] = 0;
         }
-        totalWordsPerDoc[docWords[i]]++;
+        totalWordsPerDoc[docWords[j]]++;
       }
     }
   }
@@ -897,7 +932,12 @@ function frequencyMap(documentWordMappings) {
       if (results[docWords[j]] === undefined) {
         results[docWords[j]] = 0;
       }
-      results[docWords[j]] += tf/idf;
+      if (idf !== 0) {
+        results[docWords[j]] += tf/idf;
+      }
+      else {
+        results[docWords[j]] += tf;
+      }
     }
   }
   return results;
