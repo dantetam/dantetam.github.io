@@ -265,7 +265,7 @@ stella.tasks.push({
   fullName: "record",
   names: ["record", "tally", "log", "write", "down", "keep"],
   qualifiers: {
-    expenseReg: [new RegExp('@\\b(' + word + ')\\b', 'gi')],
+    expenseReg: [new RegExp('(@\S+)', 'gi')],
     date: ["today", "now", "yesterday", "week", "month", "year"],
     //here: ["here", "my", "home"]
   },
@@ -312,6 +312,7 @@ stella.tasks.push({
       '<p>Pak, Paroubek. Twitter as a Corpus for Sentiment Analysis and Opinion Mining. Universit ́e de Paris-Sud, Laboratoire LIMSI-CNRS. 2011. &lt; http://web.archive.org/web/20111119181304/http://deepthoughtinc.com/wp-content/uploads/2011/01/Twitter-as-a-Corpus-for-Sentiment-Analysis-and-Opinion-Mining.pdf &gt;</p>' +
       '<p>Tan, Steinbach, Kumar. "Association Analysis: Basic Concepts and Algorithms." Introduction to Data Mining. Pearson, 2005. &lt; https://www-users.cs.umn.edu/~kumar/dmbook/ch6.pdf &gt;</p>' +
       '<p>Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14, no. 3, pp 130-137.</p>' +
+      //"<p>Inspired by UC Berkeley's CS 170 and CS 189 courses in algorithms and machine learning, as well as natural language processing.</p>" +
       '<p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>' +
       '<p>Icons from game-icons.net.</p>' +
       '<p>Built by Dante Tam, as a curiosity and study in ML, NLP, and information science.</p>' +

@@ -32,7 +32,7 @@ input {
 </style>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8" name="referrer" content="no-referrer">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
@@ -76,9 +76,10 @@ input {
     <script src="https://d3js.org/d3-queue.v2.min.js"></script>
     -->
 
-    <script src="d3.hexbin.min.js"></script>
-    <script type="text/javascript" src="data.js"></script>
+    <!--<script src="d3.hexbin.min.js"></script>-->
+    <!--<script type="text/javascript" src="data.js"></script>-->
     <script src="./xml2json.js"></script>
+    <script type="text/javascript" src="./api.ai.js"></script>
 
   </head>
 
@@ -153,6 +154,7 @@ input {
         <!-- <img src="./images/stella_hexagon2.png" style="width: 512px; height: 512px;"></img> -->
         <br><br>
         <input type="text" id="user-input" value="">
+        <img id="voice-chat" onclick="javascript:startDictation();" src="//i.imgur.com/cHidSVu.gif" alt="Voice Chat with Stella" style="width: 50px; height: 50px;"></img>
       </div>
 
       <div
@@ -239,6 +241,8 @@ input {
     <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
     <script src="cookie.js"></script>
 
+    <script src="./speech.js"></script>
+
     <script src="./maps.js"></script>
     <script src="./searchweb.js"></script>
 
@@ -317,9 +321,10 @@ input {
     //readDefinitions("./definitions.txt");
     readPrepositions("./dict/prepositions.txt");
     readConjunctions("./dict/conjunctions.txt");
-    readLexemeExceptions("./dict/noun.exc");
-    readLexemeExceptions("./dict/verb.exc");
-    readLexemeExceptions("./dict/adj.exc");
+    readLexemeExceptions("./dict/noun-exc.txt");
+    readLexemeExceptions("./dict/verb-exc.txt");
+    readLexemeExceptions("./dict/adj-exc.txt");
+    readLexemeExceptions("./dict/adv-exc.txt");
 
     //var command = parseCommand("search Google for some traitor");
     //console.log(command);

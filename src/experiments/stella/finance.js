@@ -10,16 +10,38 @@ function pause(milliseconds) {
 	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
 }
 
+function jsonCallback() {
+  console.log("hiii");
+}
+
 function stockSymbolLookup(companyNames) {
   for (var i = 0; i < companyNames.length; i++) {
+    /*
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.onload = function() {
 
     }
-    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=parseStockSymbol';
+    script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en';
     //console.log('http://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=1&lang=en&callback=parseStockSymbol')
     document.getElementsByTagName('body')[0].appendChild(script);
+    */
+
+    var url = 'https://autoc.finance.yahoo.com/autoc?query=' + companyNames[i] + '&region=CA&lang=en-CA&diagnostics=true&callback=parseStockSymbol';
+
+    $(document).ready(function() {
+      $.ajax({
+        //type: "OPTIONS",
+        url: url,
+        dataType: 'jsonp',
+        jsonp: false,
+        jsonpCallback: 'jsonCallback',
+        success: function(dataWeGotViaJsonp) {
+          //console.log(dataWeGotViaJsonp);
+          callback(dataWeGotViaJsonp);
+        }
+      });
+    });
   }
 }
 

@@ -8,6 +8,7 @@ function featurizeSpam(texts) {
   return results;
 }
 
+/*
 function trainKernel(texts, binaryTextLabels, kernelFunc=dotProduct) {
   var vectors = featurizeSpam(texts);
   var alpha = [];
@@ -36,6 +37,7 @@ function trainKernel(texts, binaryTextLabels, kernelFunc=dotProduct) {
     }
   };
 }
+*/
 
 function trainKernel(texts, binaryTextLabels) {
   var vectors = featurizeSpam(texts);
@@ -43,7 +45,7 @@ function trainKernel(texts, binaryTextLabels) {
   for (var i = 0; i < vectors.length; i++) {
     alpha.push(0);
   }
-  for (var iter = 0; iter < 100; iter++) {
+  for (var iter = 0; iter < 10; iter++) {
     for (var j = 0; j < vectors.length; j++) {
       var xi = vectors[i], xj = vectors[j], yi = binaryTextLabels[i], yj = binaryTextLabels[j];
 
@@ -60,8 +62,14 @@ function trainKernel(texts, binaryTextLabels) {
   }
   return {
     alpha: alpha,
-    test: function() {
-
+    trainingSubset: vectors,
+    test: function(sample) {
+      var featurizedSample = featurizeSpam([sample])[0];
+      var sum = 0;
+      for (var i = 0; i < trainingSubset.length; i++) {
+        sum += alpha[i] * trainingSubset[i] * sentenceSimilarity(sample, featurizedSample);
+      }
+      return Math.sign(sum);
     }
   };
 }
