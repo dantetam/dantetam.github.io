@@ -9,10 +9,11 @@ function startDictation() {
     recognition.start();
 
     recognition.onresult = function(e) {
-      document.getElementById('transcript').value = e.results[0][0].transcript;
+      //document.getElementById('transcript').value = e.results[0][0].transcript;
+      console.log(e.results[0][0].transcript);
 
       recognition.stop();
-      document.getElementById('labnol').submit();
+      //document.getElementById('labnol').submit();
     };
 
     recognition.onerror = function(e) {
@@ -21,7 +22,7 @@ function startDictation() {
   }
   else {
     var icon = d3.select("#voice-chat").style("opacity", 0);
-    stellaChat.text("<h3>I'm sorry, this browser does not support speech to text. Please use Mozilla Firefox or Google Chrome.</h3><br>" +
+    stellaChat.html("<h3>I'm sorry, this browser does not support speech to text. Please use Google Chrome.</h3><br>" +
       "<h4>You may still enter in text commands.</h4>");
   }
 }

@@ -200,7 +200,7 @@ stella.tasks.push({
       "<h4>Dante Tam, a CS major at UC berkeley, created me on January 12th, 2017.</h4>" +
       "<h4>Write me a note and I'll try to find the most relevant information and tasks.</h4>" +
       //"<h4>Please type 'commands' for a list of commands.</h4>"
-      "<p>Princeton University \"About WordNet.\" WordNet. Princeton University. 2010. &lt;<a href=https://wordnet.princeton.edu>https://wordnet.princeton.edu</a>&gt;</p>"
+      "<p>Type in 'references' to see all my citations.</p>"
     );
   }
 });
@@ -298,14 +298,14 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "references",
-  names: ["reference", "citation", "paper", "source", "academic", "cite", "thesis"],
+  names: ["reference", "references", "citation", "paper", "source", "academic", "cite", "thesis"],
   desc: "List all the references that Stella relies on.",
   execute: function(command, nvpStructure) {
     currentDate = new Date();
 
     stellaChat.html("<h4>References</h4>");
     stellaChat.html(stellaChat.html() +
-      '<p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry; Yahoo (YQL)</p>' +
+      '<p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine, Finance); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry; Yahoo (YQL)</p>' +
       '<p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;http://wordnet.princeton.edu&gt;</p>' +
       '<p>Mihalcea, Tarau. "TextRank: Bringing Order into Texts." University of North Texas. 2005. &lt;https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf&gt;</p>' +
       '<p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>' +
@@ -457,7 +457,7 @@ stella.tasks.push({
 function parseCommand(commandString) {
   var tokens = commandString.split(" ");
   var command = {
-    fullCommand: commandString,
+    fullCommand: "",
     commandWords: [],
     specialWebsitesAndThings: [],
     nouns: [],
@@ -500,6 +500,7 @@ function parseCommand(commandString) {
       continue;
     }*/
     tokens[i] = stemmer(tokens[i]);
+    fullCommand += tokens[i] + " ";
     if (specialWebsitesAndThings.indexOf(tokens[i].toLowerCase()) !== -1) {
       command.specialWebsitesAndThings.push(tokens[i].toLowerCase());
       continue;

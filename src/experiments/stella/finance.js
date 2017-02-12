@@ -118,6 +118,7 @@ function getDataForSymbols(listOfStockSymbols) {
 }
 
 //Only use with trusted sources. This could potentially execute arbitrary JS code.
+/*
 function getTextFromHtml(html) {
   var tmp = document.createElement("DIV");
   tmp.innerHTML = html;
@@ -126,6 +127,7 @@ function getTextFromHtml(html) {
   });
   return tmp.textContent || tmp.innerText || "";
 }
+*/
 
 function printStory(data) {
   //console.log("Data");

@@ -108,7 +108,27 @@ function getTextFromHtml(html) {
       result += (this.textContent || "") + "\n";
     }
   });
+  console.log("Links: ");
+  $(tmp).find("a").each(function() {
+    var element = this.querySelectorAll("class,aria-hidden,p,itemprop,data-aria-label-part,lang,br,style");
+    for (var index = element.length - 1; index >= 0; index--) {
+      element[index].parentNode.removeChild(element[index]);
+    }
+
+    if (this.textContent === null || this.textContent === undefined || this.textContent === "") {
+
+    }
+    else {
+
+    }
+    console.log(this);
+  });
   return result;
+}
+
+var websiteCategories = ["Information", "Connector", "News", "SocialEntertainment"]
+function classifyWebsite() {
+
 }
 
 var body = document.getElementsByTagName('body')[0];
@@ -278,7 +298,7 @@ function linkAnalyzeCallback(data) {
   }
   wordsTotal = wordsTotal.unique();
 
-  summarizeText(temp, summarizeInNumSentences=10, iterations=2, threshold=0.01, replaceBelowThreshold=0.01);
+  //summarizeText(temp, summarizeInNumSentences=10, iterations=2, threshold=0.01, replaceBelowThreshold=0.01);
 
   //aprioriFrequentItemsets(wordsTotal, newSentences);
 
