@@ -1,7 +1,9 @@
 // url='http://chartapi.finance.yahoo.com/instrument/1.0/YHOO%2CAAPL%2CGOOG%2CMSFT/chartdata;type=quote;range=1d/xml'
 
-var latestQuery = []; //Handle all the callback nonsense globally
+var latestQueryNames = []; //Handle all the callback nonsense globally
 var latestQueryLen = 0;
+var latestTimeString = "1 day";
+var latestSymbolQuery = [];
 
 function parseStockSymbol(data) {
   //console.log("Call");
@@ -13,6 +15,14 @@ function parseStockSymbol(data) {
   //console.log(latestSymbolQuery.length + " " + latestQueryLen)
   if (latestSymbolQuery.length === latestQueryLen) {
     getDataForSymbols(latestSymbolQuery);
+
+    stellaChat.html("");
+    for (var i = 0; i < latestSymbolQuery.length; i++) {
+      var imageLink = getGoogleFinanceChart(latestSymbolQuery[i], latestTimeString);
+      stellaChat.html(stellaChat.html() +
+      "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i] + "." + latestTimeString + "</h4><p>" +
+      "<img src=" + imageLink + "></img><p/><hr/>");
+    }
   }
 }
 
@@ -25,9 +35,11 @@ function jsonCallback() {
   //console.log("hiii");
 }
 
-function stockSymbolLookup(companyNames) {
+function stockSymbolLookup(companyNames, timeString="1 day") {
+  latestQueryNames = companyNames;
   latestSymbolQuery = [];
   latestQueryLen = companyNames.length;
+  latestTimeString = timeString;
   for (var i = 0; i < companyNames.length; i++) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -56,6 +68,34 @@ function stockSymbolLookup(companyNames) {
     });
     */
   }
+  return latestSymbolQuery;
+}
+
+function getGoogleFinanceChart(symbol, time) {
+  var timeString = "1M";
+  if (time !== null && time !== undefined) {
+    if (time.indexOf("day") !== -1) {
+      time = time.replace("day", "");
+      timeString = time.trim() + "D";
+    }
+    else if (time.indexOf("week") !== -1) {
+      time = time.replace("week", "");
+      timeString = new Number(time.trim())*7 + "D";
+    }
+    else if (time.indexOf("month") !== -1) {
+      time = time.replace("month", "");
+      timeString = time.trim() + "M";
+    }
+    else if (time.indexOf("year") !== -1) {
+      time = time.replace("year", "");
+      timeString = time.trim() + "Y";
+    }
+  }
+  return "https://www.google.com/finance/getchart?q=" + symbol + "&p=" + timeString + "&i=4000";
+}
+
+function finance(data) {
+  console.log(data);
 }
 
 function getDataForSymbols(listOfStockSymbols) {
@@ -71,7 +111,9 @@ function getDataForSymbols(listOfStockSymbols) {
   script.onload = function() {
 
   }
-  script.src = 'http://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/xml';
+  script.src = 'https://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/json/?callback=finance';
+  //script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20pm.finance.graphs%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&diagnostics=true&callback=finance';
+  //script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + tickerString +
   body.appendChild(script);
 }
 

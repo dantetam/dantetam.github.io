@@ -282,7 +282,7 @@ stella.tasks.push({
           expense += nvpStructure[i].fullText + " ";
         }
       }
-      if (this.qualifiers.expense.indexOf(mainToken) !== -1) {
+      if (this.qualifiers.expenseReg.indexOf(mainToken) !== -1) {
         expense += nvpStructure[i].fullText;
       }
       else if (this.qualifiers.date.indexOf(mainToken) !== -1) {
@@ -386,6 +386,35 @@ stella.tasks.push({
 
   }
 });
+
+stella.tasks.push({
+  fullName: "stocks",
+  names: ["stocks", "symbol", "symbols", "finance"],
+  qualifiers: {
+    time: ["between", "during", "from"],
+    symbols: ["for", "companies"],
+  },
+  desc: "Search Google Finance and other APIs for finance data about stocks.",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var timeString = "";
+
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.time.indexOf(mainToken) !== -1) {
+        timeString += nvpStructure[i].fullText + " ";
+      }
+    }
+
+    var listCompanies = [];
+    for (var i = 0; i < command.properNouns.length; i++) {
+      listCompanies.push(command.properNouns[i]);
+    }
+    stockSymbolLookup(listCompanies, timeString);
+
+  }
+});
+
 
 //Summarize:
 //Searches the web for encyclopedia articles, news articles, and other information as part of its research and summarization features.
@@ -684,9 +713,6 @@ function findAssociatedWords(word, degrees = 2) {
     }
   }
 
-  console.log("Final result: ");
-  console.log(closed);
-
   var definition = {};
   var mainDefWords = mainSynset.definition.toLowerCase().replace(/[^\w\s]/gi, '').split(" ");
   for (var i = 0; i < mainDefWords.length; i++) {
@@ -729,32 +755,32 @@ function findStellaTaskRelatedToCommand(commandString) {
   var relatedSynsets = [], definitionWords = [], relatedWords = [];
 
   for (var i = 0; i < parsed.nouns.length; i++) { //Come up with some special treatment for each part of speech later
-    var taskRelatedWords = findAssociatedWords(parsed.nouns[i].words[0]);
+    var taskRelatedWords = findAssociatedWords(parsed.nouns[i].words[0], degree=1);
     for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
     for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
     for (var j = 0; j < taskRelatedWords[1].length; j++) relatedSynsets.push(taskRelatedWords[1][j]);
   }
   for (var i = 0; i < parsed.verbs.length; i++) {
-    var taskRelatedWords = findAssociatedWords(parsed.verbs[i].words[0]);
+    var taskRelatedWords = findAssociatedWords(parsed.verbs[i].words[0], degree=1);
     for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
     for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
     for (var j = 0; j < taskRelatedWords[1].length; j++) relatedSynsets.push(taskRelatedWords[1][j]);
   }
   for (var i = 0; i < parsed.adjectives.length; i++) {
-    var taskRelatedWords = findAssociatedWords(parsed.adjectives[i].words[0]);
+    var taskRelatedWords = findAssociatedWords(parsed.adjectives[i].words[0], degree=1);
     for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
     for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
     for (var j = 0; j < taskRelatedWords[1].length; j++) relatedSynsets.push(taskRelatedWords[1][j]);
   }
   for (var i = 0; i < parsed.adjectiveSatellites.length; i++) {
-    var taskRelatedWords = findAssociatedWords(parsed.adjectiveSatellites[i].words[0]);
+    var taskRelatedWords = findAssociatedWords(parsed.adjectiveSatellites[i].words[0], degree=1);
     for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
     for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
     for (var j = 0; j < taskRelatedWords[1].length; j++) relatedSynsets.push(taskRelatedWords[1][j]);
   }
 
   //console.log(parsed);
-  var taskRelatedWords = findAssociatedWords(parsed.specialWebsitesAndThings[i]);
+  var taskRelatedWords = findAssociatedWords(parsed.specialWebsitesAndThings[i], degree=1);
   //console.log(taskRelatedWords);
   for (var j = 0; j < taskRelatedWords[0].length; j++) definitionWords.push(taskRelatedWords[0][j]);
   for (var j = 0; j < taskRelatedWords[2].length; j++) definitionWords.push(taskRelatedWords[2][j]);
@@ -778,19 +804,21 @@ function findStellaTaskRelatedToCommand(commandString) {
     var names = stella.tasks[i].names;
     for (var j = 0; j < stella.tasks[i].names.length; j++) {
       taskSynsetWords.push(stella.tasks[i].names[j]);
-      var taskRelatedWords = findAssociatedWords(stella.tasks[i].names[j]);
+      var taskRelatedWords = findAssociatedWords(stella.tasks[i].names[j], degree=1);
       for (var k = 0; k < taskRelatedWords[1].length; k++) {
         for (var l = 0; l < taskRelatedWords[1][k].words.length; l++) {
           taskSynsetWords.push(taskRelatedWords[1][k].words[l]);
         }
       }
     }
+
     var wordMatches = findMatchesInStringArrays(taskSynsetWords, relatedWords);
     var defMatches = findMatchesInStringArrays(taskSynsetWords, definitionWords);
-    var matches = wordMatches.length + defMatches.length;
+    var matches = wordMatches.length;
     console.log(taskSynsetWords);
     console.log(relatedWords);
     console.log(definitionWords);
+    console.log(wordMatches);
     console.log(matches + " matches for command '" + commandString + "' and task '" + stella.tasks[i].desc + "'");
     if (matches > maxMatches || maxIndex == -1) {
       maxIndex = i;
