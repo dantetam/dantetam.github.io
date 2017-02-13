@@ -10,7 +10,10 @@ function startDictation() {
 
     recognition.onresult = function(e) {
       //document.getElementById('transcript').value = e.results[0][0].transcript;
-      console.log(e.results[0][0].transcript);
+      var speech = e.results[0][0].transcript;
+      console.log(speech);
+
+      executeCommand(speech);
 
       recognition.stop();
       //document.getElementById('labnol').submit();

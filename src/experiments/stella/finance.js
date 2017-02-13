@@ -2,15 +2,18 @@
 
 var latestQueryNames = []; //Handle all the callback nonsense globally
 var latestQueryLen = 0;
-var latestTimeString = "1 day";
+var latestTimeString = "1 month";
 var latestSymbolQuery = [];
 
 function parseStockSymbol(data) {
   //console.log("Call");
   var results = data["ResultSet"]["Result"];
+
+  console.log("VVV");
+  console.log(results[0]);
   //for (var i = 0; i < results.length; i++) {
   //console.log(results[0]);
-  latestSymbolQuery.push(results[0].symbol);
+  latestSymbolQuery.push(results[0]);
   //}
   //console.log(latestSymbolQuery.length + " " + latestQueryLen)
   if (latestSymbolQuery.length === latestQueryLen) {
@@ -18,9 +21,10 @@ function parseStockSymbol(data) {
 
     stellaChat.html("");
     for (var i = 0; i < latestSymbolQuery.length; i++) {
-      var imageLink = getGoogleFinanceChart(latestSymbolQuery[i], latestTimeString);
+      var imageLink = getGoogleFinanceChart(latestSymbolQuery[i].symbol, latestTimeString);
       stellaChat.html(stellaChat.html() +
-      "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i] + "." + latestTimeString + "</h4><p>" +
+      "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i].symbol + "." + latestTimeString + "</h4><p>" +
+      "<h4>" + latestSymbolQuery[i].toString() + "</h4>" +
       "<img src=" + imageLink + "></img><p/><hr/>");
     }
   }
@@ -35,7 +39,7 @@ function jsonCallback() {
   //console.log("hiii");
 }
 
-function stockSymbolLookup(companyNames, timeString="1 day") {
+function stockSymbolLookup(companyNames, timeString="1 month") {
   latestQueryNames = companyNames;
   latestSymbolQuery = [];
   latestQueryLen = companyNames.length;
@@ -94,16 +98,39 @@ function getGoogleFinanceChart(symbol, time) {
   return "https://www.google.com/finance/getchart?q=" + symbol + "&p=" + timeString + "&i=4000";
 }
 
-function finance(data) {
+function financeAnalyze(data) {
   console.log(data);
+  var results = data["query"]["results"]["quote"];
+  var collatedResults = [];
+  for (var i = 0; i < results.length; i++) {
+
+  }
+
+  stellaChat.html("");
+  for (var i = 0; i < latestSymbolQuery.length; i++) {
+    var collatedResultsString = "";
+    var collatedResults = results[i];
+    var keys = Object.keys(collatedResults);
+    for (var j = 0; j < keys.length; j++) {
+      if (collatedResults[keys[j]] !== null) {
+        collatedResultsString += "<p>" + keys[j] + ":" + collatedResults[keys[j]] + "</p>";
+      }
+    }
+    var imageLink = getGoogleFinanceChart(latestSymbolQuery[i].symbol, latestTimeString);
+    stellaChat.html(stellaChat.html() +
+    "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i].symbol + "." + latestTimeString + "</h4><p>" +
+    "<h4>" + latestSymbolQuery[i].toString() + "</h4>" +
+    "<img src=" + imageLink + "></img><p/><hr/>" +
+    collatedResultsString);
+  }
 }
 
 function getDataForSymbols(listOfStockSymbols) {
   var tickerString = "";
   for (var i = 0; i < listOfStockSymbols.length; i++) {
-    tickerString += listOfStockSymbols;
+    tickerString += "%22" + listOfStockSymbols[i].symbol + "%22";
     if (i !== listOfStockSymbols.length - 1) {
-      tickerString += "%2C";
+      tickerString += ",";
     }
   }
   var script = document.createElement('script');
@@ -111,9 +138,10 @@ function getDataForSymbols(listOfStockSymbols) {
   script.onload = function() {
 
   }
-  script.src = 'https://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/json/?callback=finance';
+  //script.src = 'https://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/json/?callback=financeAnalyze';
   //script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20pm.finance.graphs%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&diagnostics=true&callback=finance';
   //script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + tickerString +
+  script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(' + tickerString + ')&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=financeAnalyze'
   body.appendChild(script);
 }
 

@@ -392,17 +392,17 @@ stella.tasks.push({
   names: ["stocks", "symbol", "symbols", "finance"],
   qualifiers: {
     time: ["between", "during", "from"],
-    symbols: ["for", "companies"],
+    symbols: ["for", "companies"]
   },
   desc: "Search Google Finance and other APIs for finance data about stocks.",
   execute: function(command, nvpStructure) {
     var tokens = command.fullCommand.split(" ");
-    var timeString = "";
+    var timeString = "1 month";
 
     for (var i = 0; i < nvpStructure.length; i++) {
       var mainToken = nvpStructure[i].mainWord;
       if (this.qualifiers.time.indexOf(mainToken) !== -1) {
-        timeString += nvpStructure[i].fullText + " ";
+        timeString = nvpStructure[i].fullText + " ";
       }
     }
 
@@ -500,7 +500,7 @@ function parseCommand(commandString) {
       continue;
     }*/
     tokens[i] = stemmer(tokens[i]);
-    fullCommand += tokens[i] + " ";
+    command.fullCommand += tokens[i] + " ";
     if (specialWebsitesAndThings.indexOf(tokens[i].toLowerCase()) !== -1) {
       command.specialWebsitesAndThings.push(tokens[i].toLowerCase());
       continue;
