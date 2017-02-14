@@ -1,5 +1,24 @@
+function getWikipediaContentForSearchStrings(strings, finalCallback=null) {
+  var titles = [];
+  var callback = function(rawContent) {
+    //console.log("VVV");
+    //console.log(rawContent);
+    titles.push(rawContent.query.search[0].title);
+    if (titles.length === strings.length) {
+      if (finalCallback !== null) {
+        finalCallback(titles);
+      }
+    }
+  }
+  for (var i = 0; i < strings.length; i++) {
+    //xdr("https://en.wikipedia.org/w/api.php?action=query&titles=" + subjects[i] + "&prop=revisions&format=json", "GET", callback);
+    callWikipediaSearchAPI(strings[i], callback);
+  }
+}
+
+var latestResult = [];
 function getWikipediaContentForSubjects(subjects, finalCallback=null) {
-  var result = [];
+  latestResult = [];
   var callback = function(rawContent) {
     var pages = rawContent["query"]["pages"];
     var keys = Object.keys(pages);
@@ -11,8 +30,8 @@ function getWikipediaContentForSubjects(subjects, finalCallback=null) {
         //var wordMap = findWordMap(pageContent);
         //console.log(pageContent);
         //console.log(wordMap);
-        result.push(pageContent);
-        if (finalCallback !== null) {
+        latestResult.push(pageContent);
+        if (latestResult.length === subjects.length && finalCallback !== null) {
           finalCallback(pageContent);
         }
       }
@@ -20,13 +39,14 @@ function getWikipediaContentForSubjects(subjects, finalCallback=null) {
   }
   for (var i = 0; i < subjects.length; i++) {
     //xdr("https://en.wikipedia.org/w/api.php?action=query&titles=" + subjects[i] + "&prop=revisions&format=json", "GET", callback);
-    callWikipediaAPI(subjects[i], callback);
+    callWikipediaContentAPI(subjects[i], callback);
   }
 }
 //getWikipediaContentForSubjects(["Water"]);
 
-function callWikipediaAPI(subject, callback) {
-  var url = "https://en.wikipedia.org/w/api.php?action=query&titles=" + subject + "&prop=revisions&rvprop=content&format=json";
+function callWikipediaSearchAPI(subjectString, callback) {
+  //var url = "https://en.wikipedia.org/w/api.php?action=query&titles=" + subject + "&prop=revisions&rvprop=content&format=json";
+  var url = "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=" + subjectString + "&utf8=&format=json"
 
   $(document).ready(function() {
     $.ajax({
@@ -40,6 +60,29 @@ function callWikipediaAPI(subject, callback) {
   });
 }
 
+function callWikipediaContentAPI(subject, callback) {
+  var url = "https://en.wikipedia.org/w/api.php?action=query&titles=" + subject + "&prop=revisions&rvprop=content&format=json";
+  //console.log(url);
+
+  $(document).ready(function() {
+    $.ajax({
+      url: url,
+      dataType: 'jsonp',
+      success: function(dataWeGotViaJsonp) {
+        callback(dataWeGotViaJsonp);
+      }
+    });
+  });
+}
+
+function getWikipediaInfo(strings, finalCallback = function(data) {console.log(data);}) {
+  var callback = function(data) {
+    getWikipediaContentForSubjects(data, finalCallback);
+  };
+  getWikipediaContentForSearchStrings(strings, callback);
+}
+
+/*
 function getMainBoxData(subjects) {
   getWikipediaContentForSubjects(subjects, function(data) {});
   //TODO: Use a stack to figure out when the {{ }} containing infobox ends (there are nested {{}})
@@ -47,6 +90,7 @@ function getMainBoxData(subjects) {
   //Use the information later to create a description of an object in the adventure,
   //where the nearest town/object(park,mine,etc.) is documented.
 }
+*/
 
 var defaultTokens = ["{{/}}", "[[/]]", "</>"];
 function removeAllTokens(text, tokens=defaultTokens) {
@@ -112,6 +156,8 @@ function getTopSentencesFromText(mainTopicWikipediaData, text, numToSummarize=50
   }
   return results;
 }
+
+
 
 
 

@@ -244,6 +244,8 @@ input {
     <script src="./speech.js"></script>
 
     <script src="./maps.js"></script>
+    <script src="./satellite.js"></script>
+    <script src="./data-analysis.js"></script>
     <script src="./searchweb.js"></script>
 
     <script src="//algorithmia.com/v1/clients/js/algorithmia-0.2.0.js" type="text/javascript"></script>
@@ -462,12 +464,16 @@ graded to a tropical storm";
 
     console.log(wordsByName["eloquent"] + "<<<<");
 
+    /*
     getWikipediaContentForSubjects(["Water"], function(pageContent) {
       var wordMap = findWordMap(pageContent);
       var energy = getEnergy(wordMap, pageContent);
       var topSentences = getTopSentencesFromText(wordMap, pageContent);
       removeAllTokens(pageContent);
     });
+    */
+
+    getWikipediaInfo(["George VI"]);
 
     </script>
 

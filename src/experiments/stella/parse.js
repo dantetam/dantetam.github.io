@@ -24,7 +24,7 @@ wordsById[9191920] = {
 wordsById[9191921] = {
   words: ["creator"],
   partOfSpeech: "n",
-  definition: "Dante Tam; my creator; UC Berkeley CS major; 4x grand strategist",
+  definition: "Dante Tam; my creator; UC Berkeley CS major; 4x grand strategist; architect of both software and buildings",
   nyms: {}
 };
 wordsByName["stella"] = 9191919; wordsByName["you"] = 9191919;
@@ -55,12 +55,12 @@ function readWordNet(file)
   //rawFile.responseType = "document";
   rawFile.onreadystatechange = function()
   {
-    console.log("fired function " + file + ":" + rawFile.readyState + ", " + rawFile.status);
+    //console.log("fired function " + file + ":" + rawFile.readyState + ", " + rawFile.status);
     if (rawFile.readyState === 4)
     {
       if (rawFile.status === 200 || rawFile.status == 0)
       {
-        console.log(file + ":parse");
+        //console.log(file + ":parse");
         var allText = rawFile.responseText;
         //fileDisplayArea.innerText = allText;
         //d3.select("#fileParse").html(allText);
