@@ -110,17 +110,21 @@ function financeAnalyze(data) {
   for (var i = 0; i < latestSymbolQuery.length; i++) {
     var collatedResultsString = "";
     var collatedResults = results[i];
+    if (collatedResults === undefined) {
+      collatedResults = results;
+    }
     var keys = Object.keys(collatedResults);
     for (var j = 0; j < keys.length; j++) {
       if (collatedResults[keys[j]] !== null) {
-        collatedResultsString += "<p>" + keys[j] + ":" + collatedResults[keys[j]] + "</p>";
+        collatedResultsString += "<p>" + keys[j] + ": " + collatedResults[keys[j]] + "</p>";
       }
     }
     var imageLink = getGoogleFinanceChart(latestSymbolQuery[i].symbol, latestTimeString);
     stellaChat.html(stellaChat.html() +
-    "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i].symbol + "." + latestTimeString + "</h4><p>" +
+    "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i].symbol + ". " + latestTimeString + "</h4><p>" +
     "<h4>" + latestSymbolQuery[i].toString() + "</h4>" +
     "<img src=" + imageLink + "></img><p/><hr/>" +
+    "<h4>" + latestQueryNames[i] + "/" + latestSymbolQuery[i].symbol + ". " + latestTimeString + "</h4><p>" +
     collatedResultsString);
   }
 }
