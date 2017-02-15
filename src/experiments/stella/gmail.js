@@ -1,5 +1,5 @@
 var clientId = '424136181163-bv5drepde8ruaug755ilqck7i599s2ci.apps.googleusercontent.com';
-var apiKey = 'AIzaSyClTWJV_mKBgGjO4MZ4t2kxnilvNHSjHes';
+var apiKey = 'AIzaSyBOB0Y9Scm49yD6qivnBPTxmoA5Q7cZQFA';
 var scopes = 'https://www.googleapis.com/auth/gmail.readonly' + ' ' + 'https://www.googleapis.com/auth/calendar';
 
 function handleClientLoad() {

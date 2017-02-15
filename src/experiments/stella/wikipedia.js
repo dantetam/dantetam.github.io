@@ -2,7 +2,7 @@ function getWikipediaContentForSearchStrings(strings, finalCallback=null) {
   var titles = [];
   var callback = function(rawContent) {
     //console.log("VVV");
-    //console.log(rawContent);
+    console.log(rawContent);
     titles.push(rawContent.query.search[0].title);
     if (titles.length === strings.length) {
       if (finalCallback !== null) {
@@ -82,6 +82,35 @@ function getWikipediaInfo(strings, finalCallback = function(data) {console.log(d
   getWikipediaContentForSearchStrings(strings, callback);
 }
 
+function getMainBoxData(wikiText) {
+  var result = {};
+  var infoboxIndex = wikiText.indexOf("Infobox");
+  var stack = 1;
+  if (infoboxIndex !== -1) {
+    var i = infoboxIndex;
+    for (i = infoboxIndex; true; i++) {
+      if (wikiText.substring(i, i+2) === "{{") {
+        stack++;
+      }
+      else if (wikiText.substring(i, i+2) === "}}") {
+        stack--;
+      }
+      if (stack == 0) {
+        break;
+      }
+    }
+    var infoboxString = wikiText.substring(infoboxIndex, i);
+    var lines = infoboxString.split("|");
+    for (var j = 0; j < lines.length; j++) {
+      if (lines[j].indexOf("=") !== -1) {
+        var pair = lines[j].split("=");
+        result[pair[0].trim().replace(/[\[\{\(\]\}\)]+/g, '')] = pair[1].trim().replace(/[\[\{\(\]\}\)]+/g, '');
+      }
+    }
+  }
+  return result;
+}
+
 /*
 function getMainBoxData(subjects) {
   getWikipediaContentForSubjects(subjects, function(data) {});
@@ -94,7 +123,7 @@ function getMainBoxData(subjects) {
 
 var defaultTokens = ["{{/}}", "[[/]]", "</>"];
 function removeAllTokens(text, tokens=defaultTokens) {
-  console.log(text);
+  //console.log(text);
   //for (var i = 0; i < tokens.length; i++) {
     text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>)*/g, "");
     text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>)*/, "");
@@ -103,7 +132,7 @@ function removeAllTokens(text, tokens=defaultTokens) {
     text = text.replace(/\[\[/g, "").replace(/\]\]/g, "");
 
   //}
-  console.log(text);
+  //console.log(text);
 }
 
 function getEnergy(mainTopicWikipediaData, text) {

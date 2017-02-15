@@ -305,7 +305,7 @@ stella.tasks.push({
 
     stellaChat.html("<h4>References</h4>");
     stellaChat.html(stellaChat.html() +
-      '<p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine, Finance); MediaWiki Wikipedia; Facebook; Messenger; EventRegistry; Yahoo (YQL)</p>' +
+      '<p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine, Finance, StaticMap); MediaWiki Wikipedia Content and Search; Facebook; Messenger; Yahoo (YQL, Finance); NASA GIBS</p>' +
       '<p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;http://wordnet.princeton.edu&gt;</p>' +
       '<p>Mihalcea, Tarau. "TextRank: Bringing Order into Texts." University of North Texas. 2005. &lt;https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf&gt;</p>' +
       '<p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>' +
@@ -318,6 +318,75 @@ stella.tasks.push({
       '<p>Icons from game-icons.net.</p>' +
       '<p>Built by Dante Tam, as a curiosity and study in ML, NLP, and information science.</p>' +
       '<p>Contact datam@berkeley.edu</p>'
+    );
+  }
+});
+
+stella.tasks.push({
+  fullName: "research",
+  names: ["research", "search", "data"],
+  desc: "Search Wikipedia's API for infoboxes and summaries.",
+  qualifiers: {
+    topic: ["research", "search", "data", "for", "find"]
+  },
+  execute: function(command, nvpStructure) {
+    var properNounsString = "";
+
+    var listToDefine = command.nouns.concat(command.adjectives, command.adjectiveSatellites); //command.properNouns
+    for (var i = 0; i < listToDefine.length; i++) {
+      if (this.names.indexOf(listToDefine[i].words[0]) !== -1 || this.qualifiers.topic.indexOf()) {
+        continue;
+      }
+      properNounsString += listToDefine[i].words[0];
+      if (i !== listToDefine.length - 1) {
+        properNounsString += "+";
+      }
+    }
+    listToDefine = listToDefine.concat(command.properNouns);
+    for (var i = 0; i < command.properNouns.length; i++) {
+      properNounsString += command.properNouns[i] + "+";
+    }
+
+    var callback = function(data) {
+      var info = getMainBoxData(data);
+      console.log(info);
+      console.log(removeAllTokens(data));
+    };
+    getWikipediaInfo([properNounsString], callback);
+
+
+  }
+});
+
+stella.tasks.push({
+  fullName: "satellite",
+  names: ["satellite", "earth", "location", "image"],
+  desc: "Generate a satellite image of a certain location.",
+  qualifiers: {
+    location: ["for", "at", "near", "around", "satellite", "image"],
+    zoomLevel: ["zoom", "level", "size"]
+  },
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    var startLocation = "";
+    var zoomLevel = 12;
+
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.location.indexOf(mainToken) !== -1) {
+        startLocation = nvpStructure[i].fullText;
+      }
+      if (this.qualifiers.zoomLevel.indexOf(mainToken) !== -1) {
+        zoomLevel = nvpStructure[i].fullText.replace(/[^\/\d]/g, "");
+      }
+    }
+
+    console.log(">>>>" + startLocation + ":" + zoomLevel);
+
+    console.log(":" + getSatelliteImage(startLocation, zoomLevel) + ":");
+
+    stellaChat.html(
+      "<img src=" + getSatelliteImage(startLocation, zoomLevel) + "></img>"
     );
   }
 });
@@ -431,7 +500,7 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "wikipedia",
-  names: ["wikipedia", "research", "search", "encyclopedia"],
+  names: ["wikipedia", "search", "encyclopedia"],
   desc: "Search Wikipedia for something.",
   qualifiers: {
     topic: ["for", ""]
@@ -500,7 +569,6 @@ function parseCommand(commandString) {
       command.specialExceptionWords.push(tokens[i].toLowerCase());
       continue;
     }*/
-    tokens[i] = stemmer(tokens[i]);
     command.fullCommand += tokens[i] + " ";
     if (specialWebsitesAndThings.indexOf(tokens[i].toLowerCase()) !== -1) {
       command.specialWebsitesAndThings.push(tokens[i].toLowerCase());
@@ -514,6 +582,7 @@ function parseCommand(commandString) {
       command.properNouns.push(tokens[i]);
       continue;
     }
+    tokens[i] = stemmer(tokens[i]);
     var id = wordsByName[tokens[i].replace(/[^\w\s]/gi, '').toLowerCase()];
     if (id !== undefined && id !== null) {
       if (typeof id === "number") id = [id];
