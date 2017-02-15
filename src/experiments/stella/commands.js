@@ -354,7 +354,6 @@ stella.tasks.push({
     };
     getWikipediaInfo([properNounsString], callback);
 
-
   }
 });
 
@@ -380,14 +379,33 @@ stella.tasks.push({
         zoomLevel = nvpStructure[i].fullText.replace(/[^\/\d]/g, "");
       }
     }
+    startLocation.replace(/ /g, "+");
 
-    console.log(">>>>" + startLocation + ":" + zoomLevel);
+    if (startLocation.indexOf("near me") !== 1 || startLocation.indexOf("my location") !== -1 || startLocation.indexOf("around me") !== -1) {
+      console.log(userLocation);
+      return;
+    }
 
-    console.log(":" + getSatelliteImage(startLocation, zoomLevel) + ":");
+    getLocationDetailsByCoord(userLocation.coords.latitude, userLocation.coords.longitude, userLocationCallback);
+
+    var placeInfoCallback = function(data) {
+      var keys = Object.keys(data);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf("http") !== -1 || keys[i].indexOf(".svg") !== -1 || keys[i].indexOf(".png") !== -1) {
+          continue;
+        }
+        if (data[keys[i]].indexOf("http") !== -1 || data[keys[i]].indexOf(".svg") !== -1 || data[keys[i]].indexOf(".png") !== -1) {
+          continue;
+        }
+        stellaChat.html(stellaChat.html() + "<p>" + keys[i] + ": " + data[keys[i]] + "</p>");
+      }
+    };
 
     stellaChat.html(
       "<img src=" + getSatelliteImage(startLocation, zoomLevel) + "></img>"
     );
+
+    getInfoOfPlace(startLocation, placeInfoCallback);
   }
 });
 
