@@ -4,11 +4,8 @@
 
 //Use Google Static API here
 function getSatelliteImage(locationString, zoomLevel=14) {
-  console.log(userLocation);
-  console.log(locationString);
-  console.log(zoomLevel);
   var imageLink = 'https://maps.googleapis.com/maps/api/staticmap?maptype=satellite&center=' + locationString.trim() + '&zoom=' + zoomLevel + '&size=640x640&key=AIzaSyBOB0Y9Scm49yD6qivnBPTxmoA5Q7cZQFA';
-  return imageLink.replace(" ", "+");
+  return imageLink.replace(/ /g, "+");
 }
 
 function getInfoOfPlace(placeString) {
@@ -22,7 +19,17 @@ function getNearbyPlaces(place) {
   //which plans a random vacation and story across some area.
 }
 
+function getLocationDetailsByCoord(coordX, coordY) {
+  var url = "https://maps.googleapis.com/maps/api/geocode/json?";
+  url += "latlng=" + coordX + "," + coordY;
+  url += "&key=AIzaSyBOB0Y9Scm49yD6qivnBPTxmoA5Q7cZQFA";
+
+}
+
 //Google Street View API?
+
+
+
 
 
 
