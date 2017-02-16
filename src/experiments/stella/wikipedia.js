@@ -125,15 +125,26 @@ var defaultTokens = ["{{/}}", "[[/]]", "</>"];
 function removeAllTokens(text, tokens=defaultTokens) {
   //console.log(text);
   //for (var i = 0; i < tokens.length; i++) {
+
+    //text = text.replace(/\[\[.*?\|/g, "");
+
+    text = text.replace(/\(\[\[/g, "").replace(/\]\]\)/g, "");
     text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>)*/g, "");
-    text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>)*/, "");
+    //text = text.replace(/(\(.*?\)|\{\{.*?\}\}|\<.*?\>)*/, "");
     //text = text.replace(/(\[\[File.*?\]\]) */g, "");
     text = text.replace(/(\[\[File.*?\.\]\])*/g, "");
     text = text.replace(/\[\[/g, "").replace(/\]\]/g, "");
+    text = text.replace(/\=\=.*?\=\=/g, "\n");
 
+    return text;
   //}
   //console.log(text);
 }
+
+//console.log(removeAllTokens("{{Hello}}, my name [[is[[Jeff]] ]]"));
+
+var text = "{{about|general aspects of water|a detailed discussion of its physical and chemical properties|Properties of water|other uses}}\n{{pp-move-indef}}\n{{Use dmy dates|date=May 2016}}\n{{pp-semi-vandalism|small=yes}}\n\n[[File:Iceberg with hole near Sandersons Hope 2007-07-28 2.jpg|thumb|Water in three states: liquid, solid ([[ice]]), and gas (invisible [[water vapor]] in the air). [[Cloud]]s are accumulations of water droplets, [[condensation|condensed]] from vapor-saturated air.]]\n[[File:Water Video.webm|thumb|Video demonstrating states of water present in domestic life.]]\n\n'''Water''' is a transparent and nearly colorless [[chemical substance]] that is the main constituent of Earth's [[stream]]s, [[lake]]s, and [[ocean]]s, and the [[fluid]]s of most living [[organism]]s.  Its [[chemical formula]] is '''H<sub>2</sub>O''', meaning that its [[molecule]] contains one [[oxygen]] and two [[hydrogen]] [[atom]]s, that are connected by [[covalent bond]]s. Water strictly refers to the [[liquid]] state of that substance, that prevails at [[standard ambient temperature and pressure]]; but it often refers also to its [[solid]] state ([[ice]]) or its [[gas]]eous state ([[steam]] or [[water vapor]]). It also occurs in nature as [[snow]], [[glacier]]s, [[drift ice|ice packs]] and [[iceberg]]s, [[cloud]]s, [[fog]], [[dew]], [[aquifer]]s, and atmospheric [[humidity]].\n\nWater covers 71% of the Earth's surface.<ref>{{cite web|url=https://www.cia.gov/library/publications/the-world-factbook/geos/xx.html#Geo|title=CIA \u2013 The world factbook|publisher=[[Central Intelligence Agency]]|accessdate=20 December 2008}}</ref>";
+console.log(removeAllTokens(text));
 
 function getEnergy(mainTopicWikipediaData, text) {
   var energy = 0;
@@ -182,6 +193,35 @@ function getTopSentencesFromText(mainTopicWikipediaData, text, numToSummarize=50
   for (var i = 0; i < numToSummarize; i++) {
     results.push(sentences[sorted[i]]);
     //console.log(energySentence[sorted[i]]);
+  }
+  return results;
+}
+
+function summarizeLongText(mainTopicWikipediaData, text, proportion=0.2) {
+  var paragraphs = text.split("\n");
+  var results = [];
+  for (var i = 0; i < paragraphs.length; i++) {
+    var energySentence = {};
+    var sentences = paragraphs[i].split(".");
+    if (sentences.length === 0) {
+      continue;
+    }
+    for (var j = 0; j < sentences.length; j++) {
+      var sentence = sentences[j].replace(/[^\w\s]/gi, "");
+      //console.log(sentence);
+      if (sentence.trim().length < 10) {
+        continue;
+      }
+      //console.log(sentence);
+      energySentence[j] = getEnergySentence(mainTopicWikipediaData, sentence);
+      //console.log(sentence + ". has energy " + getEnergySentence(mainTopicWikipediaData, sentence));
+    }
+    var sorted = Object.keys(energySentence).sort(function(a,b) {return energySentence[b] - energySentence[a];});
+    var numToSummarize = Math.ceil(proportion * sentences.length);
+    for (var j = 0; j < numToSummarize; j++) {
+      results.push(sentences[sorted[j]]);
+      //console.log(energySentence[sorted[i]]);
+    }
   }
   return results;
 }

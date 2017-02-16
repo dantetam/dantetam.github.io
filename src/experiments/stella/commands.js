@@ -349,7 +349,7 @@ stella.tasks.push({
 
     var callback = function(data) {
       var info = getMainBoxData(data);
-      console.log(info);
+      console.log(summarizeLongData(data));
       console.log(removeAllTokens(data));
     };
     getWikipediaInfo([properNounsString], callback);

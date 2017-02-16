@@ -473,6 +473,26 @@ graded to a tropical storm";
     });
     */
 
+    getWikipediaContentForSubjects(["Water"], function(pageContent) {
+      removeAllTokens(pageContent);
+
+      pageContent = removeAllTokens(pageContent);
+      var index = pageContent.indexOf("==See also==");
+      if (index !== -1) {
+        pageContent = pageContent.substring(0, index);
+      }
+      var wordMap = findWordMap(pageContent);
+      var energy = getEnergy(wordMap, pageContent);
+      var topSentences = summarizeLongText(wordMap, pageContent);
+
+      var summary = "";
+      for (var i = 0; i < topSentences.length; i++) {
+        summary += topSentences[i] + ". ";
+      }
+      //console.log(topSentences.length + " sentences long.");
+      //console.log(summary);
+    });
+
     //getWikipediaInfo(["George VI"], getMainBoxData);
 
     </script>
