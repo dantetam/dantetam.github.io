@@ -241,7 +241,7 @@ stella.tasks.push({
 
 stella.tasks.push({
   fullName: "name",
-  names: ["name", "is", "call", "me"],
+  names: ["name", "call"],
   qualifiers: {
     name: ["is", "me"]
   },
@@ -379,35 +379,51 @@ stella.tasks.push({
         zoomLevel = nvpStructure[i].fullText.replace(/[^\/\d]/g, "");
       }
     }
+
+    var userLocationCallback = function(data, lat, lng) {
+      var addr = data.results[0]["formatted_address"];
+      console.log(addr);
+      startLocation = addr;
+      showMap(startLocation, zoomLevel);
+    };
+
     startLocation.replace(/ /g, "+");
 
-    if (startLocation.indexOf("near me") !== 1 || startLocation.indexOf("my location") !== -1 || startLocation.indexOf("around me") !== -1) {
-      console.log(userLocation);
+    console.log(command.fullCommand);
+    console.log(startLocation.trim() + ":");
+
+    if (command.fullCommand.indexOf("near me") !== -1 || command.fullCommand.indexOf("my location") !== -1 || command.fullCommand.indexOf("around me") !== -1 || command.fullCommand.indexOf("me") !== -1 || startLocation.trim() === "me") {
+      //console.log(userLocation);
+      getLocationDetailsByCoord(userLocation.coords.latitude, userLocation.coords.longitude, userLocationCallback);
       return;
     }
 
-    getLocationDetailsByCoord(userLocation.coords.latitude, userLocation.coords.longitude, userLocationCallback);
-
-    var placeInfoCallback = function(data) {
-      var keys = Object.keys(data);
-      for (var i = 0; i < keys.length; i++) {
-        if (keys[i].indexOf("http") !== -1 || keys[i].indexOf(".svg") !== -1 || keys[i].indexOf(".png") !== -1) {
-          continue;
-        }
-        if (data[keys[i]].indexOf("http") !== -1 || data[keys[i]].indexOf(".svg") !== -1 || data[keys[i]].indexOf(".png") !== -1) {
-          continue;
-        }
-        stellaChat.html(stellaChat.html() + "<p>" + keys[i] + ": " + data[keys[i]] + "</p>");
-      }
-    };
-
-    stellaChat.html(
-      "<img src=" + getSatelliteImage(startLocation, zoomLevel) + "></img>"
-    );
-
-    getInfoOfPlace(startLocation, placeInfoCallback);
+    showMap(startLocation, zoomLevel);
   }
 });
+
+function showMap(startLocation, zoomLevel) {
+  var placeInfoCallback = function(data) {
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i].indexOf("http") !== -1 || keys[i].indexOf(".svg") !== -1 || keys[i].indexOf(".png") !== -1) {
+        continue;
+      }
+      if (data[keys[i]].indexOf("http") !== -1 || data[keys[i]].indexOf(".svg") !== -1 || data[keys[i]].indexOf(".png") !== -1) {
+        continue;
+      }
+      stellaChat.html(stellaChat.html() + "<p>" + keys[i] + ": " + data[keys[i]] + "</p>");
+    }
+  };
+
+  var imgName = getSatelliteImage(startLocation, zoomLevel);
+  console.log(imgName);
+  stellaChat.html(
+    "<img src=" + imgName + "></img>"
+  );
+
+  getInfoOfPlace(startLocation, placeInfoCallback);
+}
 
 stella.tasks.push({
   fullName: "schedule",
@@ -600,8 +616,12 @@ function parseCommand(commandString) {
       command.properNouns.push(tokens[i]);
       continue;
     }
-    tokens[i] = stemmer(tokens[i]);
-    var id = wordsByName[tokens[i].replace(/[^\w\s]/gi, '').toLowerCase()];
+    tokens[i] = tokens[i].replace(/[^\w\s]/gi, '').toLowerCase();
+    var id = wordsByName[tokens[i]];
+    if (id === undefined || id === null) {
+      tokens[i] = stemmer(tokens[i]);
+      id = wordsByName[tokens[i]];
+    }
     if (id !== undefined && id !== null) {
       if (typeof id === "number") id = [id];
       for (var j = 0; j < id.length; j++) {
@@ -901,9 +921,11 @@ function findStellaTaskRelatedToCommand(commandString) {
       }
     }
 
+    var directNameMatches = findMatchesInStringArrays(names, relatedWords);
     var wordMatches = findMatchesInStringArrays(taskSynsetWords, relatedWords);
     var defMatches = findMatchesInStringArrays(taskSynsetWords, definitionWords);
-    var matches = wordMatches.length;
+    var matches = directNameMatches.length*2 + wordMatches.length;
+    console.log(directNameMatches);
     console.log(taskSynsetWords);
     console.log(relatedWords);
     console.log(definitionWords);
