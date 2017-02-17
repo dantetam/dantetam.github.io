@@ -28,6 +28,15 @@ stella.tasks.push({
 });
 
 stella.tasks.push({
+  fullName: "commands",
+  names: ["commands", "associated", "help"],
+  desc: "Analyze a command and return the possible matches.",
+  execute: function(command, nvpStructure) {
+
+  }
+});
+
+stella.tasks.push({
   fullName: "date",
   names: ["date", "time", "what"],
   desc: "Show the current date and time.",
@@ -859,7 +868,7 @@ function findAssociatedWords(word, degrees = 2) {
 
 */
 //TODO: Clean up this method.
-function findStellaTaskRelatedToCommand(commandString) {
+function findAllStellaTasksFromText(commandString) {
   var parsed = parseCommand(commandString);
   var relatedSynsets = [], definitionWords = [], relatedWords = [];
 
@@ -906,7 +915,7 @@ function findStellaTaskRelatedToCommand(commandString) {
     relatedWords.push(split[i]);
   }
 
-  var maxMatches = 0, maxIndex = -1;
+  var result = {};
 
   for (var i = 0; i < stella.tasks.length; i++) {
     var taskSynsetWords = [];
@@ -925,12 +934,18 @@ function findStellaTaskRelatedToCommand(commandString) {
     var wordMatches = findMatchesInStringArrays(taskSynsetWords, relatedWords);
     var defMatches = findMatchesInStringArrays(taskSynsetWords, definitionWords);
     var matches = directNameMatches.length*2 + wordMatches.length;
-    console.log(directNameMatches);
-    console.log(taskSynsetWords);
-    console.log(relatedWords);
-    console.log(definitionWords);
-    console.log(wordMatches);
-    console.log(matches + " matches for command '" + commandString + "' and task '" + stella.tasks[i].desc + "'");
+    result[i] = matches;
+  }
+
+  return result;
+}
+function findStellaTaskRelatedToCommand(commandString) {
+  var result = findAllStellaTasksFromText(commandString);
+
+  var maxMatches = 0, maxIndex = -1;
+
+  for (var i = 0; i < stella.tasks.length; i++) {
+    var matches = result[i];
     if (matches > maxMatches || maxIndex == -1) {
       maxIndex = i;
       maxMatches = matches;
