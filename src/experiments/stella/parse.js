@@ -39,6 +39,16 @@ var username = Cookies.get('userdata-username') !== undefined ? Cookies.get('use
 
 var currentDate = new Date();
 
+function currentDay() {
+  var date = new Date();
+  return date.toDateString();
+}
+
+function currentTime() {
+  var date = new Date();
+  return date.toDateString() + " " + date.toISOString().split("T")[1].replace("Z", "");
+}
+
 /*
 Takes a WordNet file and converts into JS data structures, where
 wordsById[id] = {

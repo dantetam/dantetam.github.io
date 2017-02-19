@@ -18,6 +18,7 @@ function parseStockSymbol(data) {
   //console.log(latestSymbolQuery.length + " " + latestQueryLen)
   if (latestSymbolQuery.length === latestQueryLen) {
     getDataForSymbols(latestSymbolQuery);
+    getEPSData(latestSymbolQuery);
 
     stellaChat.html("");
     for (var i = 0; i < latestSymbolQuery.length; i++) {
@@ -153,8 +154,11 @@ function getTablesFromHTML(html) {
   var result = "";
   var tmp = document.createElement("DIV");
   tmp.innerHTML = html;
+  console.log(html);
   $(tmp).find("table").each(function() {
     console.log(this);
+    var indicatorOfCorrectTable = this.querySelectorAll("ipos");
+    console.log(indicatorOfCorrectTable);
   });
   return result;
 }
@@ -166,7 +170,8 @@ function analyzeEPS(data) {
 
 function getEPSData(listOfStockSymbols) {
   for (var i = 0; i < listOfStockSymbols.length; i++) {
-    var symbol = listOfStockSymbols[i];
+    var symbol = listOfStockSymbols[i].symbol;
+    //console.log(symbol);
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.onload = function() {
