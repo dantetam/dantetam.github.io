@@ -270,6 +270,7 @@ stella.tasks.push({
   }
 });
 
+/*
 stella.tasks.push({
   fullName: "record",
   names: ["record", "tally", "log", "write", "down", "keep"],
@@ -302,6 +303,35 @@ stella.tasks.push({
       }
     }
 
+  }
+});
+*/
+stella.tasks.push({
+  fullName: "record",
+  names: ["record", "tally", "log", "write", "down", "keep"],
+  qualifiers: {
+    finance: ["finance", "expense", "revenue", "income", "receipt", "purchase"],
+    time: ["task", "time", "job", "assignment", "project", "work"]
+  },
+  desc: "Record something like an expense or an apppointment. Generally in the past.",
+  execute: function(command, nvpStructure) {
+    var tokens = command.fullCommand.split(" ");
+    for (var i = 0; i < tokens.length; i++) {
+      var keys = Object.keys(this.qualifiers);
+      var foundKey = null;
+      for (var j = 0; j < keys.length; j++) {
+        var qualifiers = this.qualifiers[keys[j]];
+
+        if (qualifiers.indexOf(tokens[i]) !== -1) {
+          foundKey = keys[j];
+          break;
+        }
+      }
+      if (foundKey !== null) {
+        showStellaForm[findStellaFormName(foundKey)];
+        break;
+      }
+    }
   }
 });
 

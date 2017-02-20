@@ -1,5 +1,7 @@
 stella.forms = [];
 
+var storedResponses = Object.create(null);
+
 stella.forms.push({
   fullName: "time",
   displayName: "Time Record Form",
@@ -76,14 +78,43 @@ stella.forms.push({
   }
 });
 
-function submitStellaForm(formName) {
+for (var i = 0; i < stella.forms.length; i++) {
+  var form = stella.forms[i];
+  var commaFields = "";
+  var keys = Object.keys(form.fields);
+  for (var j = 0; j < keys.length; j++) {
+    commaFields += keys[j];
+    if (j !== keys.length - 1) {
+      commaFields += ",";
+    }
+  }
+  form["csvColumns"] = commaFields;
+}
+
+function responseToCSVRow(response) {
+  var commaFields = "";
+  var keys = Object.keys(response);
+  for (var j = 0; j < keys.length; j++) {
+    commaFields += keys[j];
+    if (j !== keys.length - 1) {
+      commaFields += ",";
+    }
+  }
+  return commaFields;
+};
+
+function findStellaFormName(formName) {
   var form = null;
   for (var i = 0; i < stella.forms.length; i++) {
     if (stella.forms[i]["fullName"] === formName) {
       form = stella.forms[i];
     }
   }
-  if (form === null || form === undefined) return;
+  return form;
+}
+
+function submitStellaForm(formName) {
+  var form = findStellaFormName(formName);
 
   var response = jQuery.extend({}, form.fields);
 
@@ -95,11 +126,17 @@ function submitStellaForm(formName) {
 
   form.execute(response);
 
+  if (storedResponses[formName] === null || storedResponses[formName] === undefined) {
+    storedResponses[formName] = [];
+  }
+  storedResponses[formName].push(response);
+
   stellaForm.html("<h4>Form submitted.</h4>");
 
-  setTimeout(function() {
-    stellaForm.transition().duration(1000).style("opacity", 0).each("end", function() {stellaForm.html("")});
-  }, 5000);
+  //Not sure how to interrupt this transition if there is input to Stella during the transition period.
+  //setTimeout(function() {
+    //stellaForm.transition().duration(1000).style("opacity", 0).each("end", function() {stellaForm.html("")});
+  //}, 5000);
 }
 
 function showStellaForm(form) {
@@ -129,7 +166,7 @@ function showStellaForm(form) {
   });
 }
 
-showStellaForm(stella.forms[0]);
+//showStellaForm(stella.forms[0]);
 
 
 
