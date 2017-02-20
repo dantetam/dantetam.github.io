@@ -39,14 +39,32 @@ var username = Cookies.get('userdata-username') !== undefined ? Cookies.get('use
 
 var currentDate = new Date();
 
+function createDateAsUTC(date) {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+}
+
+/*
+function convertDateToUTC(date) {
+  return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+}
+*/
+
 function currentDay() {
   var date = new Date();
+  var date = createDateAsUTC(date);
   return date.toDateString();
 }
 
 function currentTime() {
   var date = new Date();
+  var date = createDateAsUTC(date);
   return date.toDateString() + " " + date.toISOString().split("T")[1].replace("Z", "");
+}
+
+function currentClock() {
+  var date = new Date();
+  var date = createDateAsUTC(date);
+  return date.toISOString().split("T")[1].replace("Z", "").split(".")[0];
 }
 
 /*

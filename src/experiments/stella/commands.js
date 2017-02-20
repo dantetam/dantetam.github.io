@@ -519,6 +519,8 @@ stella.tasks.push({
       }
     }
 
+    stellaChat.html("");
+
     var listCompanies = [];
     for (var i = 0; i < command.properNouns.length; i++) {
       listCompanies.push(command.properNouns[i]);

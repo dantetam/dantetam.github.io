@@ -107,7 +107,8 @@ function financeAnalyze(data) {
 
   }
 
-  stellaChat.html("");
+  //stellaChat.html("");
+  stellaChat.html(stellaChat.html() + "<hr>");
   for (var i = 0; i < latestSymbolQuery.length; i++) {
     var collatedResultsString = "";
     var collatedResults = results[i];
@@ -191,7 +192,7 @@ function getLinksFromHtml(html, validFunctionFilter=function(href) {return true;
   tmp.innerHTML = html;
 
   $(tmp).find("a").each(function() {
-    if (!validFunctionFilter(this.href)) {
+    if (!validFunctionFilter(this)) {
       return;
     }
 
@@ -217,13 +218,15 @@ function getLinksFromHtml(html, validFunctionFilter=function(href) {return true;
 
 function displayFinancialStories(data) {
   //console.log(data);
-  var getOnlyArticlesCNBC = function(href) {
-    return href.indexOf("cnbc") !== -1 && href.indexOf("/id/") !== -1;
+  var getOnlyArticlesCNBC = function(linkObj) {
+    var noExtraSitesPresent = linkObj.textContent.indexOf("Site Map") === -1 && linkObj.textContent.indexOf("About") === -1 && linkObj.textContent.indexOf("Stock Screener") === -1 && linkObj.textContent.indexOf("Fund Screener") === -1;
+    return linkObj.href.indexOf("cnbc") !== -1 && linkObj.href.indexOf("/id/") !== -1 && noExtraSitesPresent;
   }
   var linkObjects = getLinksFromHtml(json2xml(data), getOnlyArticlesCNBC);
-  stellaChat.html("");
+  stellaChat.html(stellaChat.html() + "<hr>");
+  stellaChat.html(stellaChat.html() + "<h4>Latest Financial Stories</h4>");
   for (var i = 0; i < linkObjects.length; i++) {
-    stellaChat.html(stellaChat.html() + '<a href=' + linkObjects[i].href + '>' + linkObjects[i].childNodes[0].toString() + '</a>');
+    stellaChat.html(stellaChat.html() + '<p><a href=' + linkObjects[i].href + '>' + linkObjects[i].textContent + '</a></p>');
   }
 }
 

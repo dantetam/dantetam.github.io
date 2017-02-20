@@ -14,7 +14,8 @@ stella.forms.push({
   },
   defaults: {
     day: currentDay,
-    timeFinish: currentTime
+    timeStart: currentClock,
+    timeFinish: currentClock
   },
   desc: "Log a task with Stella's productivity forms.",
   execute: function(response) {
@@ -75,11 +76,30 @@ stella.forms.push({
   }
 });
 
-function submitStellaForm() {
-  var stellaForm = d3.select("#stella-form");
-  stella.selectAll("input").each(function() {
+function submitStellaForm(formName) {
+  var form = null;
+  for (var i = 0; i < stella.forms.length; i++) {
+    if (stella.forms[i]["fullName"] === formName) {
+      form = stella.forms[i];
+    }
+  }
+  if (form === null || form === undefined) return;
 
+  var response = jQuery.extend({}, form.fields);
+
+  var stellaForm = d3.select("#stella-form");
+  stellaForm.selectAll("input").each(function() {
+    var inputName = this.id.replace("stella-form-input-", "");
+    response[inputName] = this.value;
   });
+
+  form.execute(response);
+
+  stellaForm.html("<h4>Form submitted.</h4>");
+
+  setTimeout(function() {
+    stellaForm.transition().duration(1000).style("opacity", 0).each("end", function() {stellaForm.html("")});
+  }, 5000);
 }
 
 function showStellaForm(form) {
@@ -91,9 +111,22 @@ function showStellaForm(form) {
     stringy += '<tr><td align="right">' + form.fields[keys[i]] + '</td><td align="left"><input type="text" id="stella-form-input-' + keys[i] + '"></input></td></tr>';
   }
   stringy += "</table>";
-  stringy += '<button onclick="javascript:submitStellaForm();" align="left">Submit</button>'
+  stringy += '<button onclick="javascript:submitStellaForm(&quot;' + form.fullName + '&quot;);" align="left">Submit</button>'
   stellaForm.html(stellaForm.html() + stringy);
   console.log(stellaForm.html());
+
+  var inputs = stellaForm.selectAll("input").each(function() {
+    console.log(this);
+    var inputName = this.id.replace("stella-form-input-", "");
+    console.log(inputName);
+    if (inputName in form.defaults) {
+      var defaultInput = form.defaults[inputName];
+      if (typeof defaultInput === "function") {
+        defaultInput = defaultInput();
+      }
+      this.value = defaultInput;
+    }
+  });
 }
 
 showStellaForm(stella.forms[0]);
