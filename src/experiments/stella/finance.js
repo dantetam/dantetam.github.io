@@ -156,9 +156,9 @@ function getTablesFromHTML(html) {
   tmp.innerHTML = html;
   console.log(html);
   $(tmp).find("table").each(function() {
-    console.log(this);
+    //console.log(this);
     var indicatorOfCorrectTable = this.querySelectorAll("ipos");
-    console.log(indicatorOfCorrectTable);
+    //console.log(indicatorOfCorrectTable);
   });
   return result;
 }
@@ -183,6 +183,64 @@ function getEPSData(listOfStockSymbols) {
     script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http://www.nasdaq.com/symbol/' + symbol + '/revenue-eps%22&format=json&diagnostics=false&callback=analyzeEPS';
     body.appendChild(script);
   }
+}
+
+function getLinksFromHtml(html, validFunctionFilter=function(href) {return true;}) {
+  var result = [];
+  var tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+
+  $(tmp).find("a").each(function() {
+    if (!validFunctionFilter(this.href)) {
+      return;
+    }
+
+    //var element = this.querySelectorAll("class,aria-hidden,p,itemprop,data-aria-label-part,lang,br,style");
+    //for (var index = element.length - 1; index >= 0; index--) {
+      //element[index].parentNode.removeChild(element[index]);
+    //}
+
+    /*
+    if (this.textContent === null || this.textContent === undefined || this.textContent === "") {
+      return
+    }
+    else {
+
+    }
+    */
+
+    console.log(this);
+    result.push(this);
+  });
+  return result;
+}
+
+function displayFinancialStories(data) {
+  //console.log(data);
+  var getOnlyArticlesCNBC = function(href) {
+    return href.indexOf("cnbc") !== -1 && href.indexOf("/id/") !== -1;
+  }
+  var linkObjects = getLinksFromHtml(json2xml(data), getOnlyArticlesCNBC);
+  stellaChat.html("");
+  for (var i = 0; i < linkObjects.length; i++) {
+    stellaChat.html(stellaChat.html() + '<a href=' + linkObjects[i].href + '>' + linkObjects[i].childNodes[0].toString() + '</a>');
+  }
+}
+
+function getFinancialStories(companyName) {
+  //select * from html where url="http://search.cnbc.com/rs/search/view.html?source=CNBC.com&keywords=TWITTER"
+  //https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fsearch.cnbc.com%2Frs%2Fsearch%2Fview.html%3Fsource%3DCNBC.com%26keywords%3DTWITTER%22&diagnostics=true
+  //console.log(symbol);
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.onload = function() {
+
+  }
+  //script.src = 'https://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/json/?callback=financeAnalyze';
+  //script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20pm.finance.graphs%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&diagnostics=true&callback=finance';
+  //script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + tickerString +
+  script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fsearch.cnbc.com%2Frs%2Fsearch%2Fview.html%3Fsource%3DCNBC.com%26keywords%3D' + companyName + '%22&diagnostics=true&callback=displayFinancialStories';
+  body.appendChild(script);
 }
 
 //Only use with trusted sources. This could potentially execute arbitrary JS code.

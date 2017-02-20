@@ -1,11 +1,17 @@
 var directionsDisplay;
-var directionsService = new google.maps.DirectionsService();
+var directionsService; // = new google.maps.DirectionsService();
 var map;
-var haight = new google.maps.LatLng(37.7699298, -122.4469157);
-var oceanBeach = new google.maps.LatLng(37.7683909618184, -122.51089453697205);
+var haight; // = new google.maps.LatLng(37.7699298, -122.4469157);
+var oceanBeach; // = new google.maps.LatLng(37.7683909618184, -122.51089453697205);
 
 function initialize() {
+  directionsService = new google.maps.DirectionsService();
+
+  haight = new google.maps.LatLng(37.7699298, -122.4469157);
+  oceanBeach = new google.maps.LatLng(37.7683909618184, -122.51089453697205);
+
   directionsDisplay = new google.maps.DirectionsRenderer();
+
   var mapOptions = {
     zoom: 14,
     center: haight

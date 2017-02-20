@@ -525,6 +525,9 @@ stella.tasks.push({
     }
     stockSymbolLookup(listCompanies, timeString);
 
+    for (var i = 0; i < listCompanies.length; i++) {
+      getFinancialStories(listCompanies[i]);
+    }
   }
 });
 
