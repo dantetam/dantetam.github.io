@@ -352,6 +352,7 @@ stella.tasks.push({
       '<p>Tan, Steinbach, Kumar. "Association Analysis: Basic Concepts and Algorithms." Introduction to Data Mining. Pearson, 2005. &lt; https://www-users.cs.umn.edu/~kumar/dmbook/ch6.pdf &gt;</p>' +
       '<p>Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14, no. 3, pp 130-137.</p>' +
       '<p>Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel, Steven J. Bethard, and David McClosky. 2014. The Stanford CoreNLP Natural Language Processing Toolkit In Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics: System Demonstrations, pp. 55-60.<p>' +
+      '<p>Manning, Christopher D, et al. An Introduction to Information Retrieval. Cambridge, England, Cambridge University Press, 2009.</p>' +
       "<p>Inspired by UC Berkeley's CS 170 and CS 189 courses in algorithms and machine learning, as well as natural language processing.</p>" +
       '<p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>' +
       '<p>Icons from game-icons.net.</p>' +

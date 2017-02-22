@@ -3,21 +3,21 @@ stella.forms = [];
 var storedResponses = Object.create(null);
 
 stella.forms.push({
-  fullName: "time",
-  displayName: "Time Record Form",
+  fullName: "finance",
+  displayName: "Financial Record Form",
   //names: ["stocks", "symbol", "symbols", "finance"],
   fields: {
-    taskCat: "Topic/Class/Issue",
+    taskCat: "Memo",
     description: "Description/Notes",
     day: "Date",
     timeStart: "Start Time",
     timeFinish: "Completion Time",
-    value: "Value"
+    value: "Revenue/Expense"
   },
   defaults: {
     day: currentDay,
-    timeStart: currentClock,
-    timeFinish: currentClock
+    timeStart: currentTime,
+    timeFinish: currentTime
   },
   desc: "Log a task with Stella's productivity forms.",
   execute: function(response) {
@@ -41,21 +41,21 @@ stella.forms.push({
 });
 
 stella.forms.push({
-  fullName: "finance",
-  displayName: "Financial Record Form",
+  fullName: "time",
+  displayName: "Time Record Form",
   //names: ["stocks", "symbol", "symbols", "finance"],
   fields: {
-    taskCat: "Memo",
+    taskCat: "Topic/Class/Issue",
     description: "Description/Notes",
     day: "Date",
     timeStart: "Start Time",
     timeFinish: "Completion Time",
-    value: "Revenue/Expense"
+    value: "Value"
   },
   defaults: {
     day: currentDay,
-    timeStart: currentTime,
-    timeFinish: currentTime
+    timeStart: currentClock,
+    timeFinish: currentClock
   },
   desc: "Log a task with Stella's productivity forms.",
   execute: function(response) {

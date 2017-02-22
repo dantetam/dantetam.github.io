@@ -18,7 +18,8 @@ function parseStockSymbol(data) {
   //console.log(latestSymbolQuery.length + " " + latestQueryLen)
   if (latestSymbolQuery.length === latestQueryLen) {
     getDataForSymbols(latestSymbolQuery);
-    getEPSData(latestSymbolQuery);
+    //getEPSData(latestSymbolQuery);
+    getCompanyFinances(latestSymbolQuery);
 
     stellaChat.html("");
     for (var i = 0; i < latestSymbolQuery.length; i++) {
@@ -160,8 +161,40 @@ function getTablesFromHTML(html) {
     //console.log(this);
     var indicatorOfCorrectTable = this.querySelectorAll("ipos");
     //console.log(indicatorOfCorrectTable);
+    d3.select("#stella-form").html(d3.select("#stella-form").html() + "<p>" + this.innerHTML + "</p>");
+    console.log(this);
+    $(this).remove( "bgcolor" );
+    $(this).remove( "width" );
+    $(this).remove( "height" );
   });
+
+
   return result;
+}
+
+function analyzeCompanyFinances(data) {
+  //var stringy = JSON.stringify(data);
+
+  var xml = json2xml(data);
+  var tables = getTablesFromHTML(xml);
+}
+
+function getCompanyFinances(listOfStockSymbols) {
+  //https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http://www.nasdaq.com/symbol/aapl/financials?query=income-statement%22&format=json&diagnostics=false&
+  for (var i = 0; i < listOfStockSymbols.length; i++) {
+    var symbol = listOfStockSymbols[i].symbol;
+    //console.log(symbol);
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.onload = function() {
+
+    }
+    //script.src = 'https://chartapi.finance.yahoo.com/instrument/1.0/' + tickerString + '/chartdata;type=quote;range=1d/json/?callback=financeAnalyze';
+    //script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20pm.finance.graphs%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&diagnostics=true&callback=finance';
+    //script.src = 'https://autoc.finance.yahoo.com/autoc?query=' + tickerString +
+    script.src = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http://www.nasdaq.com/symbol/' + symbol + '/financials?query=income-statement%22&format=json&diagnostics=false&callback=analyzeCompanyFinances';
+    body.appendChild(script);
+  }
 }
 
 function analyzeEPS(data) {
