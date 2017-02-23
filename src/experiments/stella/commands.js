@@ -467,24 +467,71 @@ function showMap(startLocation, zoomLevel) {
   getInfoOfPlace(startLocation, placeInfoCallback);
 }
 
+function returnDateFromString(timeNow, timeDelay) {
+  var currentDate;
+  if (timeNow.indexOf("now") !== -1) {
+    currentDate = new Date();
+  }
+  else {
+    currentDate = createDateAsUTC();
+  }
+  var tokens = timeDelay.split(" ");
+  var currentNum = 0;
+  for (var i = 0; i < tokens; i++) {
+    var delay = timeDelay[i];
+    if (!isNaN(delay)) {
+      currentNum = parseFloat(delay);
+    }
+    else {
+      if (delay.indexOf("hour") !== -1) {
+        currentDate.setHours(currentDate.getHours() + currentNum);
+      }
+      else if (delay.indexOf("day") !== -1) {
+        currentDate.setDate(currentDate.getDate() + currentNum);
+      }
+      else if (delay.indexOf("week") !== -1) {
+        currentDate.setDate(currentDate.getDate() + currentNum * 7);
+      }
+      else if (delay.indexOf("month") !== -1) {
+        currentDate.setDate(currentDate.getDate() + currentNum * 30);
+      }
+      else if (delay.indexOf("year") !== -1) {
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+      }
+      else {
+        continue; //So that "now after 1 and days" is "now 1 day" which is 24 hours from the current UTC moment
+      }
+      currentNum = 0;
+    }
+  }
+  return currentDate;
+}
+
 stella.tasks.push({
   fullName: "schedule",
   names: ["calendar", "schedule", "appointment", "alarm", "set", "reminder", "hour", "minutes", "day", "week", "month"],
   qualifiers: {
     time: ["at", "on"],
     delay: ["in", "after"],
+    schedule: ["about", "schedule"],
     //here: ["here", "my", "home"]
   },
   desc: "Schedule an appointment or reminder through Stella's version of Keep.",
   execute: function(command, nvpStructure) {
     d3.select("#stella-calendar").style("opacity", 1);
+    /*
+    var boxes = d3.selectAll(".st-bg");
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].html("<p>Test</p>");
+    }
+    */
 
     currentDate = new Date();
 
     var tokens = command.fullCommand.split(" ");
     var startLocation = null, destination = null, query = [];
 
-    var time = "Now", delay = "1 day";
+    var time = "Now", delay = "";
     //Use the Trello API or Stella's version of Keep.
     for (var i = 0; i < nvpStructure.length; i++) {
       var mainToken = nvpStructure[i].mainWord;
@@ -495,6 +542,9 @@ stella.tasks.push({
         delay = nvpStructure[i].fullText;
       }
     }
+
+    currentDate = returnDateFromString(time, delay);
+
 
   }
 });

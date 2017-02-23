@@ -169,7 +169,7 @@ table {
         <img id="voice-chat" onclick="javascript:startDictation();" src="//i.imgur.com/cHidSVu.gif" alt="Voice Chat with Stella" style="width: 50px; height: 50px;"></img>
         <div id="stella-form"></div>
         <div id="stella-chat"><h3>Hi, I'm Stella!</h3></div>
-        <p><iframe id="stella-calendar" src="https://www.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=calendar.gadgets.demo%40gmail.com&amp;color=%23A32929" style="opacity:0; border-width:0;" width="800" height="600" frameborder="0" scrolling="no"></iframe></p>
+        <p><iframe id="stella-calendar" src="https://www.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;color=%23A32929" style="opacity:0; border-width:0;" width="800" height="600" frameborder="0" scrolling="no"></iframe></p>
 
       </div>
 
@@ -182,7 +182,7 @@ table {
         >Loading FB integration...
       </div>
 
-      <button id="authorize-button" class="btn btn-primary" style="opacity: 0;">Integrate Gmail</button>
+      <button id="authorize-button" class="btn btn-primary" style="opacity: 0;" onclick="javascript:loadGmailApi(); javascript:loadCalendarApi();">Integrate Google Services</button>
       <button id="logout-button" class="btn" onclick="javascript:logOutGmail();" style="opacity: 0;">Log Out Gmail</button>
 
       <!--<div class="fb-login-button" data-max-rows="1" data-size="medium" data-show-faces="false" data-auto-logout-link="true"></div>-->

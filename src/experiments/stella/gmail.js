@@ -48,7 +48,7 @@ function handleAuthResult(authResult) {
 function loadCalendarApi() {
   gapi.client.load('calendar', 'v3', function() {
     //testRequestCreateEvent();
-    //listUpcomingEvents();
+    listUpcomingEvents();
   });
 }
 
@@ -95,6 +95,7 @@ function logOutGmail() {
   d3.select("#authorize-button").style("opacity", 0);
   d3.select("#logout-button").style("opacity", 0);
   d3.select("#email-display").style("display", "none");
+  d3.select("#stella-calendar").style("opacity", 0);
   //$('body').html("");
 }
 
