@@ -315,6 +315,8 @@ stella.tasks.push({
   },
   desc: "Record something like an expense or an apppointment. Generally in the past.",
   execute: function(command, nvpStructure) {
+    d3.select("#stella-calendar").style("opacity", 1);
+
     var tokens = command.fullCommand.split(" ");
     for (var i = 0; i < tokens.length; i++) {
       var keys = Object.keys(this.qualifiers);
@@ -475,6 +477,8 @@ stella.tasks.push({
   },
   desc: "Schedule an appointment or reminder through Stella's version of Keep.",
   execute: function(command, nvpStructure) {
+    d3.select("#stella-calendar").style("opacity", 1);
+
     currentDate = new Date();
 
     var tokens = command.fullCommand.split(" ");

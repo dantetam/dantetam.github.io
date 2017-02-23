@@ -161,13 +161,24 @@ function getTablesFromHTML(html) {
     //console.log(this);
     var indicatorOfCorrectTable = this.querySelectorAll("ipos");
     //console.log(indicatorOfCorrectTable);
-    d3.select("#stella-form").html(d3.select("#stella-form").html() + "<p>" + this.innerHTML + "</p>");
-    console.log(this);
-    $(this).remove( "bgcolor" );
-    $(this).remove( "width" );
-    $(this).remove( "height" );
+    d3.select("#stella-form").html(d3.select("#stella-form").html() + this.innerHTML + "<br>");
+    console.log(this.textContent);
   });
 
+  $("bgcolor").remove();
+  $("align").remove();
+  $("cellpadding").remove();
+  $("cellspacing").remove();
+  $("class").remove();
+  $("width").remove();
+  $("height").remove();
+  $("colspan").remove();
+  $("border").remove();
+  $("valign").remove();
+  d3.select("#stella-form").selectAll("a").remove();
+  d3.select("#stella-form").selectAll("p").remove();
+  d3.select("#stella-form").selectAll("h1").remove();
+  d3.select("#stella-form").selectAll("h2").remove();
 
   return result;
 }
@@ -176,6 +187,12 @@ function analyzeCompanyFinances(data) {
   //var stringy = JSON.stringify(data);
 
   var xml = json2xml(data);
+
+  if (xml.length <= 200) {
+    getCompanyFinances(latestSymbolQuery);
+    return;
+  }
+
   var tables = getTablesFromHTML(xml);
 }
 

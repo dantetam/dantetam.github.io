@@ -169,6 +169,8 @@ table {
         <img id="voice-chat" onclick="javascript:startDictation();" src="//i.imgur.com/cHidSVu.gif" alt="Voice Chat with Stella" style="width: 50px; height: 50px;"></img>
         <div id="stella-form"></div>
         <div id="stella-chat"><h3>Hi, I'm Stella!</h3></div>
+        <p><iframe id="stella-calendar" src="https://www.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=calendar.gadgets.demo%40gmail.com&amp;color=%23A32929" style="opacity:0; border-width:0;" width="800" height="600" frameborder="0" scrolling="no"></iframe></p>
+
       </div>
 
       <div
@@ -315,6 +317,7 @@ table {
       d3.select("#authorize-button").style("opacity", 0);
       d3.select("#logout-button").style("opacity", 0);
       d3.select("#email-display").style("display", "none");
+      d3.select("#stella-calendar").style("opacity", 0);
 
       if (commandString.replace(/ /g,'').length === 0) {
         return;
