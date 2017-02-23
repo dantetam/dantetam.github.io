@@ -7,8 +7,9 @@ stella.forms.push({
   displayName: "Financial Record Form",
   //names: ["stocks", "symbol", "symbols", "finance"],
   fields: {
-    taskCat: "Memo",
+    taskCat: "Topic",
     description: "Description/Notes",
+    filingCategory: "Folder",
     day: "Date",
     timeStart: "Start Time",
     timeFinish: "Completion Time",
@@ -41,12 +42,52 @@ stella.forms.push({
 });
 
 stella.forms.push({
+  fullName: "memo",
+  displayName: "Memorandum/Correspondence",
+  //names: ["stocks", "symbol", "symbols", "finance"],
+  fields: {
+    taskCat: "Memo",
+    description: "Description/Notes",
+    filingCategory: "Folder",
+    day: "Date",
+    time: "Time",
+    from: "From",
+    to: "To"
+  },
+  defaults: {
+    day: currentDay,
+    time: currentClock,
+    from: username
+  },
+  desc: "Create a memorandum to sent or stored.",
+  execute: function(response) {
+    var keys = Object.keys(response);
+    for (var i = 0; i < keys.length; i++) {
+      if (response[keys[i]] === undefined || response[keys[i]].trim() === "") {
+        if (keys[i] in this.defaults) {
+          var defaultInput = this.defaults[keys[i]];
+          if (typeof defaultInput === "function") {
+            defaultInput = defaultInput();
+          }
+          response[keys[i]] = defaultInput;
+        }
+        else {
+          response[keys[i]] = "";
+        }
+      }
+    }
+    console.log(response);
+  }
+});
+
+stella.forms.push({
   fullName: "time",
   displayName: "Time Record Form",
   //names: ["stocks", "symbol", "symbols", "finance"],
   fields: {
     taskCat: "Topic/Class/Issue",
     description: "Description/Notes",
+    filingCategory: "Folder",
     day: "Date",
     timeStart: "Start Time",
     timeFinish: "Completion Time",
@@ -139,7 +180,7 @@ function submitStellaForm(formName) {
   //}, 5000);
 }
 
-function showStellaForm(form) {
+function showStellaForm(form, alreadyWrittenResponses) {
   var stellaForm = d3.select("#stella-form");
   stellaForm.html("<h4>" + form.displayName + "</h4>");
   var keys = Object.keys(form.fields);
@@ -153,9 +194,7 @@ function showStellaForm(form) {
   console.log(stellaForm.html());
 
   var inputs = stellaForm.selectAll("input").each(function() {
-    console.log(this);
     var inputName = this.id.replace("stella-form-input-", "");
-    console.log(inputName);
     if (inputName in form.defaults) {
       var defaultInput = form.defaults[inputName];
       if (typeof defaultInput === "function") {
@@ -163,7 +202,11 @@ function showStellaForm(form) {
       }
       this.value = defaultInput;
     }
+    if (inputName in alreadyWrittenResponses) {
+      this.value = alreadyWrittenResponses[inputName];
+    }
   });
+
 }
 
 //showStellaForm(stella.forms[0]);

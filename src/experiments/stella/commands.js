@@ -249,6 +249,35 @@ stella.tasks.push({
 });
 
 stella.tasks.push({
+  fullName: "memo",
+  names: ["memo", "memorandum", "message", "correspondence"],
+  qualifiers: {
+    from: ["from", "by"],
+    to: ["to", "for"],
+    about: ["subject", "topic", "about"],
+  },
+  desc: "Provide the user's name to Stella.",
+  execute: function(command, nvpStructure) {
+    //console.log(command);
+    var from = "", to = "", about = "";
+
+    for (var i = 0; i < nvpStructure.length; i++) {
+      var mainToken = nvpStructure[i].mainWord;
+      if (this.qualifiers.from.indexOf(mainToken) !== -1) {
+        from += nvpStructure[i].fullText.trim();
+      }
+      else if (this.qualifiers.to.indexOf(mainToken) !== -1) {
+        to += nvpStructure[i].fullText.trim();
+      }
+      else if (this.qualifiers.about.indexOf(mainToken) !== -1) {
+        about += nvpStructure[i].fullText.trim();
+      }
+    }
+
+  }
+});
+
+stella.tasks.push({
   fullName: "name",
   names: ["name", "call"],
   qualifiers: {
@@ -531,7 +560,7 @@ stella.tasks.push({
     var tokens = command.fullCommand.split(" ");
     var startLocation = null, destination = null, query = [];
 
-    var time = "Now", delay = "";
+    var time = "now", delay = "";
     //Use the Trello API or Stella's version of Keep.
     for (var i = 0; i < nvpStructure.length; i++) {
       var mainToken = nvpStructure[i].mainWord;
