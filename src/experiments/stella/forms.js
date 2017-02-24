@@ -41,11 +41,6 @@ stella.forms.push({
   }
 });
 
-TODO: //Analyze databases of questionnaire answers (such as the ACS sample responses)
-//use Google Charts to get charts of response rates and proportions,
-//as well as means, std.dev., confidence intervals, etc., for certain answers like income
-//as well as simple text queries such as "average income in the SF region not counting above $250000"
-
 stella.forms.push({
   fullName: "memo",
   displayName: "Memorandum/Correspondence",
