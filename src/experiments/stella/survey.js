@@ -24,7 +24,7 @@ function parseDataAssociationText(text) {
       if (tokens[0] === tokens[0].uppercase() && tokens[0] !== tokens[0].lowercase()) {
         currentColumn = tokens[0];
         lastLineAbbr = true;
-        result[currentColumn] = {fullName: "", associations: {}};
+        result[currentColumn] = {fullName: "", data: {}};
         continue;
       }
     }
@@ -32,10 +32,32 @@ function parseDataAssociationText(text) {
     var tokens = lines[i].split(" .");
     var key = tokens[0].trim();
     var value = tokens[1];
-    result[currentColumn]["associations"][key] = value;
+    result[currentColumn]["data"][key] = value;
   }
 
   return result;
+}
+
+//csvRow is of the format "DATA_1,DATA_2,...,DATA_N" directly as numbers from the CSV file
+//columns contains ["COL1", "COL2", ...]
+//associations is the file parsed in parseDataAssociationText(<associations file>)
+//One example is this file is the ACS manual found here:
+//http://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2011-2015.txt
+function convertRowToText(csvRow, columnsList, associations) {
+  var tokens = csvRow.split(",");
+  var result = {};
+  if (tokens.length === columnsList.length) {
+    for (var i = 0; i < tokens.length; i++) {
+      var fullColString = associations[columnsList[i]]["fullName"];
+      var numberToText = associations[columnsList[i]]["data"][tokens[i]];
+      result[fullColString] = numberToText;
+    }
+  }
+  return result;
+}
+
+function convertTextToRow(commaText, columnsList, associations) {
+
 }
 
 
