@@ -33,7 +33,6 @@ function computeCorrelationR(list1, list2, comparator1=function(data) {return da
   if (list1.length !== list2.length) {
     return undefined; //return?
   }
-
   var list1New = [];
   list1.each(function(temp) {list1New.push(comparator1(temp));});
   var list2New = [];
@@ -65,22 +64,26 @@ function computeRegressionLine(list1, list2, comparator1=function(data) {return 
   return [b0, b1];
 }
 
+TODO: //Look at CS188 old probability projects for inspiration here
+//Joining factors together?
+
 function probability(data, eventFunction=function(data) {return true;}, givenFunction=function(data) {return true;}) {
-  var givenCount = 0, eventCount = 0;
+  var queryResult = getEventsGiven(data, eventFunction, givenFunction);
+  return queryResult[1].length / queryResult[0].length;
+}
+
+function getEventsGiven(data, eventFunction=function(data) {return true;}, givenFunction=function(data) {return true;}) {
+  var givenCount = [], eventCount = [];
   for (var i = 0; i < data.length; i++) {
     if (givenFunction(data[i])) {
-      givenCount++;
+      givenCount.push(data[i]);
       if (eventFunction(data[i])) {
-        eventCount++;
+        eventCount.push(data[i]);
       }
     }
   }
-  if (givenCount === 0) {
-    return 0;
-  }
-  return eventCount / givenCount;
+  return [givenCount, eventCount];
 }
-
 
 
 
