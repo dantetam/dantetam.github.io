@@ -256,7 +256,7 @@ stella.tasks.push({
     to: ["to", "for"],
     about: ["subject", "topic", "about"],
   },
-  desc: "Provide the user's name to Stella.",
+  desc: "Write a message or memo about a subject.",
   execute: function(command, nvpStructure) {
     //console.log(command);
     var from = "", to = "", about = "";
@@ -472,6 +472,18 @@ stella.tasks.push({
     }
 
     showMap(startLocation, zoomLevel);
+  }
+});
+
+stella.tasks.push({
+  fullName: "time-series",
+  names: ["time-series", "time", "series"],
+  desc: "Visualize a progression of some data over time.",
+  qualifiers: {
+
+  },
+  execute: function(command, nvpStructure) {
+
   }
 });
 
