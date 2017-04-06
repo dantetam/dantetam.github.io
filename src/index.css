@@ -31,8 +31,9 @@ body {
   z-index: 10;
 }
 
-.carousel-indicators {
-	color: #337ab7;
+.carousel-indicators li {
+	color: #000000; /* #337ab7; */
+  background-color: #000000; /* #337ab7; */
 }
 
 /* Declare heights because of positioning of img element */
@@ -42,4 +43,5 @@ body {
 .carousel-inner > .item > img {
   position: center;
   width: 100%;
+  max-width: 100%;
 }
