@@ -61,7 +61,8 @@
 							<ul class="dropdown-menu">
 								<li class="dropdown-header">Professional</li>
 								<li><a href="https://github.com/dantetam" target="_blank">GitHub</a></li>
-								<li><a href="mailto:dante.tam1@gmail.com">E-mail</a></li>
+								<li><a href="mailto:dante.tam1@gmail.com" target="_blank">E-mail</a></li>
+                <!--<li><a href="https://www.linkedin.com/in/daptam" target="_blank">LinkedIn</a></li>-->
 								<li role="separator" class="divider"></li>
 								<li class="dropdown-header">Personal</li>
 								<li><a href="#"></a></li>
@@ -179,6 +180,10 @@
 			</a>
 		</div>
 
+    <div id="browser-warning" class="intro">
+
+    </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -205,6 +210,20 @@
 			$('#carousel-portfolio').carousel('pause');
 		});
 		</script>
+
+    <script>
+    //var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    // Firefox 1.0+
+    var isFirefox = typeof InstallTrigger !== 'undefined';
+    // Chrome 1+
+    var isChrome = !!window.chrome && !!window.chrome.webstore;
+    if (!isFirefox && !isChrome) {
+      $('#browser-warning').html('<p>This website is best viewed through modern HTML5 browsers like <a href="https://www.mozilla.org/en-US/firefox/new/">Firefox</a> and <a href="https://www.google.com/chrome/browser/">Chrome</a>.</p><br><p>This enables more features I\'ve made.</p>');
+    }
+    else {
+      $('#browser-warning').remove();
+    }
+    </script>
 
   </body>
 </html>

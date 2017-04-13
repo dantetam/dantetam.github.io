@@ -275,7 +275,7 @@ stella.tasks.push({
     }
 
     var beginResponse = {from: from, to: to, taskCat: about};
-    displayStellaForm("memo", beginResponse);
+    showStellaForm("memo", beginResponse);
   }
 });
 

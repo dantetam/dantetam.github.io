@@ -180,9 +180,10 @@ function submitStellaForm(formName) {
   //}, 5000);
 }
 
-function showStellaForm(form, alreadyWrittenResponses={}) {
+function showStellaForm(formCodeName, alreadyWrittenResponses={}) {
+  var form = findStellaFormName(formCodeName);
   var stellaForm = d3.select("#stella-form");
-  stellaForm.html("<h4>" + form.displayName + "</h4>");
+  stellaForm.html("<h4>" + form["displayName"] + "</h4>");
   var keys = Object.keys(form.fields);
   var stringy = "<table>";
   for (var i = 0; i < keys.length; i++) {

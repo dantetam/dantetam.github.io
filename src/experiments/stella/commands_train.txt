@@ -30,12 +30,16 @@ List all the possible commands.
 Tell me what the commands are.
 What words do you respond to?
 What are the commands?
+What phrases do you reply to?
+How do I execute commands?
+How do I choose a task to complete?
 
 date
 What is the date?
 Give me the current date.
 What time is it?
 What's the time now?
+When is it?
 
 define OBJECT
 Define this word.
@@ -77,6 +81,8 @@ Provide information about this program.
 What is Stella?
 Who is Stella?
 What does Stella do?
+How do you work?
+What's inside your mind?
 
 integrate OBJECT
 Integrate with the service <OBJECT>.
@@ -129,12 +135,16 @@ Let me research about <TOPIC>.
 What can you tell me about <TOPIC>?
 What's the details of <TOPIC>?
 Can you study about <TOPIC>?
+Can you look up some findings about <TOPIC>?
+Can you find some recent academic papers about <TOPIC>?
 
 satellite LOCATION
 Please send me satellite images of my location.
 What does my neighborhood look like?
 What does <LOCATION> look like?
 Show me Google Earth pictures of <LOCATION>.
+Can you provide a physical map of <LOCATION>?
+What is the geography of <LOCATION>?
 
 schedule TIME DELAY
 Remind me about an event.
@@ -149,6 +159,8 @@ search-map PLACE
 Search Google Maps for <PLACE>.
 Look for a map around <PLACE>.
 Find a map of places near <PLACE>.
+Show me the roads at <PLACE>.
+Show me major and minor highways at <PLACE>.
 
 stocks OBJECT
 Search for current financial data.
