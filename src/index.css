@@ -14,7 +14,9 @@ body {
     list-style-type: none;
 }
 
-.navbar { background-color: #EEEEEE; }
+.navbar {
+  background-color: transparent; overflow-y: visible;
+}
 /*#mobile-navigation-label { background-color: transparent; }*/
 
 .icon-bar { color: #000000; }
