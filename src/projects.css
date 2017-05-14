@@ -32,6 +32,16 @@ hr {
   border-width: 1px;
 }
 
+a {
+  outline: none;
+}
+a:active {
+  outline: none;
+}
+a:focus {
+  outline: none;
+}
+
 .extended-image2 {
   width: 0%;
 }

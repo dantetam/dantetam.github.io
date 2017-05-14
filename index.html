@@ -27,7 +27,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
-      body {
+      body,button {
         font-family: 'Roboto', serif;
         font-size: 14px;
       }
@@ -58,7 +58,7 @@
     <nav class="navbar navbar-intro navbar-fixed-top navie navbar-fixed-side navbar-fixed-side-left">
       <div class="container">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" style="width: 30%;">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar" style="width: 100%; float: left; overflow: visible; padding: 20px 20px;">
             <span class="icon-bar">Menu</span>
             <span class="sr-only">Toggle navigation</span>
           </button>
@@ -68,14 +68,9 @@
 					  <li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@dantetam<span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li class="dropdown-header">Professional</li>
-								<li><a href="https://github.com/dantetam" target="_blank">GitHub</a></li>
+								<li><a href="https://github.com/dantetam" target="_blank"><img src="./src/images/github-octocat.png" style="width: 20px; height: 20px;"></img> GitHub</a></li>
 								<li><a href="mailto:dante.tam1@gmail.com" target="_blank">E-mail</a></li>
-                <!--<li><a href="https://www.linkedin.com/in/daptam" target="_blank">LinkedIn</a></li>-->
-								<li role="separator" class="divider"></li>
-								<li class="dropdown-header">Personal</li>
-								<li><a href="#"></a></li>
-								<li><a href="#"></a></li>
+                <li><a href="https://www.linkedin.com/in/daptam" target="_blank"><img src="./src/images/linkedin.png" style="width: 20px; height: 20px;"></img> LinkedIn</a></li>
 							</ul>
 						</li>
             <li class="active"><a href="./index.html">Home</a></li>
@@ -88,10 +83,6 @@
 								<li class="dropdown-header">Design</li>
 								<li><a href="./src/opstrykon_gdd.pdf">Game Design Document</a></li>
 								<li><a href="./src/drawings.html">Architecture</a></li>
-								<li role="separator" class="divider"></li>
-								<li class="dropdown-header">Nav header</li>
-								<li><a href="#"></a></li>
-								<li><a href="#"></a></li>
 							</ul>
 						</li>
 						<li><a href="./src/courses.html">Courses</a></li>
@@ -191,9 +182,28 @@
 
     <!-- Accent-colored raised button with ripple -->
 
+    <!--
     <div id="browser-warning" class="intro">
 
     </div>
+    -->
+
+    <!--
+    <div id="google-custom-search">
+      <script>
+        (function() {
+          var cx = '004355660903329151425:mumfvdvdeis';
+          var gcse = document.createElement('script');
+          gcse.type = 'text/javascript';
+          gcse.async = true;
+          gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(gcse, s);
+        })();
+      </script>
+      <gcse:search></gcse:search>
+    </div>
+    -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -205,18 +215,16 @@
     <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
 
     <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-      ga('create', 'UA-98263948-1', 'auto');
-      ga('send', 'pageview');
-
+    ga('create', 'UA-98263948-1', 'auto');
+    ga('send', 'pageview');
     </script>
 
 		<script>
-		// Load this when the DOM is ready
 		$(function(){
 			$('carousel-portfolio').carousel();
 			interval: 2000

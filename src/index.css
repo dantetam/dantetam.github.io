@@ -2,6 +2,12 @@ body {
   padding-top: 50px;
 }
 
+/*
+.intro h1 {
+  font-size: 5.9vw;
+}
+*/
+
 .intro {
   padding: 40px 15px;
   text-align: center;
