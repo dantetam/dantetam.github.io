@@ -87,15 +87,17 @@ body {
 .carousel-inner .item p {
     position: absolute;
     left: 20%;
-    top: 80%;
+    top: 5%;
     display: none;
     font-size: 30px;
+    text-shadow: 1px 1px 2px white;
 }
 
 .carousel-inner:hover .item p {
     position: absolute;
     left: 20%;
-    top: 80%;
+    top: 5%;
     display: block;
     font-size: 30px;
+    text-shadow: 1px 1px 2px white;
 }
