@@ -84,6 +84,11 @@ body {
     -webkit-transform: scale(1.25);
 }
 
+.carousel-inner .item a {
+    color: black;
+    text-decoration: underline;
+}
+
 .carousel-inner .item p {
     position: absolute;
     left: 20%;
@@ -91,6 +96,7 @@ body {
     display: none;
     font-size: 30px;
     text-shadow: 1px 1px 2px white;
+    text-decoration: underline;
 }
 
 .carousel-inner:hover .item p {
