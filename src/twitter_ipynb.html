@@ -32,6 +32,11 @@ h3 {
   text-align: center;
   margin: auto;
 }
+
+.navbar {
+  display: block;
+  background-color: white;
+}
 </style>
 
 <!-- Loading mathjax macro -->
@@ -58,13 +63,79 @@ h3 {
     <!-- End of mathjax configuration --></head>
 <body>
 
+  <nav class="navbar navbar-intro navbar-fixed-top navie">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-intro">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@dantetam<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Professional</li>
+              <li><a href="https://github.com/dantetam" target="_blank">GitHub</a></li>
+              <li><a href="mailto:dante.tam1@gmail.com">E-mail</a></li>
+              <li role="separator" class="divider"></li>
+              <li class="dropdown-header">Personal</li>
+              <li><a href="#"></a></li>
+              <li><a href="#"></a></li>
+            </ul>
+          </li>
+          <li><a href="../index.html">Home</a></li>
+          <li class="active"><a href="./projects.html">Personal Projects</a></li>
+          <li><a href="./design/dante_design.pdf">Design</a></li>
+          <li><a href="./writings.html">Writings</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Technical Drawings<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Design</li>
+              <li><a href="./opstrykon_gdd.pdf">Game Design Document</a></li>
+              <li><a href="./drawings.html">Architecture</a></li>
+              <li role="separator" class="divider"></li>
+              <li class="dropdown-header">Nav header</li>
+              <li><a href="#"></a></li>
+              <li><a href="#"></a></li>
+            </ul>
+          </li>
+          <li><a href="./courses.html">Courses</a></li>
+          <li><a href="./resume.pdf">Resume</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Experiments<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Design and Data</li>
+              <li><a href="./experiments/stella/index.html">Stella AI</a></li>
+              <li><a href="./experiments/resume/index.html">Interactive Resume (d3.js)</a></li>
+              <li><a href="./experiments/testglwebsite/src/index.html">Graphics (WebGL)</a></li>
+              <li><a href="./experiments/datavisual/index.html">Data Visualization (d3.js)</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#"></a></li>
+              <li><a href="#"></a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+
 <div class="container">
 
   <div class="intro">
     <br>
+    <br>
     <h3>Twitter Popularity and Machine Learning</h3>
     <br>
-    <p>Dante Tam, 5/23/2017</p>
+    <p><i>Dante Tam, 5/23/2017</i></p>
+    <br>
     <p>Twitter is one of the greatest media in learning to understand the human condition. In this article we investigate how we can leverage Twitter to become popular.
     I collect tweets, create mathematical models to predict their impact, and finally, interpret these abstract results for real-world, social applications.</p>
     <br>
@@ -74,8 +145,8 @@ h3 {
     <p>A linear regression was run. This returns a hyperplane, or a function that can be used to predict the popularity of any tweet.</p>
     <br>
     <p>For the first trial, I manually determined the category and emotion of every tweet.
-      I used four broad categories: sports, culture (pop culture), politics, and Twitter (anything related to Twitter culture) —
-      in addition, five emotions: neutrality; anger (or passive-aggressiveness, cynicism, bitter sarcasm); sadness (and grief); happiness (also hopefulness, wonder); and humor (positive sarcasm, parody).</p>
+      I used four broad categories: sports, culture (pop culture), politics (including anything politically charged), and Twitter (anything related to Twitter culture) —
+      in addition, five emotions: neutrality (including adverts and promotions); anger (or passive-aggressiveness, cynicism, bitter sarcasm); sadness (and grief); happiness (also hopefulness, wonder); and humor (positive sarcasm, parody).</p>
     <br>
     <p>Tweets were grouped into six time blocks, and a popularity score was computed. This is quite important since we already know
     that great tweets will come from popular users talking about hot, trending topics. This score ensures that we are not biased by already existing popularity.</p>
@@ -92,6 +163,10 @@ h3 {
     <p>$$ popularity\_score = 100000 \cdot {2(retweets) + favorites \over 0.01(followers) + friends} $$</p>
     <p>while in the linear regression we minimize squared error, i.e.</p>
     <p>$$ minarg_w \vert \vert Xw - y \vert \vert^2_2 $$</p>
+    <p>The first function is very much like a loss function. A normal loss function can take on certain values to penalize certain types of error.
+    In the case of regression, we can reward or punish certain attributes of the tweets.</p>
+    <br>
+    <p>Using this knowledge of tweets and popularity, we write the linear regression model in our IPython notebook code:</p>
   </div>
 </div>
 
