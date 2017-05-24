@@ -70,8 +70,8 @@ body {
   position:relative;
   left:0;
   top:0;
-  transform-origin: 75% 75%;
-  -webkit-transform-origin: 75% 75%;
+  transform-origin: 50% 50%;
+  -webkit-transform-origin: 50% 50%;
 }
 
 .carousel-inner .item img {
