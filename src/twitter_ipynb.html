@@ -64,6 +64,7 @@ h3 {
     <br>
     <h3>Twitter Popularity and Machine Learning</h3>
     <br>
+    <p>Dante Tam, 5/23/2017</p>
     <p>Twitter is one of the greatest media in learning to understand the human condition. In this article we investigate how we can leverage Twitter to become popular.
     I collect tweets, create mathematical models to predict their impact, and finally, interpret these abstract results for real-world, social applications.</p>
     <br>
@@ -87,6 +88,10 @@ h3 {
       <li>The best time for stardom is around 2-6 AM, or the evenings. As expected, most people don't tweet in the early morning.</li>
       <li>Users with too many statuses risk losing attention.</li>
     </ul>
+    <p>The technical equation for the score is defined as<p>
+    <p>$$ popularity\_score = 100000 \cdot {2(retweets) + favorites \over 0.01(followers) + friends} $$</p>
+    <p>while in the linear regression we minimize squared error, i.e.</p>
+    <p>$$ minarg_w \vert \vert Xw - y \vert \vert^2_2 $$</p>
   </div>
 </div>
 
