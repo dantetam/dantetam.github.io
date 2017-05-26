@@ -11,12 +11,12 @@
 <meta name="keywords" content="Dante Tam, UC Berkeley, Twitter, Machine Learning">
 <link rel="icon" href="./favicon.ico">
 
-<title>Twitter and ML</title>
+<title>Neural Networks</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
-<link href="twitter_ipynb.css" rel="stylesheet">
+<link href="ipynb.css" rel="stylesheet">
 
 <!-- Custom stylesheet, it must be in the same directory as the html file -->
 <link rel="stylesheet" href="custom.css">
@@ -132,42 +132,61 @@ h3 {
   <div class="intro">
     <br>
     <br>
-    <h3>Twitter Popularity and Machine Learning</h3>
+    <h3>Neural Networks: An Introduction</h3>
     <br>
-    <p><i>Dante Tam, 5/23/2017</i></p>
+    <p><i>Dante Tam, 5/26/2017</i></p>
     <br>
-    <p>Twitter is one of the greatest media in learning to understand the human condition. In this article we investigate how we can leverage Twitter to become popular.
-    I collect tweets, create mathematical models to predict their impact, and finally, interpret these abstract results for real-world, social applications.</p>
+    <p>Neural networks are one of the most innovative learning techniques in state of the art machine learning. Classification accuracies continue to rise
+    due to new ML research, and just recently, Google I/O announced new custom processing units that bring large-scale learning to the online cloud.
+    These are also part of my research, which I dissect here in a light, fun fashion — for all, whether the readers are HR, project managers, CEOs, software engineers, or ML experts.</p>
     <br>
-    <p>First, I used Twitter's API, a web interface between the company and my computer, to collect popular tweets by trending topics.
-    Then, these tweets were converted into vectors, which simply encode the tweet and its statistics such as favorites and retweets.</p>
+    <p>We are given data with labels, and are asked to make predictions. In classification problems, we are given data such as ["data-flavor-icecream" -> cookie dough]
+    and their respective labels ["like-this-flavor" -> yes]. Given ["data-flavor-icecream" -> vanilla], what we do predict for ["like-this-flavor" -> ...]? In regression,
+    we instead need to predict somewhere in a range of numbers, like ["outside-temperature" -> 85F], ["probability of going outside" -> 0.6].</p>
     <br>
-    <p>A linear regression was run. This returns a hyperplane, or a function that can be used to predict the popularity of any tweet.</p>
+    <p>Machine learning methods will return decision functions or boundaries. These are used to determine what the algorithm predicts, given some data.
+    We say that it is a linear decision boundary if it divides a space by a line (or a plane, which can generalized to higher dimensions).</p>
     <br>
-    <p>For the first trial, I manually determined the category and emotion of every tweet.
-      I used four broad categories: sports, culture (pop culture), politics (including anything politically charged), and Twitter (anything related to Twitter culture) —
-      in addition, five emotions: neutrality (including adverts and promotions); anger (or passive-aggressiveness, cynicism, bitter sarcasm); sadness (and grief); happiness (also hopefulness, wonder); and humor (positive sarcasm, parody).</p>
-    <br>
-    <p>Tweets were grouped into six time blocks, and a popularity score was computed. This is quite important since we already know
-    that great tweets will come from popular users talking about hot, trending topics. This score ensures that we are not biased by already existing popularity.</p>
-    <br>
-    <p>The results were quite intuitive, and still fun to figure out. Most notably,</p>
+    <p>Neural networks are cool for the following reasons: </p>
     <br>
     <ul>
-      <li>Tweets about sports are likely to be more popular than users themselves. This topic is more "decentralized", and often in the hands of many distinct, but united users.</li>
-      <li><a href="https://www.youtube.com/watch?v=rE3j_RHkqJc">Anger does actually spread much faster on the Internet</a>, like a contagion. So does happiness. Sad and neutral tweets were the least popular.</li>
-      <li>The best time for stardom is around 2-6 AM, or the evenings. As expected, most people don't tweet in the early morning.</li>
-      <li>Users with too many statuses risk losing attention.</li>
+      <li>They loosely resemble the human brain.</li>
+      <li>They are better with subjective, "soft" tasks, like determining emotion in text.</li>
+      <li>They can form non-linear decision boundaries.</li>
     </ul>
-    <p>The technical equation for the score is defined as<p>
-    <p>$$ popularity\_score = 100000 \cdot {2(retweets) + favorites \over 0.01(followers) + friends} $$</p>
-    <p>while in the linear regression we minimize squared error, i.e.</p>
-    <p>$$ minarg_w \vert \vert Xw - y \vert \vert^2_2 $$</p>
-    <p>The first function is very much like a loss function. A normal loss function can take on certain values to penalize certain types of error.
-    In the case of regression, we can reward or punish certain attributes of the tweets.</p>
     <br>
-    <p>Using this knowledge of tweets and popularity, we write the linear regression model in our IPython notebook code:</p>
+    <p>A neural network is composed of neurons, which are lined up in layers. They are connected in one direction by an axon.</p>
+    <br>
 
+    <br>
+    <p>The neurons on the left are the input layer, where we set to be our data. Every other neuron takes in all its inputs, and computes an output value.
+    This is dependent on the weights of the axons, our connections.
+    We define the first layer to be x, $x_j$ represents the jth neuron in the input. Let $h$ be the hidden layer and $\hat{y}$ be the output.
+    $W^{(1)}$ represents the first set of weights, where $W^{(1)}_{ji}$ is the connection from the jth input neuron to the ith hidden neuron.
+    Mathematically, for a neuron z with inputs x, </p>
+    <br>
+    <p>$$ z^{(1)}_i = \sum_{j \in x} W^{(1)}_{ji} x_j$$</p>
+    <br>
+    <p>Activation functions are the magic behind non-linear decisions. These functions take in the neuron's output and returns the activated output. Commonly used functions:</p>
+    <br>
+    <p>$$ sigmoid(x) = s(x) = \frac{1}{1 + e^{-x}}$$</p>
+    <p>$$ReLU(x) = max(0,x)$$</p>
+    <br>
+    <p>So the activated output of a hidden layer neuron $z_i$ is</p>
+    <br>
+    <p>$$ a^{(1)}_i = s(z^{(1)}_i) = s(\sum_{j \in x} W^{(1)}_{ji} x_j)$$</p>
+    <br>
+    <p>Similarly, define the next layers:</p>
+    <br>
+    <p>$$ z^{(2)}_k = \sum_{j \in x} W^{(2)}_{jk} a^{(1)}_j$$</p>
+    <p>$$ a^{(2)}_k = s(z^{(2)}_k)$$</p>
+    <br>
+    <p>Finally, we come to loss, which is our objective. We need a measure of the error from the true labels of the input.</p>
+    <p>The final vector $a^{(2)} = \hat{y}$ represents our prediction, which is the same size as the label $y$. Two types of loss:</p>
+    <br>
+    <p>Squared loss: $$L(a, y) = \frac{1}{2} (a - y)^2$$</p>
+    <p>Cross-entropy loss: $$L(a, y) = \sum_i y_i ln(a_i) + (1 - y_i) ln(1 - a_i)$$</p>
+    <br>
   <div tabindex="-1" id="notebook" class="border-box-sizing">
     <div class="container" id="notebook-container">
 
@@ -357,7 +376,11 @@ Variance score: 0.297129
     </div>
   </div>
 
-<p>Test</p>
+<br>
+<p>In the second trial, we automate this process of categorizing tweets.
+  CoreNLP, a Stanford research project in Natural Language Processing, is used to determine the emotion of every tweet.
+  Topic categories are found from the main topic hashtag. We also add more information to the vector.</p>
+<br>
 
 </div>
 </div>
