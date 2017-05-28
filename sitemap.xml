@@ -7,105 +7,147 @@
 <!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
 
 <url>
-  <loc>http://dantetam.github.io/</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/index.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/projects.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/projects.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/writings.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/design/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/opstrykon_gdd.pdf</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/opstrykon_gdd.pdf</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/drawings.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/drawings.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/courses.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/courses.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/resume.pdf</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/resume.pdf</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/experiments/resume/index.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/stella/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/experiments/testglwebsite/src/index.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/resume/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/experiments/datavisual/index.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/datavisual/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/lua1-1.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/testglwebsite/src/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/twitter/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/neuralnetwork/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/design/dante_design.pdf</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/serenine/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/writings.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/lua1-2.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
+  <loc>https://dantetam.github.io/src/index.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/java1-0.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
-  <priority>0.64</priority>
+  <loc>https://dantetam.github.io/src/materials/lua1-1.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/java1-1.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
-  <priority>0.64</priority>
+  <loc>https://dantetam.github.io/src/materials/lua1-2.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/des1-1.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
-  <priority>0.64</priority>
+  <loc>https://dantetam.github.io/src/materials/java1-0.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
 </url>
 <url>
-  <loc>http://dantetam.github.io/src/materials/des1-2.html</loc>
-  <lastmod>2016-12-24T04:41:44+00:00</lastmod>
-  <changefreq>always</changefreq>
-  <priority>0.64</priority>
+  <loc>https://dantetam.github.io/src/materials/java1-1.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/materials/des1-1.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/materials/des1-2.html</loc>
+  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.51</priority>
 </url>
 </urlset>
