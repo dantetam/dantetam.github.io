@@ -129,7 +129,7 @@ h3 {
 
 <div class="container">
 
-  <div class="intro">
+  <div class="intro" style="margin-left: 10%; margin-right: 10%;">
     <br>
     <br>
     <h3>Stella: Problem Solving with Conversational Agents</h3>
@@ -139,7 +139,7 @@ h3 {
 		<p>In this article, we work through a complicated, intricate computer science problem. We begin by analyzing it, brainstorming and implementing solutions,
 		and then testing those solutions on clearly defined tests and metrics, while maintaining best practices and good software architecture.</p>
 		<br>
-		<p><b>Stating the problem:</b> My conversational agent, Stella, takes in a text command, and needs to return the appropriate action.
+		<p><b>Stating the problem:</b> My conversational agent, <a href="/src/experiments/stella/">Stella</a>, takes in a text command, and needs to return the appropriate action.
 		Given a list of actions, this is a relatively easy task for a human. However, it is much harder for computers to see grammatical structures,
 		word contexts, etc.</p>
 		<br>
@@ -155,201 +155,46 @@ h3 {
 		Words that are similar to each other i.e. synonyms, are connected together. We analyzed the similarity of two words by their degrees of connection.
 			Much like how LinkedIn shows you more of your closer friends and 1st degree connections, we prioritized first degree synonyms.
 		We also give less but significant priority to similarity of defintions and sentence usages i.e. dictionary entries. </p>
-		
-  <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container" id="notebook-container">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="kn">import</span> <span class="nn">sklearn</span>
-
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">normalize</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">linear_model</span>
-
-<span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="k">def</span> <span class="nf">quoteCustomSplit</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-    <span class="n">firstIndex</span><span class="p">,</span> <span class="n">secondIndex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)):</span>
-        <span class="n">c_i</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">c_l</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="k">None</span>
-        <span class="n">c_r</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="k">None</span>
-        <span class="k">if</span> <span class="n">c_i</span> <span class="o">==</span> <span class="s">&#39;&quot;&#39;</span> <span class="ow">and</span> <span class="n">c_l</span> <span class="o">!=</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="ow">and</span> <span class="n">firstIndex</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="n">firstIndex</span> <span class="o">=</span> <span class="n">i</span>
-        <span class="k">elif</span> <span class="n">c_i</span> <span class="o">==</span> <span class="s">&#39;&quot;&#39;</span> <span class="ow">and</span> <span class="n">c_r</span> <span class="o">==</span> <span class="s">&#39;,&#39;</span> <span class="ow">and</span> <span class="n">firstIndex</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-            <span class="n">secondIndex</span> <span class="o">=</span> <span class="n">i</span>
-            <span class="n">newText</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">firstIndex</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">firstIndex</span><span class="p">:</span><span class="n">secondIndex</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">secondIndex</span><span class="p">:]</span>
-    <span class="k">return</span> <span class="n">newText</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">readTwitterData</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
-    <span class="n">parsedX</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">parsedY</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">content</span><span class="p">]</span>
-    <span class="n">contentParsed</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">content</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">contentParsed</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">quoteCustomSplit</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-        <span class="n">label</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-        <span class="n">parsedY</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-
-        <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">:(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)]]</span>
-
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;N&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;A&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;S&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;H&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;F&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;S&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;C&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;P&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;T&quot;</span><span class="p">:</span> <span class="n">newPoint</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">newPoint</span>
-
-        <span class="n">parsedX</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newPoint</span><span class="p">)</span>
-
-    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">parsedX</span><span class="p">,</span> <span class="n">parsedY</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span class="n">dataX</span><span class="p">,</span> <span class="n">dataY</span> <span class="o">=</span> <span class="n">readTwitterData</span><span class="p">(</span><span class="s">&quot;vectorized_tweets.txt&quot;</span><span class="p">)</span>
-
-<span class="n">dataX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dataX</span><span class="p">)</span>
-<span class="n">dataY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dataY</span><span class="p">)</span>
-
-<span class="n">dataX</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">dataX</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="n">bestX</span><span class="p">,</span> <span class="n">bestY</span> <span class="o">=</span> <span class="k">None</span><span class="p">,</span> <span class="k">None</span>
-
-<span class="n">regr</span> <span class="o">=</span> <span class="n">linear_model</span><span class="o">.</span><span class="n">LinearRegression</span><span class="p">()</span>
-<span class="n">regr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataX</span><span class="p">,</span> <span class="n">dataY</span><span class="p">)</span>
-
-<span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
-
-<span class="n">linRegColumns</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Topic: Sports&quot;</span><span class="p">,</span> <span class="s">&quot;Topic: Culture&quot;</span><span class="p">,</span> <span class="s">&quot;Topic: Politics&quot;</span><span class="p">,</span> <span class="s">&quot;Topic: Twitter/Misc.&quot;</span><span class="p">,</span>
-          <span class="s">&quot;Emotion: Neutral&quot;</span><span class="p">,</span> <span class="s">&quot;Emotion: Angry&quot;</span><span class="p">,</span> <span class="s">&quot;Emotion: Sad&quot;</span><span class="p">,</span> <span class="s">&quot;Emotion: Happy/Hopeful&quot;</span><span class="p">,</span> <span class="s">&quot;Emotion: Funny/Satirical&quot;</span><span class="p">,</span>
-          <span class="s">&quot;TIME2_6&quot;</span><span class="p">,</span><span class="s">&quot;TIME6_10&quot;</span><span class="p">,</span><span class="s">&quot;TIME10_14&quot;</span><span class="p">,</span><span class="s">&quot;TIME14_18&quot;</span><span class="p">,</span><span class="s">&quot;TIME18_22&quot;</span><span class="p">,</span><span class="s">&quot;TIME22_2&quot;</span><span class="p">,</span>
-          <span class="s">&quot;DATE_SUN&quot;</span><span class="p">,</span><span class="s">&quot;DATE_MON&quot;</span><span class="p">,</span><span class="s">&quot;DATE_TUE&quot;</span><span class="p">,</span><span class="s">&quot;DATE_WED&quot;</span><span class="p">,</span><span class="s">&quot;DATE_THU&quot;</span><span class="p">,</span><span class="s">&quot;DATE_FRI&quot;</span><span class="p">,</span><span class="s">&quot;DATE_SAT&quot;</span><span class="p">,</span>
-          <span class="s">&quot;PHOTO&quot;</span><span class="p">,</span><span class="s">&quot;VIDEO&quot;</span><span class="p">,</span><span class="s">&quot;ANIMATED_GIF&quot;</span><span class="p">,</span>
-          <span class="s">&quot;LOG10_USER_FAV&quot;</span><span class="p">,</span><span class="s">&quot;LOG10_USER_STATUS_COUNT&quot;</span><span class="p">]</span>
-
-<span class="c"># The coefficients</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;Coefficients: </span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">linRegColumns</span><span class="p">)):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">linRegColumns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot; -&gt; %.2f&quot;</span> <span class="o">%</span> <span class="n">regr</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-
-<span class="c"># The mean squared error</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&quot;Mean squared error: %f&quot;</span>
-      <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">regr</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataX</span><span class="p">)</span> <span class="o">-</span> <span class="n">dataY</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
-<span class="c"># Explained variance score: 1 is perfect prediction</span>
-<span class="nb">print</span><span class="p">(</span><span class="s">&#39;Variance score: %f&#39;</span> <span class="o">%</span> <span class="n">regr</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">dataX</span><span class="p">,</span> <span class="n">dataY</span><span class="p">))</span>
-
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt"></div>
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Coefficients:
-
-Topic: Sports -&gt; 32.90
-Topic: Culture -&gt; 20.60
-Topic: Politics -&gt; 22.98
-Topic: Twitter/Misc. -&gt; 0.00
-Emotion: Neutral -&gt; 11.78
-Emotion: Angry -&gt; 20.04
-Emotion: Sad -&gt; 10.99
-Emotion: Happy/Hopeful -&gt; 16.87
-Emotion: Funny/Satirical -&gt; 16.80
-TIME2_6 -&gt; 18.05
-TIME6_10 -&gt; 7.23
-TIME10_14 -&gt; 9.28
-TIME14_18 -&gt; 15.45
-TIME18_22 -&gt; 11.71
-TIME22_2 -&gt; 14.75
-DATE_SUN -&gt; 9.24
-DATE_MON -&gt; -1.45
-DATE_TUE -&gt; 28.30
-DATE_WED -&gt; 0.00
-DATE_THU -&gt; 14.28
-DATE_FRI -&gt; 7.49
-DATE_SAT -&gt; 18.61
-PHOTO -&gt; -2.40
-VIDEO -&gt; -1.28
-ANIMATED_GIF -&gt; 0.19
-LOG10_USER_FAV -&gt; -5.14
-LOG10_USER_STATUS_COUNT -&gt; -28.08
-
-
-Mean squared error: 12.636830
-Variance score: 0.297129
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-    </div>
-  </div>
-
-<br>
-<p>In the second trial, we automate this process of categorizing tweets.
-  CoreNLP, a Stanford research project in Natural Language Processing, is used to determine the emotion of every tweet.
-  Topic categories are found from the main topic hashtag. We also add more information to the vector.</p>
-<br>
+		<br>
+		<p><b>Second Approach, Zero-One Encoded Vectors w/ Softmax Regression:</b> We represent the inputs as vectors, and the commands as numbered labels.
+		The problem transforms below, from the first type to the second:</p>
+		<br>
+		<p>$$"Please\; show\; my\; finances."\;\Rightarrow \;the\; finance\; command$$</p>
+		<p>$$...$$</p>
+		<p>$$[0,0,1,0,1,1,1,...]\;\Rightarrow 17$$</p>
+		<br>
+		<p>Simply put, we want to find a device that turns the sentence into a label. Mathematically, our goal is to find a vector $w$ such that</p>
+		<br>
+		<p>$$Xw = \hat{y} \approx y \Leftrightarrow minarg_w \vert \vert Xw - y \vert \vert_2^2$$</p>
+		<br>
+		<p>where $\hat{y}$ is our best guess. We use a method called softmax regression which achieves close to the goal. Google's machine learning library
+		TensorFlow helps us greatly with this task.</p>
+		<br>
+		<p>To get the sentences as vectors, we collect all the unique words, numbered $1$ to $V$. Then every sentence can be represented as a vector $s$ of length $V$,
+		such that $s_i = 1$ means that the sentence contains word $i$, otherwise $s_i = 0$. For example,</p>
+		<br>
+		<p>$$"Please\; show\; my\; finances.",\; "Show\; my\; citations."$$</p>
+		<p>$$Please \Leftrightarrow 1, show \Leftrightarrow 2, my \Leftrightarrow 3, finances \Leftrightarrow 4, citations \Leftrightarrow 5$$</p>
+		<p>$$[1,1,1,1,0],\;[0,1,1,0,1]$$</p>
+		<br>
+		<p>Overall, this approach had near 73% validation accuracy, and while quite neat, was not strong enough for our applications.</p>
+		<br>
+		<p><b>Third Approach, Convolutional Neural Networks for Sentence Classification:</b> We use a convolutional neural network (CNN) on a large sentence vector, 
+			as described in the <a href="http://www.aclweb.org/anthology/D14-1181">research paper of the same name</a> (Yoon Kim, 2014).
+		We use word2vec, a tool developed which converts words into vectors of length $k$, such that similar words have similar vectors.
+		Sentences are now $n$ by $k$ matrices, where $n$ is the maximum length of all sentences and $k$ is the dimension from earlier.
+		This essentially gives us an image, which is processed well by CNNs. 
+		For regular images, CNNs can become edge detectors, brightness detectors, and so on, just as our CNN can begin to recognize large, semi-abstract concepts
+		such as grammatical structures, word contexts, etc.</p>
+		<br>
+		<p>This method was state of the art in 2014 and not surprisingly it fared well, scoring 97% training accuracy.</p>
+		<br>
+		<p>We finally have an algorithm for our conversational agent, Stella, which takes in user requests and completes the appropriate action.
+		It is a robust solution, scoring very highly on our validation tests. It is extensible, as we can add many more classes and commands and training data.
+		It is organized into its own Pythom module, which can be called in a desktop application, web server, etc. It is a good solution.</p>
+		<br>
+		<br>
+		<br>
 
 </div>
 </div>
