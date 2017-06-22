@@ -1,0 +1,15 @@
+#images {
+    width: 100%;
+    max-width: 100%;
+}
+
+#icon1, #icon2 {
+    width: 33%;
+    max-width: 33%;
+}
+
+#icon3 {
+    width: auto;
+    max-width: 33%;
+}
+
