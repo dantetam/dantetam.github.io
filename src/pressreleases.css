@@ -1,0 +1,23 @@
+body {
+  padding-top: 50px;
+}
+
+.intro {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.navbar-intro {
+	color: #FFFFFF;
+	background-color: #FFFFFF;
+}
+
+.navbar-nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
+  color: #337ab7;
+	background-color: #000000;
+}
+
+img {
+	margin: auto;
+  width: 100%;
+}
