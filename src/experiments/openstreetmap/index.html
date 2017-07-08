@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+Note for this code to work, an API key at https://www.mapbox.com/ is required,
+defined in a file "mapbox_api_key.js" as 
+mapboxgl.accessToken = '********';
+-->
 <html>
 <head>
     <meta charset='utf-8' />
@@ -19,7 +24,7 @@
 var map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/light-v9',
     center: [-74.0066, 40.7135],
-    zoom: 15,
+    zoom: 14,
     pitch: 45,
     bearing: -17.6,
     container: 'map'
@@ -34,9 +39,24 @@ map.on('load', function() {
         'source-layer': 'building',
         'filter': ['==', 'extrude', 'true'],
         'type': 'fill-extrusion',
-        'minzoom': 15,
+        'minzoom': 10,
         'paint': {
-            'fill-extrusion-color': '#aaa',
+            //'fill-extrusion-color': '#f00',
+            'fill-extrusion-color': {
+                'type': 'interval',
+                'property': 'height',
+                "stops": [
+                    // "temperature" is 0   -> circle color will be blue
+                    //['cafe', 'blue'],
+
+                    // "temperature" is 100 -> circle color will be red
+                    //[fast-food', 'red']
+                    [0, 'blue'],
+                    [50, 'green'],
+                    [100, 'yellow'],
+                    [150, 'red']
+                ]
+            },
             'fill-extrusion-height': {
                 'type': 'identity',
                 'property': 'height'
@@ -45,7 +65,7 @@ map.on('load', function() {
                 'type': 'identity',
                 'property': 'min_height'
             },
-            'fill-extrusion-opacity': .6
+            'fill-extrusion-opacity': 1.0
         }
     });
 });
