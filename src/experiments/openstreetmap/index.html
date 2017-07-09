@@ -17,10 +17,11 @@ mapboxgl.accessToken = '********';
     </style>
 </head>
 <body>
-
+<div id='features'></div>
 <div id='map'></div>
-<script src='mapbox_api_key.js'></script>
+<!--<script src='mapbox_api_key.js'></script>-->
 <script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZGFudGV0YW0iLCJhIjoiY2o0dXJybW9tMG04YjJ3cGg4dDZzbnlrNCJ9.hQlLlkjiGTfOzmcXETvcsg';
 var map = new mapboxgl.Map({
     style: 'mapbox://styles/mapbox/light-v9',
     center: [-74.0066, 40.7135],
@@ -51,10 +52,12 @@ map.on('load', function() {
 
                     // "temperature" is 100 -> circle color will be red
                     //[fast-food', 'red']
-                    [0, 'blue'],
+                    [0, 'white'],
+                    [5, 'blue'],
                     [50, 'green'],
                     [100, 'yellow'],
-                    [150, 'red']
+                    [150, 'orange'],
+                    [200, 'red']
                 ]
             },
             'fill-extrusion-height': {
@@ -68,6 +71,23 @@ map.on('load', function() {
             'fill-extrusion-opacity': 1.0
         }
     });
+		map.addLayer({
+        'id': 'poi-layer',
+        'source': 'composite',
+        'source-layer': 'poi_label',
+        'filter': ['==', 'extrude', 'true'],
+        'type': 'fill-extrusion',
+        'minzoom': 10,
+        'paint': {
+            'fill-extrusion-color': '#fff',
+            'fill-extrusion-opacity': 1.0
+        }
+    });
+});
+map.on('mousemove', function (e) {
+    var features = map.queryRenderedFeatures(e.point);
+    document.getElementById('features').innerHTML = JSON.stringify(features, null, 2);
+    console.log(JSON.stringify(features, null, 2));
 });
 </script>
 
