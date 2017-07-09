@@ -17,8 +17,9 @@ mapboxgl.accessToken = '********';
     </style>
 </head>
 <body>
+<input type="text" id="user-input" style="position: absolute; z-index: 1;" value=""></input>
 <div id='features'></div>
-<div id='map'></div>
+<div id='map' style="z-index: 0;"></div>
 <!--<script src='mapbox_api_key.js'></script>-->
 <script>
 mapboxgl.accessToken = 'pk.eyJ1IjoiZGFudGV0YW0iLCJhIjoiY2o0dXJybW9tMG04YjJ3cGg4dDZzbnlrNCJ9.hQlLlkjiGTfOzmcXETvcsg';
@@ -86,9 +87,30 @@ map.on('load', function() {
 });
 map.on('mousemove', function (e) {
     var features = map.queryRenderedFeatures(e.point);
-    document.getElementById('features').innerHTML = JSON.stringify(features, null, 2);
-    console.log(JSON.stringify(features, null, 2));
+    //document.getElementById('features').innerHTML = JSON.stringify(features, null, 2);
+    //console.log(JSON.stringify(features, null, 2));
 });
+
+/*
+map.flyTo({
+        center: [
+            -74.50 + (Math.random() - 0.5) * 10,
+            40 + (Math.random() - 0.5) * 10]
+    });
+    */
+    
+document.getElementById("user-input")
+      .addEventListener("keyup", function(event) {
+        event.preventDefault();
+        //document.getElementById("intro").scrollIntoView();
+        //jQuery('html,body').animate({scrollTop:0},0);
+        if (event.keyCode === 13) { //enter
+          var currentText = document.getElementById("user-input").value;
+          console.log(currentText);
+          TODO: Implement
+          https://developers.google.com/maps/documentation/geocoding/start
+        }
+      });
 </script>
 
 </body>

@@ -375,7 +375,7 @@ table {
         event.preventDefault();
         //document.getElementById("intro").scrollIntoView();
         //jQuery('html,body').animate({scrollTop:0},0);
-        if (event.keyCode === 13) {
+        if (event.keyCode === 13) { //enter
           var currentText = document.getElementById("user-input").value;
           executeCommand(currentText);
           pastCommands.push(currentText);
