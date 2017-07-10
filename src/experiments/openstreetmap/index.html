@@ -9,6 +9,7 @@ mapboxgl.accessToken = '********';
     <meta charset='utf-8' />
     <title></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.css' rel='stylesheet' />
     <style>
@@ -41,7 +42,7 @@ map.on('load', function() {
         'source-layer': 'building',
         'filter': ['==', 'extrude', 'true'],
         'type': 'fill-extrusion',
-        'minzoom': 10,
+        'minzoom': 0,
         'paint': {
             //'fill-extrusion-color': '#f00',
             'fill-extrusion-color': {
@@ -72,6 +73,7 @@ map.on('load', function() {
             'fill-extrusion-opacity': 1.0
         }
     });
+    /*
 		map.addLayer({
         'id': 'poi-layer',
         'source': 'composite',
@@ -83,12 +85,18 @@ map.on('load', function() {
             'fill-extrusion-color': '#fff',
             'fill-extrusion-opacity': 1.0
         }
-    });
+    });*/
 });
 map.on('mousemove', function (e) {
-    var features = map.queryRenderedFeatures(e.point);
+    //var features = map.queryRenderedFeatures(e.point);
     //document.getElementById('features').innerHTML = JSON.stringify(features, null, 2);
     //console.log(JSON.stringify(features, null, 2));
+});
+
+map.on('error', e => {
+    // Hide those annoying non-error errors
+    if (e && e.error !== 'Error: Not Found')
+        console.error(e);
 });
 
 /*
@@ -98,7 +106,7 @@ map.flyTo({
             40 + (Math.random() - 0.5) * 10]
     });
     */
-    
+  
 document.getElementById("user-input")
       .addEventListener("keyup", function(event) {
         event.preventDefault();
@@ -106,11 +114,31 @@ document.getElementById("user-input")
         //jQuery('html,body').animate({scrollTop:0},0);
         if (event.keyCode === 13) { //enter
           var currentText = document.getElementById("user-input").value;
-          console.log(currentText);
-          TODO: Implement
-          https://developers.google.com/maps/documentation/geocoding/start
+          var formattedText = currentText.replace(/\s/g, "+");
+          //TODO: Implement
+          //https://developers.google.com/maps/documentation/geocoding/start
+          var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + formattedText + '&key=AIzaSyAP21EsKqlukt2dZGb766My2UwCAHTbD1U';
+
+          $(document).ready(function() {
+            $.ajax({
+              url: url,
+              dataType: 'json',
+              success: function(jsonData) {
+                //console.log(jsonData);
+                //callback(dataWeGotViaJsonp);
+                var coord = jsonData["results"]["0"]["geometry"]["location"];
+                console.log(coord.lat + " " + coord.lng);
+                map.flyTo({
+                    zoom: 14,
+                    center: [coord.lng, coord.lat]
+                });
+              }
+            });
+          });
+          
         }
       });
+      
 </script>
 
 </body>
