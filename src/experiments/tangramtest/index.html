@@ -10,7 +10,10 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Simple demo – Tangram</title>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		
+		<title>Simple demo – Tangram</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
 
     <style>
@@ -30,7 +33,8 @@
   </head>
 
   <body>
-    <div id="map"></div>
+		<input type="text" id="user-input" style="position: absolute; z-index: 1;" value=""></input>
+    <div id="map" style="z-index: 0;"></div>
 
     <!-- leaflet -->
     <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
@@ -51,6 +55,34 @@
         layer.addTo(map);
 
         map.setView([40.70531887544228, -74.00976419448853], 15);
+			
+				document.getElementById("user-input")
+				.addEventListener("keyup", function(event) {
+					event.preventDefault();
+					//document.getElementById("intro").scrollIntoView();
+					//jQuery('html,body').animate({scrollTop:0},0);
+					if (event.keyCode === 13) { //enter
+						var currentText = document.getElementById("user-input").value;
+						var formattedText = currentText.replace(/\s/g, "+");
+						//TODO: Implement
+						//https://developers.google.com/maps/documentation/geocoding/start
+						var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + formattedText + '&key=AIzaSyAP21EsKqlukt2dZGb766My2UwCAHTbD1U';
+
+						$(document).ready(function() {
+							$.ajax({
+								url: url,
+								dataType: 'json',
+								success: function(jsonData) {
+									//console.log(jsonData);
+									//callback(dataWeGotViaJsonp);
+									var coord = jsonData["results"]["0"]["geometry"]["location"];
+									map.setView([coord.lat, coord.lng], 15);
+								}
+							});
+						});
+
+					}
+				});
 
     </script>
 
