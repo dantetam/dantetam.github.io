@@ -74,14 +74,22 @@ layers:
         draw:
             polygons:
                 order: function() { return feature.sort_rank; }
+                # turn interactive feature selection on for buildings with names
+                interactive:
+                    filter: { name: true }
+                    draw: { polygons: { interactive: true } }
                 color: |
                     function () {
-                        var h = feature.height || 20;
+                        var h = feature.height || 10;
                         h = Math.min((h + 50)/ 255, .8); // max brightness: .8
                         h = Math.max(h, .4); // min brightness: .4
                         if (feature.kind === 'building') {
-                            if (feature.kind_detail === 'commercial' || feature.kind_detail === 'office' || feature.kind_detail === 'bank' || feature.kind_detail === 'mall') { //Heavy commercial
-                                return [0.6, 0.6, 1.0];
+                            if (feature.kind_detail === 'commercial' || 
+                                feature.kind_detail === 'office' || 
+                                feature.kind_detail === 'bank' || 
+                                feature.kind_detail === 'mall' ||
+                                feature.kind_detail === 'warehouse') { //Heavy commercial
+                                return [0.3, 0.3, 0.7];
                             }
                             else if (feature.kind_detail === 'restaurant' || 
                                     feature.kind_detail === 'shop' || 
@@ -89,13 +97,14 @@ layers:
                                     feature.kind_detail === 'store' || 
                                     feature.kind_detail === 'service' || 
                                     feature.kind_detail === 'retail' ||
-                                    feature.kind_detail === 'pub') { //Light commercial
-                                return [0.3, 0.3, 0.7];
+                                    feature.kind_detail === 'pub' ||
+                                    feature.kind_detail === 'kiosk') { //Light commercial
+                                return [0.6, 0.6, 1.0];
                             }
-                            else if (feature.kind_detail === 'residential' || feature.kind_detail === 'house') {
+                            else if (feature.kind_detail === 'residential' || feature.kind_detail === 'house' || feature.kind_detail === 'manor') {
                                 return [0.6, 1.0, 0.6];
                             }
-                            else if (feature.kind_detail === 'apartments' || feature.kind_detail === 'hotel' || feature.kind_detail === 'duplex') {
+                            else if (feature.kind_detail === 'apartments' || feature.kind_detail === 'hotel' || feature.kind_detail === 'duplex' || feature.kind_detail === 'terrace') {
                                 return [0.3, 0.7, 0.3];
                             }
                             else if (feature.kind_detail === 'mixed_use') {
@@ -104,6 +113,29 @@ layers:
                             else if (feature.kind_detail === 'civic' || feature.kind_detail === 'government' || feature.kind_detail === 'administrative') {
                                 return [0.5, 0, 0];
                             }
+                            else if (feature.kind_detail === 'train_station') {
+                                return [0.5, 0, 0];
+                            }
+                            else if (feature.kind_detail === 'school' || feature.kind_detail === 'hospital') {
+                                return [0.7, 0.4, 0.4];
+                            }
+                            else if (feature.kind_detail === 'museum' || feature.kind_detail === 'library') {
+                                return [0.7, 0.4, 0.4];
+                            }
+                            else if (feature.kind_detail === undefined) { 
+                                //Manually use the decision rule in "Estimation of Building Types on OpenStreetMap Based on Urban Morphology Analysis"
+                                if (feature.area >= 100 && feature.area <= 400) {
+                                    return [0.0, 1.0, 0.0];
+                                }
+                                else if (feature.area >= 400 && feature.area <= 600) {
+                                    return [1.0, 0.0, 1.0];
+                                }
+                                else if (feature.area >= 600) {
+                                    //return [0.6, 0.6, 1.0];
+                                    //return [1.0, 0.0, 0.0];
+                                }
+                                return [h, h, h];
+                            }
                         }
                         return [h, h, h];
                     }
@@ -111,4 +143,4 @@ layers:
             filter: { $zoom: { min: 15 } }
             draw:
                 polygons:
-                    extrude: function () { return feature.height > 20 || $zoom >= 16; }
+                    extrude: function () { return true; }
