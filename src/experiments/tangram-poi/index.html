@@ -1,0 +1,161 @@
+<!doctype html>
+<!--
+    Tangram: real-time WebGL rendering for OpenStreetMap
+
+    http://github.com/tangrams/tangram
+    http://mapzen.com
+-->
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tangram Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+
+    <style>
+			body {
+				margin: 0px;
+				border: 0px;
+				padding: 0px;
+			}
+
+			#map {
+				height: 100%;
+				width: 100%;
+				position: absolute;
+			}
+
+			#user-input {
+				display: block;
+				position: absolute; 
+				z-index: 1;
+				margin: auto;
+				width: 30%;
+				height: 5%;
+				font-size: 24px;
+			}
+			
+    </style>
+  </head>
+
+  <body>
+		<input type="text" id="user-input" value=""></input>
+    <div id="map" style="z-index: 0;"></div>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	
+    <!-- leaflet -->
+    <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+
+    <!-- Main tangram library -->
+    <script src="https://mapzen.com/tangram/0.10/tangram.min.js"></script>
+
+    <!-- Demo setup -->
+    <script>
+      
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(position) {
+						//console.log(position);
+						userLocation = position;
+					}, showError, {timeout:100000});
+				} else {
+					console.log("Geolocation is not supported by this browser.");
+				}
+
+				function showError(error) {
+					switch(error.code) {
+						case error.PERMISSION_DENIED:
+							x.innerHTML = "User denied the request for Geolocation."
+							break;
+						case error.POSITION_UNAVAILABLE:
+							x.innerHTML = "Location information is unavailable."
+							break;
+						case error.TIMEOUT:
+							x.innerHTML = "The request to get user location timed out."
+							break;
+						case error.UNKNOWN_ERROR:
+							x.innerHTML = "An unknown error occurred."
+							break;
+					}
+				}
+			
+        var map = L.map('map');
+
+        var layer = Tangram.leafletLayer({
+            scene: 'scene.yaml',
+            attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>'
+        });
+
+        layer.addTo(map);
+
+        map.setView([40.70531887544228, -74.00976419448853], 15);
+			
+				// ADD TANGRAMLOADED LISTENER
+				var scene;
+				map.on('tangramloaded', function(e) {
+					var tangramLayer = e.tangramLayer;
+					scene = tangramLayer.scene;
+					console.log("Done loading");
+				});
+			
+				document.getElementById("user-input")
+					.addEventListener("keyup", function(event) {
+						event.preventDefault();
+						//document.getElementById("intro").scrollIntoView();
+						//jQuery('html,body').animate({scrollTop:0},0);
+						if (event.keyCode === 13) { //enter
+							var currentText = document.getElementById("user-input").value;
+							var formattedText = currentText.replace(/\s/g, "+");
+							//TODO: Implement
+							//https://developers.google.com/maps/documentation/geocoding/start
+							var url = 'https://maps.googleapis.com/maps/api/geocode/json?address=' + formattedText + '&key=AIzaSyAP21EsKqlukt2dZGb766My2UwCAHTbD1U';
+
+							$(document).ready(function() {
+								$.ajax({
+									url: url,
+									dataType: 'json',
+									success: function(jsonData) {
+										var coord = jsonData["results"]["0"]["geometry"]["location"];
+										map.setView([coord.lat, coord.lng], 15);
+									}
+								});
+							});
+
+						}
+					});
+			
+				/// ADD LAYER TOGGLE
+				var LayerToggleControl = L.Control.extend({
+					options: {
+						position: 'topright'
+					},
+
+					toggleOnClick: function (e) {
+						var showLayer = document.getElementById('layer_toggle').checked;
+						//alert('show layer? ' + showLayer);
+						console.log("Click");
+						if (scene) {
+							scene.config.layers.buildings.visible = showLayer;
+							console.log(showLayer);
+							scene.updateConfig();
+						}
+					},
+					
+					onAdd: function () {
+						var container = L.DomUtil.create('div', 'layer-control');
+						container.innerHTML = '<label><input id="layer_toggle" type="checkbox" checked> Geology layer</label>'
+
+						L.DomEvent.on(container, 'click', this.toggleOnClick);
+						return container;
+					}
+
+				});
+				var toggleControl = new LayerToggleControl();
+				map.addControl(toggleControl);
+			
+			
+    </script>
+
+  </body>
+</html>

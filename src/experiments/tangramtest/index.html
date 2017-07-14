@@ -73,8 +73,6 @@
 								url: url,
 								dataType: 'json',
 								success: function(jsonData) {
-									//console.log(jsonData);
-									//callback(dataWeGotViaJsonp);
 									var coord = jsonData["results"]["0"]["geometry"]["location"];
 									map.setView([coord.lat, coord.lng], 15);
 								}
