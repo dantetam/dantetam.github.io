@@ -12,11 +12,40 @@
   stroke-linejoin: round;
 }
 
+#mapchoices button {
+    background-color: #4CAF50; /* Green background */
+    border: 1px solid green; /* Green border */
+    color: white; /* White text */
+    padding: 10px 24px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    float: left; /* Float the buttons side by side */
+}
+
+/* Clear floats (clearfix hack) */
+#mapchoices:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#mapchoices button:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+#mapchoices button:hover {
+    background-color: #3e8e41;
+}
+
 </style>
+<div id="mapchoices">
+  
+</div>
 <svg width="1920" height="1080"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
 var svg = d3.select("svg"),
@@ -26,6 +55,7 @@ var svg = d3.select("svg"),
 var unemployment = d3.map();
 var householdIncome = d3.map();
 var poverty = d3.map();
+var payroll = d3.map();
 
 var path = d3.geoPath();
 
@@ -39,7 +69,88 @@ var g = svg.append("g")
 
 //var mode = "Unemployment";
 //var mode = "Income";
-var mode = "Poverty";
+//var mode = "Poverty";
+var mode = "MiningQuarryingOilGas";
+
+var allModes = [
+    "Unemployment",
+    "Income",
+    "Poverty",
+    "AllSectors",
+    "AgricultureForestryFishingHunting",
+    "MiningQuarryingOilGas",
+    "Utilities",
+    "Construction",
+    "Manufacturing",
+    "WholesaleTrade",
+    "RetailTrade",
+    "TransportationWarehousing",
+    "Information",
+    "FinanceInsurance",
+    "RealEstate",
+    "ProfessionalScientificTechnical",
+    "Management",
+    "AdministrativeSupportWaste",
+    "Education",
+    "HealthcareSocialAssistance",
+    "ArtsEntertainmentRecreation",
+    "AccommodationFood",
+    "OtherServices",
+    "IndustriesNotClassified"
+];
+
+var industryBusinessNames = [
+    "AllSectors",
+    "AgricultureForestryFishingHunting",
+    "MiningQuarryingOilGas",
+    "Utilities",
+    "Construction",
+    "Manufacturing",
+    "WholesaleTrade",
+    "RetailTrade",
+    "TransportationWarehousing",
+    "Information",
+    "FinanceInsurance",
+    "RealEstate",
+    "ProfessionalScientificTechnical",
+    "Management",
+    "AdministrativeSupportWaste",
+    "Education",
+    "HealthcareSocialAssistance",
+    "ArtsEntertainmentRecreation",
+    "AccommodationFood",
+    "OtherServices",
+    "IndustriesNotClassified"
+]        
+
+var mapMenu = d3.select("#mapchoices");
+for (var i = 0; i < allModes.length; i++) {
+    var mode = allModes[i];
+    console.log(mode);
+    var button = mapMenu.append("button").text(mode).on("click", function(){
+        console.log("Redirect " + "./index.html?maptype=" + mode);
+        window.location.href = "index.html?maptype=" + new String(mode);
+        //window.location.href = "./index.html?maptype=" + mode;
+        //window.location.reload();
+    });
+}
+
+
+
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 function unemploymentReady(error, us) {
   if (error) throw error;
@@ -75,7 +186,7 @@ function householdIncomeReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return "$" + d.rate; });
+      .text(function(d) { return "$" + numberWithCommas(d.rate); });
 
   svg.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -102,6 +213,35 @@ function povertyReady(error, us) {
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
+}
+
+function payrollReady(error, us) {
+  if (error) throw error;
+  
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", function(d) { return color(d.rate = payroll.get(d.id)); })
+      .attr("d", path)
+      .on("click", function(d) {console.log(d.id); })
+      //.attr("countyid", function(d) { return d.id; })
+    .append("title")
+      .text(function(d) { return "$" + numberWithCommas(d.rate * 1000); });
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
+var maptype = getQueryVariable("maptype");
+if (maptype && $.inArray(maptype, allModes)) {
+    mode = maptype;
+}
+else {
+    console.log("Invalid map URL parameter: " + maptype);
 }
 
 var color = null;
@@ -160,11 +300,38 @@ else if (mode === "Poverty") {
             else {
                 povertyPercent = d["All Ages in Poverty Percent"].replace(/\%/g,'');
                 poverty.set(d["County ID"], +povertyPercent); 
-                console.log(+povertyPercent); 
+                //console.log(+povertyPercent); 
             }
             //console.log(+income); 
         })
         .await(povertyReady);
+}
+else if ($.inArray(mode, industryBusinessNames)) {
+    color = d3.scaleThreshold()
+        .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
+        .range(d3.schemeReds[8]);
+     
+    title = mode;
+    
+    d3.queue()
+        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+        .defer(d3.csv, "./businessbycounty/processed/" + mode + ".csv", function(d) { 
+            var income = 0;
+            if (d["PAYANN"] === undefined) {
+                //console.log(d["County ID"]);
+                income = 0;
+            }
+            else {
+                povertyPercent = d["PAYANN"].replace(/\%/g,'');
+                payroll.set(d["GEO.id2"], +povertyPercent); 
+                //console.log(+povertyPercent); 
+            }
+            //console.log(+income); 
+        })
+        .await(payrollReady);
+}
+else {
+    console.log("Cannot find map mode: " + mode);
 }
 
 //Process county name data
