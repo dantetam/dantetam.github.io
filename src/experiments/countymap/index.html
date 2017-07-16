@@ -35,7 +35,7 @@
 
 /* Add a background color on hover */
 #mapchoices button:hover {
-    background-color: #3e8e41;
+    background-color: #ff3b30;
 }
 
 </style>
@@ -58,6 +58,7 @@ var householdIncome = d3.map();
 var poverty = d3.map();
 var payroll = d3.map();
 var education = d3.map();
+var density = d3.map();
 
 var path = d3.geoPath();
 
@@ -74,6 +75,7 @@ var allModes = [
     "Unemployment",
     "Income",
     "Poverty",
+    "PopulationDensity",
     "AllSectors",
     "AgricultureForestryFishingHunting",
     "MiningQuarryingOilGas",
@@ -151,6 +153,7 @@ function getQueryVariable(variable)
 }
 
 function numberWithCommas(x) {
+    if (x == null) return "";
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
@@ -240,6 +243,27 @@ function payrollReady(error, us) {
       .attr("d", path);
 }
 
+function densityReady(error, us) {
+  if (error) throw error;
+  
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", function(d) { return color(d.rate = density.get(d.id)); })
+      .attr("d", path)
+      .on("click", function(d) {console.log(d.id); })
+      //.attr("countyid", function(d) { return d.id; })
+    .append("title")
+      .text(function(d) { return numberWithCommas(d.rate); });
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
 //TODO: Turn this into a utility method and not some hard-coded spaghetti
 var educationType = "";
 var higher1824 = [
@@ -306,6 +330,7 @@ else {
 
 var color = null;
 var title = "Default Title";
+var desc = "Default Description";
 
 if (mode === "Unemployment") {  
     color = d3.scaleThreshold()
@@ -313,6 +338,8 @@ if (mode === "Unemployment") {
         .range(d3.schemeBlues[9]);
 
     title = "Unemployment";    
+    
+    desc = "Unemployment percentage per county";
     
     var x = d3.scaleLinear()
         .domain([1, 10])
@@ -329,6 +356,8 @@ else if (mode === "Income") {
         .range(d3.schemeGreens[9]);
      
     title = "Median Household Income";
+        
+    desc = "Median household income by county";    
         
     var x = d3.scaleLinear()
         .domain([10000, 100000, 10000])
@@ -356,10 +385,12 @@ else if (mode === "Poverty") {
         .range(d3.schemeReds[9]);
      
     var x = d3.scaleLinear()
-        .domain([0, 1, 0.1])
+        .domain([6, 36, 3])
         .rangeRound([450, 900]);
         
     title = "Percentage under Poverty Line";
+        
+    desc = "Percentage of people below poverty line per county";    
         
     d3.queue()
         .defer(d3.json, "https://d3js.org/us-10m.v1.json")
@@ -378,6 +409,35 @@ else if (mode === "Poverty") {
         })
         .await(povertyReady);
 }
+else if (mode === "PopulationDensity") {
+    color = d3.scaleThreshold()
+        .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+        .range(d3.schemeReds[9]);
+     
+    title = "Population Density";
+    
+    desc = "Population Density per County per Square Mile";
+    
+    var x = d3.scaleQuantize()
+      .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+      .range([450, 900]);
+      
+        
+    d3.queue()
+        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+        .defer(d3.csv, "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv", function(d) { 
+            if (d["CountyID"] === undefined) {
+            
+            }
+            else {
+                if (d["CountyID"].length >= 5) {
+                    densitySqMi = d["DENSITY_SQ_MILE"];
+                    density.set(d["CountyID"], +densitySqMi); 
+                }
+            }
+        })
+        .await(densityReady);
+}
 else if ($.inArray(mode, industryBusinessNames) != -1) {
     color = d3.scaleThreshold()
         .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
@@ -385,9 +445,21 @@ else if ($.inArray(mode, industryBusinessNames) != -1) {
      
     title = mode;
     
+    desc = "Annual Payroll per County and Industry";
+    
     var x = d3.scaleQuantize()
       .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
       .range([450, 900]);
+      
+    if (mode === "AllSectors") {
+        color = d3.scaleThreshold()
+            .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+            .range(d3.schemeReds[7]);
+            
+        var x = d3.scaleQuantize()
+          .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+          .range([450, 900]);
+    }
         
     d3.queue()
         .defer(d3.json, "https://d3js.org/us-10m.v1.json")
@@ -412,6 +484,8 @@ else if (mode === "Total1824" || mode === "TotalG25") {
         .range(d3.schemeReds[9]);
      
     title = mode;
+    
+    desc = "Total population of age group in county";
     
     var x = d3.scaleQuantize()
       .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
@@ -439,6 +513,8 @@ else if ($.inArray(mode, educationModes) != -1) {
         .range(d3.schemeReds[9]);
 
     title = mode;    
+
+    desc = "Percentage of people in age-group and county who have completed this degree or greater";
     
     var x = d3.scaleLinear()
         .domain([0.1, 1, 0.1])
@@ -491,6 +567,15 @@ else {
         .attr("text-anchor", "start")
         .attr("font-weight", "bold")
         .text(title);
+        
+    g.append("text")
+        .attr("class", "caption")
+        .attr("x", x.range()[0])
+        .attr("y", 36)
+        .attr("fill", "#000")
+        .attr("text-anchor", "start")
+        .attr("font-weight", "bold")
+        .text(desc);
 
     g.call(d3.axisBottom(x)
         .tickSize(13)
