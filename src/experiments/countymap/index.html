@@ -49,23 +49,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
-
-var unemployment = d3.map();
-var householdIncome = d3.map();
-var poverty = d3.map();
-var payroll = d3.map();
-var education = d3.map();
-var density = d3.map();
-
-var path = d3.geoPath();
-
-var g = svg.append("g")
-    .attr("class", "key")
-    .attr("transform", "translate(0,40)");
-
 //var mode = "Unemployment";
 //var mode = "Income";
 //var mode = "Poverty";
@@ -130,10 +113,13 @@ var educationModes = [
 
 var mapMenu = d3.select("#mapchoices");
 for (var i = 0; i < allModes.length; i++) {
-    var mode = allModes[i];
-    var button = mapMenu.append("button").text(mode).on("click", function(){
-        console.log("Redirect " + "./index.html?maptype=" + mode);
-        window.location.href = "index.html?maptype=" + new String(mode);
+    var chooseMode = allModes[i];  
+    var button = mapMenu.append("button").text(chooseMode).on("click", function() {
+        console.log(this.textContent);
+        loadMapWithMode(this.textContent);
+        //window.history.pushState('index', this.textContent, '/index.html');
+        //console.log("Redirect " + "./index.html?maptype=" + mode);
+        //window.location.href = "index.html?maptype=" + new String(mode);
         //window.location.href = "./index.html?maptype=" + mode;
         //window.location.reload();
     });
@@ -332,263 +318,310 @@ var color = null;
 var title = "Default Title";
 var desc = "Default Description";
 
-if (mode === "Unemployment") {  
-    color = d3.scaleThreshold()
-        .domain(d3.range(2, 10))
-        .range(d3.schemeBlues[9]);
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
 
-    title = "Unemployment";    
+var unemployment = d3.map();
+var householdIncome = d3.map();
+var poverty = d3.map();
+var payroll = d3.map();
+var education = d3.map();
+var density = d3.map();
+
+var path = d3.geoPath();
+
+var g = svg.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate(0,40)");
     
-    desc = "Unemployment percentage per county";
+function loadMapWithMode(mode) {
+    console.log(mode);
+
+    svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
     
-    var x = d3.scaleLinear()
-        .domain([1, 10])
-        .rangeRound([450, 900]);
-        
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.tsv, "unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
-        .await(unemploymentReady);
-}
-else if (mode === "Income") {
-    color = d3.scaleThreshold()
-        .domain(d3.range(20000, 100000, 10000))
-        .range(d3.schemeGreens[9]);
-     
-    title = "Median Household Income";
-        
-    desc = "Median household income by county";    
-        
-    var x = d3.scaleLinear()
-        .domain([10000, 100000, 10000])
-        .rangeRound([450, 900]);    
-        
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "povertyincome.csv", function(d) { 
-            var income = 0;
-            if (d["Median Household Income in Dollars"] === undefined) {
-                //console.log(d["County ID"]);
-                income = 0;
-            }
-            else {
-                income = d["Median Household Income in Dollars"].replace(/\D/g,'');
-                householdIncome.set(d["County ID"], +income); 
-            }
-            //console.log(+income); 
-        })
-        .await(householdIncomeReady);
-}
-else if (mode === "Poverty") {
-    color = d3.scaleThreshold()
-        .domain(d3.range(6, 36, 3))
-        .range(d3.schemeReds[9]);
-     
-    var x = d3.scaleLinear()
-        .domain([6, 36, 3])
-        .rangeRound([450, 900]);
-        
-    title = "Percentage under Poverty Line";
-        
-    desc = "Percentage of people below poverty line per county";    
-        
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "povertyincome.csv", function(d) { 
-            var income = 0;
-            if (d["All Ages in Poverty Percent"] === undefined) {
-                //console.log(d["County ID"]);
-                income = 0;
-            }
-            else {
-                povertyPercent = d["All Ages in Poverty Percent"].replace(/\%/g,'');
-                poverty.set(d["County ID"], +povertyPercent); 
-                //console.log(+povertyPercent); 
-            }
-            //console.log(+income); 
-        })
-        .await(povertyReady);
-}
-else if (mode === "PopulationDensity") {
-    color = d3.scaleThreshold()
-        .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-        .range(d3.schemeReds[9]);
-     
-    title = "Population Density";
+    //TODO: Replace with a solution that updates the whole map insteading of replacing it
+    svg.selectAll("*").remove();
+
+    unemployment = d3.map();
+    householdIncome = d3.map();
+    poverty = d3.map();
+    payroll = d3.map();
+    education = d3.map();
+    density = d3.map();
+
+    path = d3.geoPath();
+
+    //console.log(svg.select("g"));
     
-    desc = "Population Density per County per Square Mile";
-    
-    var x = d3.scaleQuantize()
-      .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-      .range([450, 900]);
-      
-        
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv", function(d) { 
-            if (d["CountyID"] === undefined) {
-            
-            }
-            else {
-                if (d["CountyID"].length >= 5) {
-                    densitySqMi = d["DENSITY_SQ_MILE"];
-                    density.set(d["CountyID"], +densitySqMi); 
-                }
-            }
-        })
-        .await(densityReady);
-}
-else if ($.inArray(mode, industryBusinessNames) != -1) {
-    color = d3.scaleThreshold()
-        .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
-        .range(d3.schemeReds[8]);
-     
-    title = mode;
-    
-    desc = "Annual Payroll per County and Industry";
-    
-    var x = d3.scaleQuantize()
-      .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
-      .range([450, 900]);
-      
-    if (mode === "AllSectors") {
+    g = svg.append("g")
+        .attr("class", "key")
+        .attr("transform", "translate(0,40)");
+
+    if (mode === "Unemployment") {  
         color = d3.scaleThreshold()
-            .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
-            .range(d3.schemeReds[7]);
+            .domain(d3.range(2, 10))
+            .range(d3.schemeBlues[9]);
+
+        title = "Unemployment";    
+        
+        desc = "Unemployment percentage per county";
+        
+        var x = d3.scaleLinear()
+            .domain([1, 10])
+            .rangeRound([450, 900]);
             
-        var x = d3.scaleQuantize()
-          .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
-          .range([450, 900]);
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.tsv, "unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
+            .await(unemploymentReady);
     }
+    else if (mode === "Income") {
+        color = d3.scaleThreshold()
+            .domain(d3.range(20000, 100000, 10000))
+            .range(d3.schemeGreens[9]);
+         
+        title = "Median Household Income";
+            
+        desc = "Median household income by county";    
+            
+        var x = d3.scaleLinear()
+            .domain([10000, 100000, 10000])
+            .rangeRound([450, 900]);    
+            
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "povertyincome.csv", function(d) { 
+                var income = 0;
+                if (d["Median Household Income in Dollars"] === undefined) {
+                    //console.log(d["County ID"]);
+                    income = 0;
+                }
+                else {
+                    income = d["Median Household Income in Dollars"].replace(/\D/g,'');
+                    householdIncome.set(d["County ID"], +income); 
+                }
+                //console.log(+income); 
+            })
+            .await(householdIncomeReady);
+    }
+    else if (mode === "Poverty") {
+        color = d3.scaleThreshold()
+            .domain(d3.range(6, 36, 3))
+            .range(d3.schemeReds[9]);
+         
+        var x = d3.scaleLinear()
+            .domain([6, 36, 3])
+            .rangeRound([450, 900]);
+            
+        title = "Percentage under Poverty Line";
+            
+        desc = "Percentage of people below poverty line per county";    
+            
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "povertyincome.csv", function(d) { 
+                var income = 0;
+                if (d["All Ages in Poverty Percent"] === undefined) {
+                    //console.log(d["County ID"]);
+                    income = 0;
+                }
+                else {
+                    povertyPercent = d["All Ages in Poverty Percent"].replace(/\%/g,'');
+                    poverty.set(d["County ID"], +povertyPercent); 
+                    //console.log(+povertyPercent); 
+                }
+                //console.log(+income); 
+            })
+            .await(povertyReady);
+    }
+    else if (mode === "PopulationDensity") {
+        color = d3.scaleThreshold()
+            .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+            .range(d3.schemeReds[9]);
+         
+        title = "Population Density";
         
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "./businessbycounty/processed/" + mode + ".csv", function(d) { 
-            var income = 0;
-            if (d["PAYANN"] === undefined) {
-                //console.log(d["County ID"]);
-                income = 0;
-            }
-            else {
-                povertyPercent = d["PAYANN"].replace(/\%/g,'');
-                payroll.set(d["GEO.id2"], +povertyPercent); 
-                //console.log(+povertyPercent); 
-            }
-            //console.log(+income); 
-        })
-        .await(payrollReady);
-}
-else if (mode === "Total1824" || mode === "TotalG25") {
-    color = d3.scaleThreshold()
-        .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
-        .range(d3.schemeReds[9]);
-     
-    title = mode;
-    
-    desc = "Total population of age group in county";
-    
-    var x = d3.scaleQuantize()
-      .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
-      .range([450, 900]);
-      
-    educationType = mode;
-    
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
-            addData = {};
-            //var educationModes = [
-                //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-            //];
-            for (var i = 0; i < educationModes.length; i++) {
-                addData[educationModes[i]] = +d[educationModes[i]];
-            }
-            education.set(d["CountyID"], addData);
-        })
-        .await(educationReady);
-}
-else if ($.inArray(mode, educationModes) != -1) {
-    color = d3.scaleThreshold()
-        .domain([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-        .range(d3.schemeReds[9]);
-
-    title = mode;    
-
-    desc = "Percentage of people in age-group and county who have completed this degree or greater";
-    
-    var x = d3.scaleLinear()
-        .domain([0.1, 1, 0.1])
-        .rangeRound([450, 900]);
-    
-    educationType = mode;
-    
-    d3.queue()
-        .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-        .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
-            addData = {};
-            //var educationModes = [
-                //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-            //];
-            for (var i = 0; i < educationModes.length; i++) {
-                addData[educationModes[i]] = +d[educationModes[i]];
-            }
-            education.set(d["CountyID"], addData);
-        })
-        .await(educationReady);
-}
-else {
-    console.log("Cannot find map mode: " + mode);
-}
-
-//Process county name data
-
-if (color == null) {
-
-}
-else {
-    g.selectAll("rect")
-      .data(color.range().map(function(d) {
-          d = color.invertExtent(d);
-          if (d[0] == null) d[0] = x.domain()[0];
-          if (d[1] == null) d[1] = x.domain()[1];
-          return d;
-        }))
-      .enter().append("rect")
-        .attr("height", 8)
-        .attr("x", function(d) { return x(d[0]); })
-        .attr("width", function(d) { return x(d[1]) - x(d[0]); })
-        .attr("fill", function(d) { return color(d[0]); });
-
-    g.append("text")
-        .attr("class", "caption")
-        .attr("x", x.range()[0])
-        .attr("y", -6)
-        .attr("fill", "#000")
-        .attr("text-anchor", "start")
-        .attr("font-weight", "bold")
-        .text(title);
+        desc = "Population Density per County per Square Mile";
         
-    g.append("text")
-        .attr("class", "caption")
-        .attr("x", x.range()[0])
-        .attr("y", 36)
-        .attr("fill", "#000")
-        .attr("text-anchor", "start")
-        .attr("font-weight", "bold")
-        .text(desc);
+        var x = d3.scaleQuantize()
+          .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+          .range([450, 900]);
+          
+            
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv", function(d) { 
+                if (d["CountyID"] === undefined) {
+                
+                }
+                else {
+                    if (d["CountyID"].length >= 5) {
+                        densitySqMi = d["DENSITY_SQ_MILE"];
+                        density.set(d["CountyID"], +densitySqMi); 
+                    }
+                }
+            })
+            .await(densityReady);
+    }
+    else if ($.inArray(mode, industryBusinessNames) != -1) {
+        color = d3.scaleThreshold()
+            .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
+            .range(d3.schemeReds[8]);
+         
+        title = mode;
+        
+        desc = "Annual Payroll per County and Industry";
+        
+        var x = d3.scaleQuantize()
+          .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
+          .range([450, 900]);
+          
+        if (mode === "AllSectors") {
+            color = d3.scaleThreshold()
+                .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+                .range(d3.schemeReds[7]);
+                
+            var x = d3.scaleQuantize()
+              .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+              .range([450, 900]);
+        }
+            
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./businessbycounty/processed/" + mode + ".csv", function(d) { 
+                var income = 0;
+                if (d["PAYANN"] === undefined) {
+                    //console.log(d["County ID"]);
+                    income = 0;
+                }
+                else {
+                    povertyPercent = d["PAYANN"].replace(/\%/g,'');
+                    payroll.set(d["GEO.id2"], +povertyPercent); 
+                    //console.log(+povertyPercent); 
+                }
+                //console.log(+income); 
+            })
+            .await(payrollReady);
+    }
+    else if (mode === "Total1824" || mode === "TotalG25") {
+        color = d3.scaleThreshold()
+            .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
+            .range(d3.schemeReds[9]);
+         
+        title = mode;
+        
+        desc = "Total population of age group in county";
+        
+        var x = d3.scaleQuantize()
+          .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
+          .range([450, 900]);
+          
+        educationType = mode;
+        
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                addData = {};
+                //var educationModes = [
+                    //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+                //];
+                for (var i = 0; i < educationModes.length; i++) {
+                    addData[educationModes[i]] = +d[educationModes[i]];
+                }
+                education.set(d["CountyID"], addData);
+            })
+            .await(educationReady);
+    }
+    else if ($.inArray(mode, educationModes) != -1) {
+        color = d3.scaleThreshold()
+            .domain([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+            .range(d3.schemeReds[9]);
 
-    g.call(d3.axisBottom(x)
-        .tickSize(13)
-        .tickFormat(function(x, i) { 
-            return i ? x : x; 
-        })
-        .tickValues(color.domain()))
-      .select(".domain")
-        .remove();
+        title = mode;    
 
-    //svg.call(d3.zoom().on("zoom", function () {
-            //svg.attr("transform", d3.event.transform)
-            //}));
+        desc = "Percentage of people in age-group and county who have completed this degree or greater";
+        
+        var x = d3.scaleLinear()
+            .domain([0.1, 1, 0.1])
+            .rangeRound([450, 900]);
+        
+        educationType = mode;
+        
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                addData = {};
+                //var educationModes = [
+                    //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+                //];
+                for (var i = 0; i < educationModes.length; i++) {
+                    addData[educationModes[i]] = +d[educationModes[i]];
+                }
+                education.set(d["CountyID"], addData);
+            })
+            .await(educationReady);
+    }
+    else {
+        console.log("Cannot find map mode: " + mode);
+    }
+
+    //Process county name data
+
+    if (color == null) {
+
+    }
+    else {
+        g.selectAll("rect")
+          .data(color.range().map(function(d) {
+              d = color.invertExtent(d);
+              if (d[0] == null) d[0] = x.domain()[0];
+              if (d[1] == null) d[1] = x.domain()[1];
+              return d;
+            }))
+          .enter().append("rect")
+            .attr("height", 8)
+            .attr("x", function(d) { return x(d[0]); })
+            .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+            .attr("fill", function(d) { return color(d[0]); });
+            
+        g.selectAll("text").remove();
+
+        g.append("text")
+            .attr("class", "caption")
+            .attr("x", x.range()[0])
+            .attr("y", -6)
+            .attr("fill", "#000")
+            .attr("text-anchor", "start")
+            .attr("font-weight", "bold")
+            .text(title);
+            
+        g.append("text")
+            .attr("class", "caption")
+            .attr("x", x.range()[0])
+            .attr("y", 36)
+            .attr("fill", "#000")
+            .attr("text-anchor", "start")
+            .attr("font-weight", "bold")
+            .text(desc);
+
+        g.call(d3.axisBottom(x)
+            .tickSize(13)
+            .tickFormat(function(x, i) { 
+                return i ? x : x; 
+            })
+            .tickValues(color.domain()))
+          .select(".domain")
+            .remove();
+
+        //svg.call(d3.zoom().on("zoom", function () {
+                //svg.attr("transform", d3.event.transform)
+                //}));
+    }
 }
+
+loadMapWithMode(mode);
 
 </script>
