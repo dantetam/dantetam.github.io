@@ -38,15 +38,24 @@
     background-color: #ff3b30;
 }
 
+#mapchoices #current {
+    background-color: #ff3b30;
+}
+
 </style>
 <div id="mapchoices">
   
 </div>
+<button id='saveButton'>Save Map as PNG</button>
 <svg width="1920" height="1080"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
+<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+<script src="./svgsave.js"></script>
 <script>
 
 //var mode = "Unemployment";
@@ -112,20 +121,6 @@ var educationModes = [
 ];
 
 var mapMenu = d3.select("#mapchoices");
-for (var i = 0; i < allModes.length; i++) {
-    var chooseMode = allModes[i];  
-    var button = mapMenu.append("button").text(chooseMode).on("click", function() {
-        console.log(this.textContent);
-        loadMapWithMode(this.textContent);
-        //window.history.pushState('index', this.textContent, '/index.html');
-        //console.log("Redirect " + "./index.html?maptype=" + mode);
-        //window.location.href = "index.html?maptype=" + new String(mode);
-        //window.location.href = "./index.html?maptype=" + mode;
-        //window.location.reload();
-    });
-}
-
-
 
 function getQueryVariable(variable)
 {
@@ -359,6 +354,21 @@ function loadMapWithMode(mode) {
     g = svg.append("g")
         .attr("class", "key")
         .attr("transform", "translate(0,40)");
+        
+    mapMenu.selectAll("*").remove();
+    for (var i = 0; i < allModes.length; i++) {
+        var chooseMode = allModes[i];  
+        var id = chooseMode == mode ? "current" : "";
+        var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
+            console.log(this.textContent);
+            loadMapWithMode(this.textContent);
+            //window.history.pushState('index', this.textContent, '/index.html');
+            //console.log("Redirect " + "./index.html?maptype=" + mode);
+            //window.location.href = "index.html?maptype=" + new String(mode);
+            //window.location.href = "./index.html?maptype=" + mode;
+            //window.location.reload();
+        });
+    }
 
     if (mode === "Unemployment") {  
         color = d3.scaleThreshold()
@@ -620,6 +630,16 @@ function loadMapWithMode(mode) {
                 //svg.attr("transform", d3.event.transform)
                 //}));
     }
+    
+    // Set-up the export button
+    d3.select('#saveButton').on('click', function(){
+        var svgString = getSVGString(svg.node());
+        svgString2Image( svgString, 2*width, 2*height, 'png', save ); // passes Blob and filesize String to the callback
+
+        function save( dataBlob, filesize ){
+            saveAs( dataBlob, 'D3 vis exported to PNG.png' ); // FileSaver.js function
+        }
+    });
 }
 
 loadMapWithMode(mode);
