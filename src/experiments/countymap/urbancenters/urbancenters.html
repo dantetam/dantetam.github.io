@@ -27,17 +27,33 @@ svg {
 circle {
    stroke-width: 0px;
 }
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
 </style>
 <body>
 <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script>
-var width = 960,
-    height = 500;
+//var width = 960 * 2,
+    //height = 500 * 2;
+   
+var width = 1500,
+    height = 1000;
 
 //  Create a projection of the US
 var projection = d3.geoAlbersUsa()
-    .scale(1000)
+    .scale(2000)
     .translate([width/2, height/2]);
 
 var path = d3.geoPath().projection(projection);
@@ -155,6 +171,15 @@ d3.queue()
     })
     .await(mapCoordinates);
 
+// Define the div for the tooltip
+var divTooltip = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);    
+    
+var smallWidth = 3;
+var largeWidth = 6;
+var expandedWidth = 15;    
+    
 function mapCoordinates() {
     //console.log(projection);
     //console.log(projection([-74, 40]))
@@ -190,10 +215,10 @@ function mapCoordinates() {
                     return 0;
                 }
                 else if (d.population <= 500000) {
-                    return 1.5;
+                    return smallWidth;
                 }
                 else {
-                    return 3.5;
+                    return largeWidth;
                 }
             }
         )
@@ -217,7 +242,13 @@ function mapCoordinates() {
             d3.select(this)
                 .transition()
                 .duration(600)
-                .attr('r', 7.5);
+                .attr('r', expandedWidth);
+            divTooltip.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            divTooltip.html(d.label)	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");			
         })
         .on('mouseout', function(d) {
             width = 0;
@@ -225,10 +256,10 @@ function mapCoordinates() {
             
             }
             else if (d.population <= 500000) {
-                width = 1.5;
+                width = smallWidth;
             }
             else {
-                width = 3.5;
+                width = largeWidth;
             }
             d3.select(this)
                 .transition()
@@ -238,6 +269,9 @@ function mapCoordinates() {
                 .transition()
                 .duration(600)
                 .attr('r', width);
+            divTooltip.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
         });
 }                                       
                                                        
