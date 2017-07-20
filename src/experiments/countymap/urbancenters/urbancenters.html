@@ -30,15 +30,15 @@ circle {
 
 div.tooltip {	
     position: absolute;			
-    text-align: center;			
-    width: 60px;					
-    height: 28px;					
+    text-align: center;							
     padding: 2px;				
-    font: 12px sans-serif;		
+    font: 16px sans-serif;		
     background: lightsteelblue;	
     border: 0px;		
     border-radius: 8px;			
-    pointer-events: none;			
+    pointer-events: none;		
+    display:block;
+    overflow:auto;
 }
 </style>
 <body>
@@ -135,6 +135,13 @@ states.selectAll("path")
 .enter().append("path")
   .attr("d", path); 
 
+function numberWithCommas(x) {
+    if (x == null) return "";
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+}
+  
 // Note: if you are reading the JSON from a file, the code will look like this:
 
 //d3.json("/static/images/albers_map.json", function (collection) {
@@ -161,8 +168,8 @@ var coordinates = [
 
 d3.queue()
     .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-    .defer(d3.csv, "./Top5000PopulationProcessed.csv", function(d) { 
-        var labelName = d["City"] + "," + d["State"];
+    .defer(d3.csv, "./Top1000PopulationProcessed.csv", function(d) { 
+        var labelName = (d["City"].trim()) + ", " + d["State"];
         var pop = +d["Population"];
         var lat = +d["Latitude"];
         var lon = +d["Longitude"];
@@ -176,9 +183,9 @@ var divTooltip = d3.select("body").append("div")
     .attr("class", "tooltip")				
     .style("opacity", 0);    
     
-var smallWidth = 3;
-var largeWidth = 6;
-var expandedWidth = 15;    
+var smallWidth = 7;
+var largeWidth = 10;
+var expandedWidth = 20;    
     
 function mapCoordinates() {
     //console.log(projection);
@@ -245,8 +252,9 @@ function mapCoordinates() {
                 .attr('r', expandedWidth);
             divTooltip.transition()		
                 .duration(200)		
-                .style("opacity", .9);		
-            divTooltip.html(d.label)	
+                .style("opacity", 1.0);		
+            divTooltip.html(d.label + "<br>" + 
+                    "Pop: " + numberWithCommas(d.population))	
                 .style("left", (d3.event.pageX) + "px")		
                 .style("top", (d3.event.pageY - 28) + "px");			
         })

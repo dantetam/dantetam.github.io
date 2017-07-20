@@ -23,13 +23,13 @@ import json
 
 rowNum = 0
 
-with open("./Top5000Population.csv", 'r+') as csvfile:
+with open("./Middle2500.csv", 'r+') as csvfile:
     # handle header line, save it for writing to output file
     header = next(csvfile).strip("\n").split(",")
     reader = csv.reader(csvfile)
     results = filter(lambda row: True, reader)
 
-    with open("./Top5000PopulationProcessed.csv", 'w+') as outfile:
+    with open("./Middle2500PopulationProcessed.csv", 'w+') as outfile:
         writer = csv.writer(outfile)
         writer.writerow(header)
         for result in results:
@@ -52,7 +52,7 @@ with open("./Top5000Population.csv", 'r+') as csvfile:
             
             rowNum = rowNum + 1
             
-            if rowNum >= 1000:
+            if rowNum >= 2000:
                 break
             
             
