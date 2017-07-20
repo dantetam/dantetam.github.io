@@ -69,7 +69,9 @@ var container = svg.append("g");
 // Define the div for the tooltip
 var divTooltip = d3.select("body").append("div")	
     .attr("class", "tooltip")				
-    .style("opacity", 0);    
+    .style("opacity", 0);  
+
+var cityDots = null;    
 
 d3.queue()
     .defer(d3.json, "./us.json")
@@ -103,7 +105,7 @@ function ready(error, us, airports) {
       .attr("class", "state-borders")
       .attr("d", path);
 
-  container.append("path")
+  cityDots = container.append("path")
       .datum({type: "MultiPoint", coordinates: airports})
       .attr("class", "airport-dots")
       .attr("d", path);
@@ -112,24 +114,17 @@ function ready(error, us, airports) {
     .data(airports)
     .enter().append("g")
       .attr("class", "airport")
-      .on("mouseover", function(d) {
-            console.log(d);
-            if (currentHighlightCity == null || currentHighlightCity != d["City"]) {
-                currentHighlightCity = d["City"];
-                divTooltip.transition()		
-                    .duration(500)		
-                    .style("opacity", 1); 
-                divTooltip.html(d["City"] + "<br>" + 
-                    "Pop: " + numberWithCommas(d["Population"]))	
-                    .style("left", (d3.event.pageX) + "px")		
-                    .style("top", (d3.event.pageY - 28) + "px");	
-            }
-            else {
-                currentHighlightCity = null;
-                 divTooltip.transition()		
-                    .duration(500)		
-                    .style("opacity", 0);
-            }
+      .on("mousemove", function(d) {
+            currentHighlightCity = d["City"];
+            divTooltip.style("opacity", 1); 
+            divTooltip.html(d["City"] + "<br>" + 
+                "Pop: " + numberWithCommas(d["Population"]))	
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+       })
+       .on("mouseleave", function(d) {
+            currentHighlightCity = null;
+            divTooltip.style("opacity", 0);
        });
 
   /*
@@ -164,12 +159,6 @@ function dottype(d) {
   return d;
 }
 
-function zoomed() {
-    container.attr("transform", d3.event.transform);
-    currentHighlightCity = null;
-    divTooltip.style("opacity", 0);
-}
-
 function dragstarted(d) {
   d3.event.sourceEvent.stopPropagation();
   d3.select(this).classed("dragging", true);
@@ -187,8 +176,21 @@ function dragended(d) {
 }
 
 var zoom = d3.zoom()
-    .scaleExtent([1, 10])
-    .on("zoom", zoomed);
+    .scaleExtent([1, 100])
+    .on("zoom", function() {
+        container.attr("transform", d3.event.transform);
+        currentHighlightCity = null;
+        divTooltip.style("opacity", 0);
+        /*
+        console.log(d3.event.scale);
+        if (d3.event.scale <= 10) {
+            container.select(".airport-dots").style("opacity", 1);
+        }
+        else {
+            container.select(".airport-dots").style("opacity", 0);
+        }
+        */
+    });
 
 var drag = d3.drag()
     .subject(function(d) { return d; })
