@@ -1,4 +1,4 @@
-FIPS,Year,State,ST,FIPS_State,County,Population,"EstimatedAgeAdjustedDeathRate"""
+FIPS,Year,State,ST,FIPS_State,County,Population,EstimatedAgeAdjustedDeathRateMin,EstimatedAgeAdjustedDeathRateMax
 01001,2015,Alabama,AL,1,Autauga County AL,55347,10.1,12
 01003,2015,Alabama,AL,1,Baldwin County AL,203709,20.1,22
 01005,2015,Alabama,AL,1,Barbour County AL,26489,6.1,8

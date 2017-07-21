@@ -68,6 +68,7 @@ var allModes = [
     "Income",
     "Poverty",
     "PopulationDensity",
+    "SubstanceAbuse",
     "AllSectors",
     "AgricultureForestryFishingHunting",
     "MiningQuarryingOilGas",
@@ -245,6 +246,27 @@ function densityReady(error, us) {
       .attr("d", path);
 }
 
+function substanceAbuseReady(error, us) {
+  if (error) throw error;
+  
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", function(d) { return color(d.rate = substanceAbuse.get(d.id)); })
+      .attr("d", path)
+      .on("click", function(d) {console.log(d.id); })
+      //.attr("countyid", function(d) { return d.id; })
+    .append("title")
+      .text(function(d) { return numberWithCommas(d.rate); });
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
 //TODO: Turn this into a utility method and not some hard-coded spaghetti
 var educationType = "";
 var higher1824 = [
@@ -323,6 +345,7 @@ var poverty = d3.map();
 var payroll = d3.map();
 var education = d3.map();
 var density = d3.map();
+var substanceAbuse = d3.map();
 
 var path = d3.geoPath();
 
@@ -475,6 +498,33 @@ function loadMapWithMode(mode) {
                 }
             })
             .await(densityReady);
+    }
+    else if (mode === "SubstanceAbuse") {
+        color = d3.scaleThreshold()
+            .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
+            .range(d3.schemeReds[9]);
+         
+        title = "Substance Abuse";
+        
+        desc = "Substance Abuse per County";
+        
+        var x = d3.scaleQuantize()
+          .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
+          .range([450, 900]);
+          
+            
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./substanceabuse/substanceabuseProcessed.csv", function(d) { 
+                if (d["FIPS"] === undefined) {
+                
+                }
+                else {
+                    rate = d["EstimatedAgeAdjustedDeathRateMin"];
+                    substanceAbuse.set(d["FIPS"], +rate); 
+                }
+            })
+            .await(substanceAbuseReady);
     }
     else if ($.inArray(mode, industryBusinessNames) != -1) {
         color = d3.scaleThreshold()
