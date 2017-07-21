@@ -91,7 +91,7 @@ AK,02220,Sitka City and Borough,H6
 AK,02230,Skagway Municipality,H1
 AK,02240,Southeast Fairbanks Census Area,H5
 AK,02261,Valdez-Cordova Census Area,H5
-AK,02270,Wade Hampton Census Area,H5
+AK,02270,Kusilvak Census Area,H5
 AK,02275,Wrangell City and Borough,H1
 AK,02282,Yakutat City and Borough,H1
 AK,02290,Yukon-Koyukuk Census Area,H5
@@ -778,7 +778,7 @@ IN,18157,Tippecanoe County,H1
 IN,18159,Tipton County,H1
 IN,18161,Union County,H1
 IN,18163,Vanderburgh County,H1
-IN,18165,Vermillion County,H1
+IN,18165,Vermilion County,H1
 IN,18167,Vigo County,H1
 IN,18169,Wabash County,H1
 IN,18171,Warren County,H1
@@ -1053,7 +1053,7 @@ KY,21115,Johnson County,H1
 KY,21117,Kenton County,H1
 KY,21119,Knott County,H1
 KY,21121,Knox County,H1
-KY,21123,Larue County,H1
+KY,21123,LaRue County,H1
 KY,21125,Laurel County,H1
 KY,21127,Lawrence County,H1
 KY,21129,Lee County,H1
@@ -2416,7 +2416,7 @@ SD,46105,Perkins County,H1
 SD,46107,Potter County,H1
 SD,46109,Roberts County,H1
 SD,46111,Sanborn County,H1
-SD,46113,Shannon County,H1
+SD,46113,Oglala Lakota County,H1
 SD,46115,Spink County,H1
 SD,46117,Stanley County,H1
 SD,46119,Sully County,H1

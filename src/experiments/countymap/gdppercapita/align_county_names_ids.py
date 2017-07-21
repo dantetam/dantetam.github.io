@@ -43,16 +43,71 @@ with open("./gdppercapita.csv", 'r+') as csvfile:
 
 states = []
 
-countyNamesPerState = {};       
+countyNamesPerState = dict()
+
+
+def countyNameMatch(testName, stateAbbr):
+    testNameProcessed = testName.replace('"', "").replace("County", "").replace("Borough", "").replace("Parish", "").replace("Municipality", "").replace("City", "").replace("city", "").strip()
+
+    dictCountyNames = countyNamesPerState[stateAbbr]
+    for countyName, countyId in dictCountyNames.items():
+        countyNameProcessed = countyName.replace('"', "").replace("County", "").replace("Borough", "").replace("Parish", "").replace("Municipality", "").replace("City", "").replace("city", "").strip()
+        if testNameProcessed == countyNameProcessed:
+            return countyName, countyId
+        if testName.split(" ")[0] == countyNameProcessed.split(" ")[0]:
+            return countyName, countyId
+            
+    return None, None
+
+#Pass once for state abbreviaions       
         
-with open("./countyIdByNameProcessed.csv", 'r+') as csvfile:
+with open("./countyIdByNameProcessed.csv", 'r+', encoding='utf-8') as csvfile:
     # handle header line, save it for writing to output file
     header = next(csvfile).strip("\n").split(",")
     reader = csv.reader(csvfile)
     results = filter(lambda row: True, reader)        
-        
-        
-        
+    for result in results:
+        if len(result) > 0:
+            if result[0] not in states:
+                states.append(result[0])
+                countyNamesPerState[result[0]] = dict()
+            countyName = result[2]
+            id = result[1]
+            countyNamesPerState[result[0]][countyName] = id
+            
+#print(countyNameMatch("Autauga", "AL"))
+            
+mismatch = []            
+            
+with open("./gdppercapitaProcessed.csv", 'r+', encoding='utf-8') as csvfile:
+    # handle header line, save it for writing to output file
+    header = next(csvfile).strip("\n").split(",")
+    reader = csv.reader(csvfile)
+    results = filter(lambda row: True, reader)        
+    for result in results:    
+        if len(result) > 0:
+            stateAbbr = result[3]    
+            testName = result[1]
+            _, countyId = countyNameMatch(testName, stateAbbr)
+            
+            if countyId == None:
+                mismatch.append(testName + ", " + stateAbbr)
+                
+#print(mismatch)
+print(len(mismatch))
+
+for m in mismatch:
+    print(m)
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
         
         
         
