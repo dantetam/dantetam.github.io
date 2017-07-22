@@ -83,16 +83,24 @@ with open("./gdppercapitaProcessed.csv", 'r+', encoding='utf-8') as csvfile:
     # handle header line, save it for writing to output file
     header = next(csvfile).strip("\n").split(",")
     reader = csv.reader(csvfile)
-    results = filter(lambda row: True, reader)        
-    for result in results:    
-        if len(result) > 0:
-            stateAbbr = result[3]    
-            testName = result[1]
-            _, countyId = countyNameMatch(testName, stateAbbr)
-            
-            if countyId == None:
-                mismatch.append(testName + ", " + stateAbbr)
+    results = filter(lambda row: True, reader)   
+
+    with open("./gdppercapitaProcessedId.csv", 'w+') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(header)
+   
+        for result in results:    
+            if len(result) > 0:
+                stateAbbr = result[3]    
+                testName = result[1]
+                _, countyId = countyNameMatch(testName, stateAbbr)
                 
+                if countyId == None:
+                    mismatch.append(testName + ", " + stateAbbr)
+                else:    
+                    result.insert(2, countyId)
+                    writer.writerow(result)    
+            
 #print(mismatch)
 print(len(mismatch))
 

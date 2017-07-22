@@ -69,6 +69,7 @@ var allModes = [
     "Poverty",
     "PopulationDensity",
     "SubstanceAbuse",
+    "GDPPerCapita",
     "AllSectors",
     "AgricultureForestryFishingHunting",
     "MiningQuarryingOilGas",
@@ -267,6 +268,27 @@ function substanceAbuseReady(error, us) {
       .attr("d", path);
 }
 
+function gdpPerCapitaReady(error, us) {
+  if (error) throw error;
+  
+  svg.append("g")
+      .attr("class", "counties")
+    .selectAll("path")
+    .data(topojson.feature(us, us.objects.counties).features)
+    .enter().append("path")
+      .attr("fill", function(d) { return color(d.rate = gdpPerCapitaMap.get(d.id)); })
+      .attr("d", path)
+      .on("click", function(d) {console.log(d.id); })
+      //.attr("countyid", function(d) { return d.id; })
+    .append("title")
+      .text(function(d) { return numberWithCommas(d.rate); });
+
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path);
+}
+
 //TODO: Turn this into a utility method and not some hard-coded spaghetti
 var educationType = "";
 var higher1824 = [
@@ -343,6 +365,7 @@ var unemployment = d3.map();
 var householdIncome = d3.map();
 var poverty = d3.map();
 var payroll = d3.map();
+var gdpPerCapitaMap = d3.map();
 var education = d3.map();
 var density = d3.map();
 var substanceAbuse = d3.map();
@@ -367,9 +390,10 @@ function loadMapWithMode(mode) {
     householdIncome = d3.map();
     poverty = d3.map();
     payroll = d3.map();
+    gdpPerCapitaMap = d3.map();
     education = d3.map();
     density = d3.map();
-
+   
     path = d3.geoPath();
 
     //console.log(svg.select("g"));
@@ -525,6 +549,32 @@ function loadMapWithMode(mode) {
                 }
             })
             .await(substanceAbuseReady);
+    }
+    else if (mode === "GDPPerCapita") {   
+        color = d3.scaleThreshold()
+            .domain(d3.range(0, 70000, 10000))
+            .range(d3.schemeReds[6]);
+            
+        title = "GDP per Capita";
+        
+        desc = "GDP per Capita per County";
+        
+        var x = d3.scaleQuantize()
+          .domain(d3.range(0, 70000, 10000))
+          .range([450, 900]);
+          
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, "./gdppercapita/gdppercapitaProcessedId.csv", function(d) { 
+                if (d["CountyId"] === undefined) {
+                
+                }
+                else {
+                    rate = d["PerCapitaIncome"];
+                    gdpPerCapitaMap.set(d["CountyId"], +rate); 
+                }
+            })
+            .await(gdpPerCapitaReady);
     }
     else if ($.inArray(mode, industryBusinessNames) != -1) {
         color = d3.scaleThreshold()
