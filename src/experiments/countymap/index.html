@@ -3,13 +3,18 @@
 <style>
 
 .counties {
-  fill: none;
+    fill: none;
 }
 
 .states {
-  fill: none;
-  stroke: #fff;
-  stroke-linejoin: round;
+    fill: none;
+    stroke: #fff;
+    stroke-linejoin: round;
+}
+
+#mapChoices {
+    opacity: 0;
+    background-color: rgba(255, 255, 255, 0.0);
 }
 
 #mapchoices button {
@@ -27,6 +32,8 @@
     content: "";
     clear: both;
     display: table;
+    opacity: 0;
+    background-color: rgba(255, 255, 255, 0.0);
 }
 
 #mapchoices button:not(:last-child) {
@@ -40,6 +47,20 @@
 
 #mapchoices #current {
     background-color: #ff3b30;
+}
+
+#saveButton {
+    background-color: #ffaaaa;
+    border: 1px solid white;
+    color: black; /* White text */
+    padding: 5px 12px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    float: left; /* Float the buttons side by side */
+    font-size: 16px;
+}
+
+.svg {
+    overflow: hidden;
 }
 
 </style>
@@ -459,7 +480,7 @@ function loadMapWithMode(mode) {
         desc = "Median household income by county";    
             
         var x = d3.scaleLinear()
-            .domain([10000, 100000, 10000])
+            .domain([20000, 100000, 10000])
             .rangeRound([450, 900]);    
             
         d3.queue()
@@ -729,8 +750,9 @@ function loadMapWithMode(mode) {
             .attr("fill", "#000")
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
-            .text(title);
+            .text(title + ": " + desc);
             
+        /*
         g.append("text")
             .attr("class", "caption")
             .attr("x", x.range()[0])
@@ -739,7 +761,8 @@ function loadMapWithMode(mode) {
             .attr("text-anchor", "start")
             .attr("font-weight", "bold")
             .text(desc);
-
+        */
+        
         g.call(d3.axisBottom(x)
             .tickSize(13)
             .tickFormat(function(x, i) { 

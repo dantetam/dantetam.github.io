@@ -78,6 +78,8 @@ with open("./countyIdByNameProcessed.csv", 'r+', encoding='utf-8') as csvfile:
 #print(countyNameMatch("Autauga", "AL"))
             
 mismatch = []            
+foundIds = dict()            
+duplicate = 0
             
 with open("./gdppercapitaProcessed.csv", 'r+', encoding='utf-8') as csvfile:
     # handle header line, save it for writing to output file
@@ -98,6 +100,10 @@ with open("./gdppercapitaProcessed.csv", 'r+', encoding='utf-8') as csvfile:
                 if countyId == None:
                     mismatch.append(testName + ", " + stateAbbr)
                 else:    
+                    if countyId in foundIds:
+                        duplicate = duplicate + 1
+                    else:
+                        foundIds[countyId] = True
                     result.insert(2, countyId)
                     writer.writerow(result)    
             
@@ -106,6 +112,8 @@ print(len(mismatch))
 
 for m in mismatch:
     print(m)
+    
+print(duplicate)
             
             
             
