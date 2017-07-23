@@ -148,16 +148,13 @@ function typeAirport(d) {
   return d;
 }
 
-
-
-
-
-
 function dottype(d) {
   d.x = +d.x;
   d.y = +d.y;
   return d;
 }
+
+
 
 function dragstarted(d) {
   d3.event.sourceEvent.stopPropagation();

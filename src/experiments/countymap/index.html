@@ -145,7 +145,7 @@ function numberWithCommas(x) {
 function unemploymentReady(error, us) {
   if (error) throw error;
 
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -157,7 +157,7 @@ function unemploymentReady(error, us) {
     .append("title")
       .text(function(d) { return d.rate + "%"; });
       
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -166,7 +166,7 @@ function unemploymentReady(error, us) {
 function householdIncomeReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -178,7 +178,7 @@ function householdIncomeReady(error, us) {
     .append("title")
       .text(function(d) { return "$" + numberWithCommas(d.rate); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -187,7 +187,7 @@ function householdIncomeReady(error, us) {
 function povertyReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -199,7 +199,7 @@ function povertyReady(error, us) {
     .append("title")
       .text(function(d) { return d.rate + "%"; });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -208,7 +208,7 @@ function povertyReady(error, us) {
 function payrollReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -220,7 +220,7 @@ function payrollReady(error, us) {
     .append("title")
       .text(function(d) { return "$" + numberWithCommas(d.rate * 1000); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -229,7 +229,7 @@ function payrollReady(error, us) {
 function densityReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -241,7 +241,7 @@ function densityReady(error, us) {
     .append("title")
       .text(function(d) { return numberWithCommas(d.rate); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -250,7 +250,7 @@ function densityReady(error, us) {
 function substanceAbuseReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -262,7 +262,7 @@ function substanceAbuseReady(error, us) {
     .append("title")
       .text(function(d) { return numberWithCommas(d.rate); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -271,7 +271,7 @@ function substanceAbuseReady(error, us) {
 function gdpPerCapitaReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -283,7 +283,7 @@ function gdpPerCapitaReady(error, us) {
     .append("title")
       .text(function(d) { return numberWithCommas(d.rate); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -300,7 +300,7 @@ var higherG25 = [
 function educationReady(error, us) {
   if (error) throw error;
   
-  svg.append("g")
+  container.append("g")
       .attr("class", "counties")
     .selectAll("path")
     .data(topojson.feature(us, us.objects.counties).features)
@@ -339,7 +339,7 @@ function educationReady(error, us) {
     .append("title")
       .text(function(d) { return numberWithCommas(d.rate); });
 
-  svg.append("path")
+  container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
       .attr("class", "states")
       .attr("d", path);
@@ -360,6 +360,9 @@ var desc = "Default Description";
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
+    
+var container = svg.append("g");
+
 
 var unemployment = d3.map();
 var householdIncome = d3.map();
@@ -372,9 +375,18 @@ var substanceAbuse = d3.map();
 
 var path = d3.geoPath();
 
-var g = svg.append("g")
+var g = container.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
+    
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+} 
     
 function loadMapWithMode(mode) {
     console.log(mode);
@@ -386,6 +398,8 @@ function loadMapWithMode(mode) {
     //TODO: Replace with a solution that updates the whole map insteading of replacing it
     svg.selectAll("*").remove();
 
+    container = svg.append("g");
+    
     unemployment = d3.map();
     householdIncome = d3.map();
     poverty = d3.map();
@@ -398,7 +412,7 @@ function loadMapWithMode(mode) {
 
     //console.log(svg.select("g"));
     
-    g = svg.append("g")
+    g = container.append("g")
         .attr("class", "key")
         .attr("transform", "translate(0,40)");
         
@@ -550,17 +564,26 @@ function loadMapWithMode(mode) {
             })
             .await(substanceAbuseReady);
     }
-    else if (mode === "GDPPerCapita") {   
+    else if (mode === "GDPPerCapita") {  
+        /*
+        var temp = d3.schemeReds[9];
+        
+        for (var i = 0; i < temp.length; i++) {
+            var rgb = hexToRgb(temp[i]);
+            console.log(rgb.r + ", " + rgb.g + ", " + rgb.b);
+        }
+        */
+    
         color = d3.scaleThreshold()
-            .domain(d3.range(0, 70000, 10000))
-            .range(d3.schemeReds[6]);
+            .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
+            .range(d3.schemeReds[9]);
             
         title = "GDP per Capita";
         
         desc = "GDP per Capita per County";
         
         var x = d3.scaleQuantize()
-          .domain(d3.range(0, 70000, 10000))
+          .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
           .range([450, 900]);
           
         d3.queue()
@@ -743,5 +766,50 @@ function loadMapWithMode(mode) {
 }
 
 loadMapWithMode(mode);
+
+
+
+//Zoom functions
+
+function dragstarted(d) {
+  d3.event.sourceEvent.stopPropagation();
+  d3.select(this).classed("dragging", true);
+}
+
+function dragged(d) {
+  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+  currentHighlightCity = null;
+ divTooltip.style("opacity", 0);
+}
+
+function dragended(d) {
+ console.log("Drag ended");
+  d3.select(this).classed("dragging", false);
+}
+
+var zoom = d3.zoom()
+    .scaleExtent([1, 10])
+    .on("zoom", function() {
+        container.attr("transform", d3.event.transform);
+        currentHighlightCity = null;
+        divTooltip.style("opacity", 0);
+        /*
+        console.log(d3.event.scale);
+        if (d3.event.scale <= 10) {
+            container.select(".airport-dots").style("opacity", 1);
+        }
+        else {
+            container.select(".airport-dots").style("opacity", 0);
+        }
+        */
+    });
+
+var drag = d3.drag()
+    .subject(function(d) { return d; })
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended);
+    
+svg.call(zoom);
 
 </script>
