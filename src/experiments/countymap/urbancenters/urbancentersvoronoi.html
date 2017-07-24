@@ -59,7 +59,7 @@ var radius = d3.scaleSqrt()
 
 var path = d3.geoPath()
     .projection(projection)
-    .pointRadius(1);
+    .pointRadius(0);
 
 var voronoi = d3.voronoi()
     .extent([[-1, -1], [width + 1, height + 1]]);

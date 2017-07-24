@@ -176,7 +176,7 @@ function unemploymentReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return d.rate + "%"; });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
       
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -197,7 +197,7 @@ function householdIncomeReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return "$" + numberWithCommas(d.rate); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -218,7 +218,7 @@ function povertyReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return d.rate + "%"; });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -239,7 +239,7 @@ function payrollReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return "$" + numberWithCommas(d.rate * 1000); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate * 1000); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -260,7 +260,7 @@ function densityReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return numberWithCommas(d.rate); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -281,7 +281,7 @@ function substanceAbuseReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return numberWithCommas(d.rate); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -302,7 +302,7 @@ function gdpPerCapitaReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return numberWithCommas(d.rate); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -358,7 +358,7 @@ function educationReady(error, us) {
       .on("click", function(d) {console.log(d.id); })
       //.attr("countyid", function(d) { return d.id; })
     .append("title")
-      .text(function(d) { return numberWithCommas(d.rate); });
+      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
 
   container.append("path")
       .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
@@ -373,6 +373,11 @@ if (maptype && $.inArray(maptype, allModes) != -1) {
 else {
     console.log("Invalid map URL parameter: " + maptype);
 }
+
+// Define the div for the tooltip
+var divTooltip = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);  
 
 var color = null;
 var title = "Default Title";
@@ -400,6 +405,8 @@ var g = container.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
     
+var countyNameById = d3.map();
+    
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -415,6 +422,7 @@ function loadMapWithMode(mode) {
     svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
+        
     
     //TODO: Replace with a solution that updates the whole map insteading of replacing it
     svg.selectAll("*").remove();
@@ -431,6 +439,8 @@ function loadMapWithMode(mode) {
    
     path = d3.geoPath();
 
+    countyNameById = d3.map();
+    
     //console.log(svg.select("g"));
     
     g = container.append("g")
@@ -452,6 +462,18 @@ function loadMapWithMode(mode) {
         });
     }
 
+    d3.queue()
+        .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) { 
+            //console.log(d);
+            //console.log(d["TotalCountyId"] + ", " + d["CountyName"]);
+            if (d["TotalCountyId"] == null) {
+            
+            }
+            else {
+                countyNameById.set(d["TotalCountyId"], d["CountyName"] + ", " + d["StateAbbr"]); 
+            }
+        });
+    
     if (mode === "Unemployment") {  
         color = d3.scaleThreshold()
             .domain(d3.range(2, 10))
@@ -467,7 +489,9 @@ function loadMapWithMode(mode) {
             
         d3.queue()
             .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.tsv, "unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
+            .defer(d3.tsv, "unemployment.tsv", function(d) { 
+                unemployment.set(d.id, +d.rate); 
+            })
             .await(unemploymentReady);
     }
     else if (mode === "Income") {
