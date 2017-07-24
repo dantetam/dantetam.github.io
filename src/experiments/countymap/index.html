@@ -1,862 +1,916 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
+<head>
+    <title>US Census Visuals</title>
+    
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+    body,button,a,h1 {
+        font-family: 'Roboto', serif;
+        font-size: 16px;
+    }
+    
+    .counties {
+        fill: none;
+    }
 
-.counties {
-    fill: none;
-}
+    .states {
+        fill: none;
+        stroke: #fff;
+        stroke-linejoin: round;
+    }
 
-.states {
-    fill: none;
-    stroke: #fff;
-    stroke-linejoin: round;
-}
+    #aboutText {
+        font-size: 16px;
+    }
 
-#mapChoices {
-    opacity: 0;
-    background-color: rgba(255, 255, 255, 0.0);
-}
+    #mapChoices {
+        opacity: 0;
+        background-color: rgba(255, 255, 255, 0.0);
+    }
 
-#mapchoices button {
-    background-color: #cccccc;
-    border: 1px solid white;
-    color: black; /* White text */
-    padding: 5px 12px; /* Some padding */
-    cursor: pointer; /* Pointer/hand icon */
-    float: left; /* Float the buttons side by side */
-    font-size: 16px;
-}
+    #mapchoices button {
+        background-color: #cccccc;
+        border: 1px solid white;
+        color: black; /* White text */
+        padding: 5px 12px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        float: left; /* Float the buttons side by side */
+    }
 
-/* Clear floats (clearfix hack) */
-#mapchoices:after {
-    content: "";
-    clear: both;
-    display: table;
-    opacity: 0;
-    background-color: rgba(255, 255, 255, 0.0);
-}
+    /* Clear floats (clearfix hack) */
+    #mapchoices:after {
+        content: "";
+        clear: both;
+        display: table;
+        opacity: 0;
+        background-color: rgba(255, 255, 255, 0.0);
+    }
 
-#mapchoices button:not(:last-child) {
-    border-right: none; /* Prevent double borders */
-}
+    #mapchoices button:not(:last-child) {
+        border-right: none; /* Prevent double borders */
+    }
 
-/* Add a background color on hover */
-#mapchoices button:hover {
-    background-color: #ff3b30;
-}
+    /* Add a background color on hover */
+    #mapchoices button:hover {
+        background-color: #ff3b30;
+    }
 
-#mapchoices #current {
-    background-color: #ff3b30;
-}
+    #mapchoices #current {
+        background-color: #ff3b30;
+    }
 
-#saveButton {
-    background-color: #ffaaaa;
-    border: 1px solid white;
-    color: black; /* White text */
-    padding: 5px 12px; /* Some padding */
-    cursor: pointer; /* Pointer/hand icon */
-    float: left; /* Float the buttons side by side */
-    font-size: 16px;
-}
+    #saveButton {
+        background-color: #ffaaaa;
+        border: 1px solid white;
+        color: black; /* White text */
+        padding: 5px 12px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        float: left; /* Float the buttons side by side */
+        font-size: 16px;
+    }
 
-.svg {
-    overflow: hidden;
-}
+    .svg {
+        overflow: hidden;
+    }
 
-</style>
-<div id="mapchoices">
-  
-</div>
-<button id='saveButton'>Save Map as PNG</button>
-<svg width="1920" height="1080"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-<script src="https://d3js.org/topojson.v2.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-<script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
-<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
-<script src="./svgsave.js"></script>
-<script>
-
-//var mode = "Unemployment";
-//var mode = "Income";
-//var mode = "Poverty";
-var mode = "MiningQuarryingOilGas";
-
-var allModes = [
-    "Unemployment",
-    "Income",
-    "Poverty",
-    "PopulationDensity",
-    "SubstanceAbuse",
-    "GDPPerCapita",
-    "AllSectors",
-    "AgricultureForestryFishingHunting",
-    "MiningQuarryingOilGas",
-    "Utilities",
-    "Construction",
-    "Manufacturing",
-    "WholesaleTrade",
-    "RetailTrade",
-    "TransportationWarehousing",
-    "Information",
-    "FinanceInsurance",
-    "RealEstate",
-    "ProfessionalScientificTechnical",
-    "Management",
-    "AdministrativeSupportWaste",
-    "Education",
-    "HealthcareSocialAssistance",
-    "ArtsEntertainmentRecreation",
-    "AccommodationFood",
-    "OtherServices",
-    "IndustriesNotClassified",
-    "Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-];
-
-var industryBusinessNames = [
-    "AllSectors",
-    "AgricultureForestryFishingHunting",
-    "MiningQuarryingOilGas",
-    "Utilities",
-    "Construction",
-    "Manufacturing",
-    "WholesaleTrade",
-    "RetailTrade",
-    "TransportationWarehousing",
-    "Information",
-    "FinanceInsurance",
-    "RealEstate",
-    "ProfessionalScientificTechnical",
-    "Management",
-    "AdministrativeSupportWaste",
-    "Education",
-    "HealthcareSocialAssistance",
-    "ArtsEntertainmentRecreation",
-    "AccommodationFood",
-    "OtherServices",
-    "IndustriesNotClassified"
-];        
-
-var educationModes = [
-    "Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-];
-
-var mapMenu = d3.select("#mapchoices");
-
-function getQueryVariable(variable)
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-}
-
-function numberWithCommas(x) {
-    if (x == null) return "";
-    var parts = x.toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
-}
-
-function unemploymentReady(error, us) {
-  if (error) throw error;
-
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = unemployment.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
+    </style>
+</head>
+<body>
+    <div id="mapchoices">
       
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+    </div>
+    <div id="aboutText">
+      
+    </div>
+    <button id='saveButton'>Save Map as PNG</button>
+    <p>&nbsp;</p>
+    <!--<button id='saveButton'>Download this data</button>-->
+    <a href="./censusdata.zip">Download All Data</a>
+    <svg width="1920" height="1080"></svg>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-function householdIncomeReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = householdIncome.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate); });
+    <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
+    <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+    <script src="./svgsave.js"></script>
+    <script>
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+    //var mode = "Unemployment";
+    //var mode = "Income";
+    //var mode = "Poverty";
+    var mode = null; // = "MiningQuarryingOilGas";
 
-function povertyReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = poverty.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
+    var allModes = [
+        "Unemployment",
+        "Income",
+        "Poverty",
+        "PopulationDensity",
+        "SubstanceAbuse",
+        "GDPPerCapita",
+        "AllSectors",
+        "AgricultureForestryFishingHunting",
+        "MiningQuarryingOilGas",
+        "Utilities",
+        "Construction",
+        "Manufacturing",
+        "WholesaleTrade",
+        "RetailTrade",
+        "TransportationWarehousing",
+        "Information",
+        "FinanceInsurance",
+        "RealEstate",
+        "ProfessionalScientificTechnical",
+        "Management",
+        "AdministrativeSupportWaste",
+        "Education",
+        "HealthcareSocialAssistance",
+        "ArtsEntertainmentRecreation",
+        "AccommodationFood",
+        "OtherServices",
+        "IndustriesNotClassified",
+        "Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+    ];
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+    var industryBusinessNames = [
+        "AllSectors",
+        "AgricultureForestryFishingHunting",
+        "MiningQuarryingOilGas",
+        "Utilities",
+        "Construction",
+        "Manufacturing",
+        "WholesaleTrade",
+        "RetailTrade",
+        "TransportationWarehousing",
+        "Information",
+        "FinanceInsurance",
+        "RealEstate",
+        "ProfessionalScientificTechnical",
+        "Management",
+        "AdministrativeSupportWaste",
+        "Education",
+        "HealthcareSocialAssistance",
+        "ArtsEntertainmentRecreation",
+        "AccommodationFood",
+        "OtherServices",
+        "IndustriesNotClassified"
+    ];        
 
-function payrollReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = payroll.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate * 1000); });
+    var educationModes = [
+        "Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+    ];
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+    var mapMenu = d3.select("#mapchoices");
+    var aboutText = d3.select("#aboutText");
 
-function densityReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = density.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+    function getQueryVariable(variable)
+    {
+           var query = window.location.search.substring(1);
+           var vars = query.split("&");
+           for (var i=0;i<vars.length;i++) {
+                   var pair = vars[i].split("=");
+                   if(pair[0] == variable){return pair[1];}
+           }
+           return(false);
+    }
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+    function numberWithCommas(x) {
+        if (x == null) return "";
+        var parts = x.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    }
 
-function substanceAbuseReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = substanceAbuse.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+    function unemploymentReady(error, us) {
+      if (error) throw error;
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = unemployment.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
+          
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
 
-function gdpPerCapitaReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) { return color(d.rate = gdpPerCapitaMap.get(d.id)); })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+    function householdIncomeReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = householdIncome.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate); });
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
 
-//TODO: Turn this into a utility method and not some hard-coded spaghetti
-var educationType = "";
-var higher1824 = [
-    "LHS1824","HS1824","SC1824","BH1824"
-];
-var higherG25 = [
-    "L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-];  
-function educationReady(error, us) {
-  if (error) throw error;
-  
-  container.append("g")
-      .attr("class", "counties")
-    .selectAll("path")
-    .data(topojson.feature(us, us.objects.counties).features)
-    .enter().append("path")
-      .attr("fill", function(d) {
-        if (educationType === "Total1824") {
-            return color(d.rate = education.get(d.id)["Total1824"]); 
-        }
-        else if (educationType === "TotalG25") {
-            return color(d.rate = education.get(d.id)["TotalG25"]);
-        }
-        var percentage = 0;
-        if (educationType.indexOf("1824") != -1) {
-            var index = higher1824.indexOf(educationType);
-            var count = 0;
-            var total = education.get(d.id)["Total1824"];
-            for (var i = index; i < higher1824.length; i++) {
-                count = count + education.get(d.id)[higher1824[i]];
+    function povertyReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = poverty.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + d.rate + "%"; });
+
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+
+    function payrollReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = payroll.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + "$" + numberWithCommas(d.rate * 1000); });
+
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+
+    function densityReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = density.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+
+    function substanceAbuseReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = substanceAbuse.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+
+    function gdpPerCapitaReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = gdpPerCapitaMap.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+
+    //TODO: Turn this into a utility method and not some hard-coded spaghetti
+    var educationType = "";
+    var higher1824 = [
+        "LHS1824","HS1824","SC1824","BH1824"
+    ];
+    var higherG25 = [
+        "L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+    ];  
+    function educationReady(error, us) {
+      if (error) throw error;
+      
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) {
+            if (educationType === "Total1824") {
+                return color(d.rate = education.get(d.id)["Total1824"]); 
             }
-            percentage = count / total;
-        }
-        else if (educationType.indexOf("G25") != -1) {
-            var index = higherG25.indexOf(educationType);
-            var count = 0;
-            var total = education.get(d.id)["TotalG25"];
-            for (var i = index; i < higherG25.length; i++) {
-                count = count + education.get(d.id)[higherG25[i]];
+            else if (educationType === "TotalG25") {
+                return color(d.rate = education.get(d.id)["TotalG25"]);
             }
-            percentage = count / total;
-        }
-        return color(d.rate = percentage); 
-      })
-      .attr("d", path)
-      .on("click", function(d) {console.log(d.id); })
-      //.attr("countyid", function(d) { return d.id; })
-    .append("title")
-      .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
+            var percentage = 0;
+            if (educationType.indexOf("1824") != -1) {
+                var index = higher1824.indexOf(educationType);
+                var count = 0;
+                var total = education.get(d.id)["Total1824"];
+                for (var i = index; i < higher1824.length; i++) {
+                    count = count + education.get(d.id)[higher1824[i]];
+                }
+                percentage = count / total;
+            }
+            else if (educationType.indexOf("G25") != -1) {
+                var index = higherG25.indexOf(educationType);
+                var count = 0;
+                var total = education.get(d.id)["TotalG25"];
+                for (var i = index; i < higherG25.length; i++) {
+                    count = count + education.get(d.id)[higherG25[i]];
+                }
+                percentage = count / total;
+            }
+            return color(d.rate = percentage); 
+          })
+          .attr("d", path)
+          .on("click", function(d) {console.log(d.id); })
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate); });
 
-  container.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "states")
-      .attr("d", path);
-}
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
 
-var maptype = getQueryVariable("maptype");
-if (maptype && $.inArray(maptype, allModes) != -1) {
-    mode = maptype;
-}
-else {
-    console.log("Invalid map URL parameter: " + maptype);
-}
+    var maptype = getQueryVariable("maptype");
+    if (maptype && $.inArray(maptype, allModes) != -1) {
+        mode = maptype;
+    }
+    else {
+        //console.log("Invalid map URL parameter: " + maptype);
+    }
 
-// Define the div for the tooltip
-var divTooltip = d3.select("body").append("div")	
-    .attr("class", "tooltip")				
-    .style("opacity", 0);  
+    // Define the div for the tooltip
+    var divTooltip = d3.select("body").append("div")	
+        .attr("class", "tooltip")				
+        .style("opacity", 0);  
 
-var color = null;
-var title = "Default Title";
-var desc = "Default Description";
+    var color = null;
+    var title = "Default Title";
+    var desc = "Default Description";
 
-var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
-    
-var container = svg.append("g");
-
-
-var unemployment = d3.map();
-var householdIncome = d3.map();
-var poverty = d3.map();
-var payroll = d3.map();
-var gdpPerCapitaMap = d3.map();
-var education = d3.map();
-var density = d3.map();
-var substanceAbuse = d3.map();
-
-var path = d3.geoPath();
-
-var g = container.append("g")
-    .attr("class", "key")
-    .attr("transform", "translate(0,40)");
-    
-var countyNameById = d3.map();
-    
-function hexToRgb(hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
-} 
-    
-function loadMapWithMode(mode) {
-    console.log(mode);
-
-    svg = d3.select("svg"),
+    var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
         
-    
-    //TODO: Replace with a solution that updates the whole map insteading of replacing it
-    svg.selectAll("*").remove();
+    var container = svg.append("g");
 
-    container = svg.append("g");
-    
-    unemployment = d3.map();
-    householdIncome = d3.map();
-    poverty = d3.map();
-    payroll = d3.map();
-    gdpPerCapitaMap = d3.map();
-    education = d3.map();
-    density = d3.map();
-   
-    path = d3.geoPath();
 
-    countyNameById = d3.map();
-    
-    //console.log(svg.select("g"));
-    
-    g = container.append("g")
+    var unemployment = d3.map();
+    var householdIncome = d3.map();
+    var poverty = d3.map();
+    var payroll = d3.map();
+    var gdpPerCapitaMap = d3.map();
+    var education = d3.map();
+    var density = d3.map();
+    var substanceAbuse = d3.map();
+
+    var path = d3.geoPath();
+
+    var g = container.append("g")
         .attr("class", "key")
         .attr("transform", "translate(0,40)");
         
-    mapMenu.selectAll("*").remove();
-    for (var i = 0; i < allModes.length; i++) {
-        var chooseMode = allModes[i];  
-        var id = chooseMode == mode ? "current" : "";
-        var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
-            console.log(this.textContent);
-            loadMapWithMode(this.textContent);
-            //window.history.pushState('index', this.textContent, '/index.html');
-            //console.log("Redirect " + "./index.html?maptype=" + mode);
-            //window.location.href = "index.html?maptype=" + new String(mode);
-            //window.location.href = "./index.html?maptype=" + mode;
-            //window.location.reload();
-        });
-    }
+    var countyNameById = d3.map();
+        
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    } 
 
-    d3.queue()
-        .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) { 
-            //console.log(d);
-            //console.log(d["TotalCountyId"] + ", " + d["CountyName"]);
-            if (d["TotalCountyId"] == null) {
-            
-            }
-            else {
-                countyNameById.set(d["TotalCountyId"], d["CountyName"] + ", " + d["StateAbbr"]); 
-            }
-        });
-    
-    if (mode === "Unemployment") {  
-        color = d3.scaleThreshold()
-            .domain(d3.range(2, 10))
-            .range(d3.schemeBlues[9]);
-
-        title = "Unemployment";    
-        
-        desc = "Unemployment percentage per county";
-        
-        var x = d3.scaleLinear()
-            .domain([1, 10])
-            .rangeRound([450, 900]);
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.tsv, "unemployment.tsv", function(d) { 
-                unemployment.set(d.id, +d.rate); 
-            })
-            .await(unemploymentReady);
-    }
-    else if (mode === "Income") {
-        color = d3.scaleThreshold()
-            .domain(d3.range(20000, 100000, 10000))
-            .range(d3.schemeGreens[9]);
-         
-        title = "Median Household Income";
-            
-        desc = "Median household income by county";    
-            
-        var x = d3.scaleLinear()
-            .domain([20000, 100000, 10000])
-            .rangeRound([450, 900]);    
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "povertyincome.csv", function(d) { 
-                var income = 0;
-                if (d["Median Household Income in Dollars"] === undefined) {
-                    //console.log(d["County ID"]);
-                    income = 0;
-                }
-                else {
-                    income = d["Median Household Income in Dollars"].replace(/\D/g,'');
-                    householdIncome.set(d["County ID"], +income); 
-                }
-                //console.log(+income); 
-            })
-            .await(householdIncomeReady);
-    }
-    else if (mode === "Poverty") {
-        color = d3.scaleThreshold()
-            .domain(d3.range(6, 36, 3))
-            .range(d3.schemeReds[9]);
-         
-        var x = d3.scaleLinear()
-            .domain([6, 36, 3])
-            .rangeRound([450, 900]);
-            
-        title = "Percentage under Poverty Line";
-            
-        desc = "Percentage of people below poverty line per county";    
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "povertyincome.csv", function(d) { 
-                var income = 0;
-                if (d["All Ages in Poverty Percent"] === undefined) {
-                    //console.log(d["County ID"]);
-                    income = 0;
-                }
-                else {
-                    povertyPercent = d["All Ages in Poverty Percent"].replace(/\%/g,'');
-                    poverty.set(d["County ID"], +povertyPercent); 
-                    //console.log(+povertyPercent); 
-                }
-                //console.log(+income); 
-            })
-            .await(povertyReady);
-    }
-    else if (mode === "PopulationDensity") {
-        color = d3.scaleThreshold()
-            .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-            .range(d3.schemeReds[9]);
-         
-        title = "Population Density";
-        
-        desc = "Population Density per County per Square Mile";
-        
-        var x = d3.scaleQuantize()
-          .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-          .range([450, 900]);
-          
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv", function(d) { 
-                if (d["CountyID"] === undefined) {
-                
-                }
-                else {
-                    if (d["CountyID"].length >= 5) {
-                        densitySqMi = d["DENSITY_SQ_MILE"];
-                        density.set(d["CountyID"], +densitySqMi); 
-                    }
-                }
-            })
-            .await(densityReady);
-    }
-    else if (mode === "SubstanceAbuse") {
-        color = d3.scaleThreshold()
-            .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
-            .range(d3.schemeReds[9]);
-         
-        title = "Substance Abuse";
-        
-        desc = "Substance Abuse per County";
-        
-        var x = d3.scaleQuantize()
-          .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
-          .range([450, 900]);
-          
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./substanceabuse/substanceabuseProcessed.csv", function(d) { 
-                if (d["FIPS"] === undefined) {
-                
-                }
-                else {
-                    rate = d["EstimatedAgeAdjustedDeathRateMin"];
-                    substanceAbuse.set(d["FIPS"], +rate); 
-                }
-            })
-            .await(substanceAbuseReady);
-    }
-    else if (mode === "GDPPerCapita") {  
-        /*
-        var temp = d3.schemeReds[9];
-        
-        for (var i = 0; i < temp.length; i++) {
-            var rgb = hexToRgb(temp[i]);
-            console.log(rgb.r + ", " + rgb.g + ", " + rgb.b);
+    function loadAboutText() {
+        mapMenu.selectAll("*").remove();
+        mapMenu.html("");
+        for (var i = 0; i < allModes.length; i++) {
+            var chooseMode = allModes[i];  
+            var id = chooseMode == mode ? "current" : "";
+            var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
+                console.log(this.textContent);
+                loadMapWithMode(this.textContent);
+                //window.history.pushState('index', this.textContent, '/index.html');
+                //console.log("Redirect " + "./index.html?maptype=" + mode);
+                //window.location.href = "index.html?maptype=" + new String(mode);
+                //window.location.href = "./index.html?maptype=" + mode;
+                //window.location.reload();
+            });
         }
-        */
-    
-        color = d3.scaleThreshold()
-            .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
-            .range(d3.schemeReds[9]);
-            
-        title = "GDP per Capita";
+        //console.log(mapMenu.html());
+        //mapMenu.html(mapMenu.html() + "<p>Description</p>");
+        //console.log(mapMenu.html());
         
-        desc = "GDP per Capita per County";
-        
-        var x = d3.scaleQuantize()
-          .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
-          .range([450, 900]);
-          
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./gdppercapita/gdppercapitaProcessedId.csv", function(d) { 
-                if (d["CountyId"] === undefined) {
-                
-                }
-                else {
-                    rate = d["PerCapitaIncome"];
-                    gdpPerCapitaMap.set(d["CountyId"], +rate); 
-                }
-            })
-            .await(gdpPerCapitaReady);
-    }
-    else if ($.inArray(mode, industryBusinessNames) != -1) {
-        color = d3.scaleThreshold()
-            .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
-            .range(d3.schemeReds[8]);
-         
-        title = mode;
-        
-        desc = "Annual Payroll per County and Industry";
-        
-        var x = d3.scaleQuantize()
-          .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
-          .range([450, 900]);
-          
-        if (mode === "AllSectors") {
-            color = d3.scaleThreshold()
-                .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
-                .range(d3.schemeReds[7]);
-                
-            var x = d3.scaleQuantize()
-              .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
-              .range([450, 900]);
-        }
-            
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./businessbycounty/processed/" + mode + ".csv", function(d) { 
-                var income = 0;
-                if (d["PAYANN"] === undefined) {
-                    //console.log(d["County ID"]);
-                    income = 0;
-                }
-                else {
-                    povertyPercent = d["PAYANN"].replace(/\%/g,'');
-                    payroll.set(d["GEO.id2"], +povertyPercent); 
-                    //console.log(+povertyPercent); 
-                }
-                //console.log(+income); 
-            })
-            .await(payrollReady);
-    }
-    else if (mode === "Total1824" || mode === "TotalG25") {
-        color = d3.scaleThreshold()
-            .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
-            .range(d3.schemeReds[9]);
-         
-        title = mode;
-        
-        desc = "Total population of age group in county";
-        
-        var x = d3.scaleQuantize()
-          .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
-          .range([450, 900]);
-          
-        educationType = mode;
-        
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
-                addData = {};
-                //var educationModes = [
-                    //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-                //];
-                for (var i = 0; i < educationModes.length; i++) {
-                    addData[educationModes[i]] = +d[educationModes[i]];
-                }
-                education.set(d["CountyID"], addData);
-            })
-            .await(educationReady);
-    }
-    else if ($.inArray(mode, educationModes) != -1) {
-        color = d3.scaleThreshold()
-            .domain([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-            .range(d3.schemeReds[9]);
-
-        title = mode;    
-
-        desc = "Percentage of people in age-group and county who have completed this degree or greater";
-        
-        var x = d3.scaleLinear()
-            .domain([0.1, 1, 0.1])
-            .rangeRound([450, 900]);
-        
-        educationType = mode;
-        
-        d3.queue()
-            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
-                addData = {};
-                //var educationModes = [
-                    //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-                //];
-                for (var i = 0; i < educationModes.length; i++) {
-                    addData[educationModes[i]] = +d[educationModes[i]];
-                }
-                education.set(d["CountyID"], addData);
-            })
-            .await(educationReady);
-    }
-    else {
-        console.log("Cannot find map mode: " + mode);
-    }
-
-    //Process county name data
-
-    if (color == null) {
-
-    }
-    else {
-        g.selectAll("rect")
-          .data(color.range().map(function(d) {
-              d = color.invertExtent(d);
-              if (d[0] == null) d[0] = x.domain()[0];
-              if (d[1] == null) d[1] = x.domain()[1];
-              return d;
-            }))
-          .enter().append("rect")
-            .attr("height", 8)
-            .attr("x", function(d) { return x(d[0]); })
-            .attr("width", function(d) { return x(d[1]) - x(d[0]); })
-            .attr("fill", function(d) { return color(d[0]); });
-            
-        g.selectAll("text").remove();
-
-        g.append("text")
-            .attr("class", "caption")
-            .attr("x", x.range()[0])
-            .attr("y", -6)
-            .attr("fill", "#000")
-            .attr("text-anchor", "start")
-            .attr("font-weight", "bold")
-            .text(title + ": " + desc);
-            
-        /*
-        g.append("text")
-            .attr("class", "caption")
-            .attr("x", x.range()[0])
-            .attr("y", 36)
-            .attr("fill", "#000")
-            .attr("text-anchor", "start")
-            .attr("font-weight", "bold")
-            .text(desc);
-        */
-        
-        g.call(d3.axisBottom(x)
-            .tickSize(13)
-            .tickFormat(function(x, i) { 
-                return i ? x : x; 
-            })
-            .tickValues(color.domain()))
-          .select(".domain")
-            .remove();
-
-        //svg.call(d3.zoom().on("zoom", function () {
-                //svg.attr("transform", d3.event.transform)
-                //}));
-    }
-    
-    // Set-up the export button
-    d3.select('#saveButton').on('click', function(){
-        var svgString = getSVGString(svg.node());
-        svgString2Image( svgString, 2*width, 2*height, 'png', save ); // passes Blob and filesize String to the callback
-
-        function save( dataBlob, filesize ){
-            saveAs( dataBlob, 'D3 vis exported to PNG.png' ); // FileSaver.js function
-        }
-    });
-}
-
-loadMapWithMode(mode);
-
-
-
-//Zoom functions
-
-function dragstarted(d) {
-  d3.event.sourceEvent.stopPropagation();
-  d3.select(this).classed("dragging", true);
-}
-
-function dragged(d) {
-  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-  currentHighlightCity = null;
- divTooltip.style("opacity", 0);
-}
-
-function dragended(d) {
- console.log("Drag ended");
-  d3.select(this).classed("dragging", false);
-}
-
-var zoom = d3.zoom()
-    .scaleExtent([1, 10])
-    .on("zoom", function() {
-        container.attr("transform", d3.event.transform);
-        currentHighlightCity = null;
-        divTooltip.style("opacity", 0);
-        /*
-        console.log(d3.event.scale);
-        if (d3.event.scale <= 10) {
-            container.select(".airport-dots").style("opacity", 1);
+        aboutText.html(
+            "<p>A visualization of US Census data in d3.js. Data is represented county per county.</p>" +
+            "<p>This data includes household income, poverty, industry statistics, education completions, and more.</p>"
+        );
+    }    
+       
+    function loadMapWithMode(mode) {
+        if (mode == null) {
+            loadAboutText();
+            return;
         }
         else {
-            container.select(".airport-dots").style("opacity", 0);
+            aboutText.html("");
         }
-        */
-    });
 
-var drag = d3.drag()
-    .subject(function(d) { return d; })
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended);
-    
-svg.call(zoom);
+        svg = d3.select("svg"),
+            width = +svg.attr("width"),
+            height = +svg.attr("height");
+            
+        
+        //TODO: Replace with a solution that updates the whole map insteading of replacing it
+        svg.selectAll("*").remove();
 
-</script>
+        container = svg.append("g");
+        
+        unemployment = d3.map();
+        householdIncome = d3.map();
+        poverty = d3.map();
+        payroll = d3.map();
+        gdpPerCapitaMap = d3.map();
+        education = d3.map();
+        density = d3.map();
+       
+        path = d3.geoPath();
+
+        countyNameById = d3.map();
+        
+        //console.log(svg.select("g"));
+        
+        g = container.append("g")
+            .attr("class", "key")
+            .attr("transform", "translate(0,40)");
+            
+        mapMenu.selectAll("*").remove();
+        mapMenu.html("");
+        for (var i = 0; i < allModes.length; i++) {
+            var chooseMode = allModes[i];  
+            var id = chooseMode == mode ? "current" : "";
+            var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
+                console.log(this.textContent);
+                loadMapWithMode(this.textContent);
+                //window.history.pushState('index', this.textContent, '/index.html');
+                //console.log("Redirect " + "./index.html?maptype=" + mode);
+                //window.location.href = "index.html?maptype=" + new String(mode);
+                //window.location.href = "./index.html?maptype=" + mode;
+                //window.location.reload();
+            });
+        }
+
+        d3.queue()
+            .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) { 
+                //console.log(d);
+                //console.log(d["TotalCountyId"] + ", " + d["CountyName"]);
+                if (d["TotalCountyId"] == null) {
+                
+                }
+                else {
+                    countyNameById.set(d["TotalCountyId"], d["CountyName"] + ", " + d["StateAbbr"]); 
+                }
+            });
+        
+        if (mode === "Unemployment") {  
+            color = d3.scaleThreshold()
+                .domain(d3.range(2, 10))
+                .range(d3.schemeBlues[9]);
+
+            title = "Unemployment";    
+            
+            desc = "Unemployment percentage per county";
+            
+            var x = d3.scaleLinear()
+                .domain([1, 10])
+                .rangeRound([450, 900]);
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.tsv, "unemployment.tsv", function(d) { 
+                    unemployment.set(d.id, +d.rate); 
+                })
+                .await(unemploymentReady);
+        }
+        else if (mode === "Income") {
+            color = d3.scaleThreshold()
+                .domain(d3.range(20000, 100000, 10000))
+                .range(d3.schemeGreens[9]);
+             
+            title = "Median Household Income";
+                
+            desc = "Median household income by county";    
+                
+            var x = d3.scaleLinear()
+                .domain([20000, 100000, 10000])
+                .rangeRound([450, 900]);    
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "povertyincome.csv", function(d) { 
+                    var income = 0;
+                    if (d["Median Household Income in Dollars"] === undefined) {
+                        //console.log(d["County ID"]);
+                        income = 0;
+                    }
+                    else {
+                        income = d["Median Household Income in Dollars"].replace(/\D/g,'');
+                        householdIncome.set(d["County ID"], +income); 
+                    }
+                    //console.log(+income); 
+                })
+                .await(householdIncomeReady);
+        }
+        else if (mode === "Poverty") {
+            color = d3.scaleThreshold()
+                .domain(d3.range(6, 36, 3))
+                .range(d3.schemeReds[9]);
+             
+            var x = d3.scaleLinear()
+                .domain([6, 36, 3])
+                .rangeRound([450, 900]);
+                
+            title = "Percentage under Poverty Line";
+                
+            desc = "Percentage of people below poverty line per county";    
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "povertyincome.csv", function(d) { 
+                    var income = 0;
+                    if (d["All Ages in Poverty Percent"] === undefined) {
+                        //console.log(d["County ID"]);
+                        income = 0;
+                    }
+                    else {
+                        povertyPercent = d["All Ages in Poverty Percent"].replace(/\%/g,'');
+                        poverty.set(d["County ID"], +povertyPercent); 
+                        //console.log(+povertyPercent); 
+                    }
+                    //console.log(+income); 
+                })
+                .await(povertyReady);
+        }
+        else if (mode === "PopulationDensity") {
+            color = d3.scaleThreshold()
+                .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+                .range(d3.schemeReds[9]);
+             
+            title = "Population Density";
+            
+            desc = "Population Density per County per Square Mile";
+            
+            var x = d3.scaleQuantize()
+              .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+              .range([450, 900]);
+              
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv", function(d) { 
+                    if (d["CountyID"] === undefined) {
+                    
+                    }
+                    else {
+                        if (d["CountyID"].length >= 5) {
+                            densitySqMi = d["DENSITY_SQ_MILE"];
+                            density.set(d["CountyID"], +densitySqMi); 
+                        }
+                    }
+                })
+                .await(densityReady);
+        }
+        else if (mode === "SubstanceAbuse") {
+            color = d3.scaleThreshold()
+                .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
+                .range(d3.schemeReds[9]);
+             
+            title = "Substance Abuse";
+            
+            desc = "Substance Abuse per County";
+            
+            var x = d3.scaleQuantize()
+              .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
+              .range([450, 900]);
+              
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./substanceabuse/substanceabuseProcessed.csv", function(d) { 
+                    if (d["FIPS"] === undefined) {
+                    
+                    }
+                    else {
+                        rate = d["EstimatedAgeAdjustedDeathRateMin"];
+                        substanceAbuse.set(d["FIPS"], +rate); 
+                    }
+                })
+                .await(substanceAbuseReady);
+        }
+        else if (mode === "GDPPerCapita") {  
+            /*
+            var temp = d3.schemeReds[9];
+            
+            for (var i = 0; i < temp.length; i++) {
+                var rgb = hexToRgb(temp[i]);
+                console.log(rgb.r + ", " + rgb.g + ", " + rgb.b);
+            }
+            */
+        
+            color = d3.scaleThreshold()
+                .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
+                .range(d3.schemeReds[9]);
+                
+            title = "GDP per Capita";
+            
+            desc = "GDP per Capita per County";
+            
+            var x = d3.scaleQuantize()
+              .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
+              .range([450, 900]);
+              
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./gdppercapita/gdppercapitaProcessedId.csv", function(d) { 
+                    if (d["CountyId"] === undefined) {
+                    
+                    }
+                    else {
+                        rate = d["PerCapitaIncome"];
+                        gdpPerCapitaMap.set(d["CountyId"], +rate); 
+                    }
+                })
+                .await(gdpPerCapitaReady);
+        }
+        else if ($.inArray(mode, industryBusinessNames) != -1) {
+            color = d3.scaleThreshold()
+                .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
+                .range(d3.schemeReds[8]);
+             
+            title = mode;
+            
+            desc = "Annual Payroll per County and Industry";
+            
+            var x = d3.scaleQuantize()
+              .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
+              .range([450, 900]);
+              
+            if (mode === "AllSectors") {
+                color = d3.scaleThreshold()
+                    .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+                    .range(d3.schemeReds[7]);
+                    
+                var x = d3.scaleQuantize()
+                  .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
+                  .range([450, 900]);
+            }
+                
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./businessbycounty/processed/" + mode + ".csv", function(d) { 
+                    var income = 0;
+                    if (d["PAYANN"] === undefined) {
+                        //console.log(d["County ID"]);
+                        income = 0;
+                    }
+                    else {
+                        povertyPercent = d["PAYANN"].replace(/\%/g,'');
+                        payroll.set(d["GEO.id2"], +povertyPercent); 
+                        //console.log(+povertyPercent); 
+                    }
+                    //console.log(+income); 
+                })
+                .await(payrollReady);
+        }
+        else if (mode === "Total1824" || mode === "TotalG25") {
+            color = d3.scaleThreshold()
+                .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
+                .range(d3.schemeReds[9]);
+             
+            title = mode;
+            
+            desc = "Total population of age group in county";
+            
+            var x = d3.scaleQuantize()
+              .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
+              .range([450, 900]);
+              
+            educationType = mode;
+            
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                    addData = {};
+                    //var educationModes = [
+                        //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+                    //];
+                    for (var i = 0; i < educationModes.length; i++) {
+                        addData[educationModes[i]] = +d[educationModes[i]];
+                    }
+                    education.set(d["CountyID"], addData);
+                })
+                .await(educationReady);
+        }
+        else if ($.inArray(mode, educationModes) != -1) {
+            color = d3.scaleThreshold()
+                .domain([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+                .range(d3.schemeReds[9]);
+
+            title = mode;    
+
+            desc = "Percentage of people in age-group and county who have completed this degree or greater";
+            
+            var x = d3.scaleLinear()
+                .domain([0.1, 1, 0.1])
+                .rangeRound([450, 900]);
+            
+            educationType = mode;
+            
+            d3.queue()
+                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                    addData = {};
+                    //var educationModes = [
+                        //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
+                    //];
+                    for (var i = 0; i < educationModes.length; i++) {
+                        addData[educationModes[i]] = +d[educationModes[i]];
+                    }
+                    education.set(d["CountyID"], addData);
+                })
+                .await(educationReady);
+        }
+        else {
+            console.log("Cannot find map mode: " + mode);
+        }
+
+        //Process county name data
+
+        if (color == null) {
+
+        }
+        else {
+            g.selectAll("rect")
+              .data(color.range().map(function(d) {
+                  d = color.invertExtent(d);
+                  if (d[0] == null) d[0] = x.domain()[0];
+                  if (d[1] == null) d[1] = x.domain()[1];
+                  return d;
+                }))
+              .enter().append("rect")
+                .attr("height", 8)
+                .attr("x", function(d) { return x(d[0]); })
+                .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+                .attr("fill", function(d) { return color(d[0]); });
+                
+            g.selectAll("text").remove();
+
+            g.append("text")
+                .attr("class", "caption")
+                .attr("x", x.range()[0])
+                .attr("y", -6)
+                .attr("fill", "#000")
+                .attr("text-anchor", "start")
+                .attr("font-weight", "bold")
+                .text(title + ": " + desc);
+                
+            /*
+            g.append("text")
+                .attr("class", "caption")
+                .attr("x", x.range()[0])
+                .attr("y", 36)
+                .attr("fill", "#000")
+                .attr("text-anchor", "start")
+                .attr("font-weight", "bold")
+                .text(desc);
+            */
+            
+            g.call(d3.axisBottom(x)
+                .tickSize(13)
+                .tickFormat(function(x, i) { 
+                    return i ? x : x; 
+                })
+                .tickValues(color.domain()))
+              .select(".domain")
+                .remove();
+
+            //svg.call(d3.zoom().on("zoom", function () {
+                    //svg.attr("transform", d3.event.transform)
+                    //}));
+        }
+        
+        // Set-up the export button
+        d3.select('#saveButton').on('click', function(){
+            var svgString = getSVGString(svg.node());
+            svgString2Image( svgString, 2*width, 2*height, 'png', save ); // passes Blob and filesize String to the callback
+
+            function save( dataBlob, filesize ){
+                saveAs( dataBlob, 'D3 vis exported to PNG.png' ); // FileSaver.js function
+            }
+        });
+    }
+
+    loadMapWithMode(mode);
+
+
+
+    //Zoom functions
+
+    function dragstarted(d) {
+      d3.event.sourceEvent.stopPropagation();
+      d3.select(this).classed("dragging", true);
+    }
+
+    function dragged(d) {
+      d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+      currentHighlightCity = null;
+     divTooltip.style("opacity", 0);
+    }
+
+    function dragended(d) {
+     console.log("Drag ended");
+      d3.select(this).classed("dragging", false);
+    }
+
+    var zoom = d3.zoom()
+        .scaleExtent([1, 10])
+        .on("zoom", function() {
+            container.attr("transform", d3.event.transform);
+            currentHighlightCity = null;
+            divTooltip.style("opacity", 0);
+            /*
+            console.log(d3.event.scale);
+            if (d3.event.scale <= 10) {
+                container.select(".airport-dots").style("opacity", 1);
+            }
+            else {
+                container.select(".airport-dots").style("opacity", 0);
+            }
+            */
+        });
+
+    var drag = d3.drag()
+        .subject(function(d) { return d; })
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+        
+    svg.call(zoom);
+
+    </script>
+</body>
