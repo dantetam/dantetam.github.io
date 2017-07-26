@@ -40,6 +40,7 @@ textures:
 styles:
     buildings:
         base: polygons
+        blend: overlay
         shaders:
             blocks:
                 color: |
@@ -52,10 +53,12 @@ styles:
 
     icons:
         base: points
+        blend: overlay
         texture: icons
 
     dashed:
         base: lines
+        blend: overlay
         dash: [2, 1]
 
     transit-lines:
@@ -88,6 +91,8 @@ layers:
                 order: 500
                 color: red
                 width: 1px
+            polygons:
+                color: rgba(50, 100, 255, .5)
 
     earth:
         data: { source: mapzen }
