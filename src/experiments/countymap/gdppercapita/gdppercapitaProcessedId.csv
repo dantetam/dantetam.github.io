@@ -1,4 +1,4 @@
-Rank,CountyName,State,StateAbbr,PerCapitaIncome,MedianHouseholdIncome,MedianFamilyIncome,Population,NumberOfHouseholds
+Rank,CountyName,CountyId,State,StateAbbr,PerCapitaIncome,MedianHouseholdIncome,MedianFamilyIncome,Population,NumberOfHouseholds
 1,New York County,36061,New York,NY,62498,69659,84627,1605272,736192
 2,Arlington,51013,Virginia,VA,62018,103208,139244,214861,94454
 3,Falls Church City,51610,Virginia,VA,59088,120000,152857,12731,5020

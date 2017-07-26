@@ -157,6 +157,49 @@
         "OtherServices",
         "IndustriesNotClassified"
     ];        
+    
+    var allModesDesc = {
+        "Unemployment" : null,
+        "Income" : null,
+        "Poverty" : null,
+        "PopulationDensity" : null,
+        "SubstanceAbuse" : null,
+        "GDPPerCapita" : null,
+        "AllSectors" : null,
+        "AgricultureForestryFishingHunting" : null,
+        "MiningQuarryingOilGas" : null,
+        "Utilities" : null,
+        "Construction" : null,
+        "Manufacturing" : null,
+        "WholesaleTrade" : null,
+        "RetailTrade" : null,
+        "TransportationWarehousing" : null,
+        "Information" : null,
+        "FinanceInsurance" : null,
+        "RealEstate" : null,
+        "ProfessionalScientificTechnical" : null,
+        "Management" : null,
+        "AdministrativeSupportWaste" : null,
+        "Education" : null,
+        "HealthcareSocialAssistance" : null,
+        "ArtsEntertainmentRecreation" : null,
+        "AccommodationFood" : null,
+        "OtherServices" : null,
+        "IndustriesNotClassified" : null,
+        "Total1824" : "Number of people aged 18-24",
+        "LHS1824" : "Number of people aged 18-24",
+        "HS1824" : "Of ages 18-24, completed high school or higher",
+        "SC1824" : "Of ages 18-24, completed some college or higher",
+        "BH1824" : "Of ages 18-24, completed bachelors or higher",
+        "TotalG25" : "Number of people aged 25+",
+        "L9G25" : "Of ages 18-24, did not complete 9th grade",
+        "912G25" : "Of ages 18-24, completed some high school or higher",
+        "HSG25" : "Of ages 18-24, completed high school diploma or higher",
+        "SCG25" : "Of ages 18-24, completed some college or higher",
+        "ADG25" : "Of ages 18-24, completed associate's degree or higher",
+        "BDG25" : "Of ages 18-24, completed bachelor's degree or higher",
+        "GPG25" : "Of ages 18-24, completed post-grad degree"
+    };
 
     var educationModes = [
         "Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
@@ -402,6 +445,7 @@
     var color = null;
     var title = "Default Title";
     var desc = "Default Description";
+    var desc2 = "Default Extended Description"
 
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
@@ -442,7 +486,8 @@
         for (var i = 0; i < allModes.length; i++) {
             var chooseMode = allModes[i];  
             var id = chooseMode == mode ? "current" : "";
-            var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
+            var title = allModesDesc[chooseMode] == null ? chooseMode + " per County" : allModesDesc[chooseMode];
+            var button = mapMenu.append("button").text(chooseMode).attr("title", title).attr("id", id).on("click", function() {
                 console.log(this.textContent);
                 loadMapWithMode(this.textContent);
                 //window.history.pushState('index', this.textContent, '/index.html');
@@ -458,7 +503,8 @@
         
         aboutText.html(
             "<p>A visualization of US Census data in d3.js. Data is represented county per county.</p>" +
-            "<p>This data includes household income, poverty, industry statistics, education completions, and more.</p>"
+            "<p>This data includes household income, poverty, industry statistics, education completions, and more.</p>" +
+            "<p>In this project we learn about the demographics of the United States and what affects people's living conditions and communities.</p>"
         );
     }    
        
@@ -504,7 +550,8 @@
         for (var i = 0; i < allModes.length; i++) {
             var chooseMode = allModes[i];  
             var id = chooseMode == mode ? "current" : "";
-            var button = mapMenu.append("button").text(chooseMode).attr("id", id).on("click", function() {
+            var title = allModesDesc[chooseMode] == null ? chooseMode + " per County" : allModesDesc[chooseMode];
+            var button = mapMenu.append("button").text(chooseMode).attr("title", title).attr("id", id).on("click", function() {
                 console.log(this.textContent);
                 loadMapWithMode(this.textContent);
                 //window.history.pushState('index', this.textContent, '/index.html');
@@ -673,15 +720,15 @@
             */
         
             color = d3.scaleThreshold()
-                .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
-                .range(d3.schemeReds[9]);
+                .domain([0, 19000, 20900, 22000, 23100, 24750, 27250, 30000, 35000, 70000])
+                .range(d3.schemeGreens[9]);
                 
             title = "GDP per Capita";
             
             desc = "GDP per Capita per County";
             
             var x = d3.scaleQuantize()
-              .domain([0, 18500, 19750, 20900, 22000, 23100, 24750, 27250, 35000, 70000])
+              .domain([0, 19000, 20900, 22000, 23100, 24750, 27250, 30000, 35000, 70000])
               .range([450, 900]);
               
             d3.queue()
@@ -799,6 +846,10 @@
             console.log("Cannot find map mode: " + mode);
         }
 
+        if (mode !== null) {
+            desc2 = allModesDesc[mode];
+        }
+        
         //Process county name data
 
         if (color == null) {
