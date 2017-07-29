@@ -331,10 +331,15 @@ table {
       var qualifiers = getQualifiersFromTask(task);
       var newParsed = parseNounVerbPredicate(commandString, qualifiers);
 
+      console.log("--Starting command----");
+      
       task.execute(command, newParsed);
-
+      console.log(task);
+      
       console.log(command);
       console.log(newParsed);
+      
+      console.log("--Ending command----");
     }
 
     readWordNet("./dict/data-adj.txt");

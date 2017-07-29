@@ -117,8 +117,11 @@ for dataName,fileIdRate in allModes.items():
     
 
 def sanitizeNumber(num):
-    numStr = num.replace('"', "").replace("$", "").replace(",", "")
-    return numStr
+    try:
+        return float(num)
+    except ValueError:
+        numStr = num.replace('"', "").replace("$", "").replace(",", "")
+        return numStr
 
 def isNumber(s):
     result = None
@@ -131,14 +134,20 @@ def isNumber(s):
 #Takes in two dictionaries of ideally aligned data
 #and returns their r correlation value
 def correlation(data1, data2):
+    normalized1 = data1
+    normalized2 = data2
+    
+    #normalized1 = guessNormalize(data1)
+    #normalized2 = guessNormalize(data2)
     #assert len(data1) == len(data2)
+    
     sumX, sumY, sumXY, sumX2, sumY2 = 0, 0, 0, 0, 0
     n = 0
-    for k,v in data1.items():
-        if k not in data2: 
+    for k,v in normalized1.items():
+        if k not in normalized2: 
             continue
         x = isNumber(sanitizeNumber(v))
-        y = isNumber(sanitizeNumber(data2[k]))
+        y = isNumber(sanitizeNumber(normalized2[k]))
         if x == None or y == None:
             continue
         n += 1
@@ -172,9 +181,25 @@ def averageAndVariance(data):
     variance /= n
     
     return average, variance
+
+#Normalizes data according to the sample mean and sample variance    
+def guessNormalize(data):
+    average, variance = averageAndVariance(data)
+    normalized = dict()
+    
+    for k,v in data.items():
+        x = isNumber(sanitizeNumber(v))
+        if x == None:
+            continue
+        tstat = (x - average) / variance
+        normalized[k] = tstat
+    
+    return normalized
+    
+#print(guessNormalize({"a": 1, "b": 2, "c": 3, "d": 10}))
     
             
-#print(correlation(allData["Income"], allData["Poverty"]))    
+print(correlation(allData["Income"], allData["Poverty"]))    
 #print(correlation(allData["Income"], allData["BDG25"]))    
         
 #Calculate all possible permutations of the modes and their correlations

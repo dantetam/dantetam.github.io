@@ -153,7 +153,7 @@ function readWordNet(file)
 
 /*
 Takes in a Gutenberg dictionary file ordered as
-WORD IN ALL CAPSs
+WORD IN ALL CAPS
 Defn: ...
 WORD IN ALL CAPS
 1. Defn: ...

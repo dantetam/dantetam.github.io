@@ -226,6 +226,30 @@
         return parts.join(".");
     }
 
+    //General template for json/csv callback
+    //variables: selectedMapping - d3 map, clickAction(d) - function, getText(d) - function
+    //TODO: Implement this
+    function jsonCsvDataReady(error, us) {
+      if (error) throw error;
+
+      container.append("g")
+          .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.counties).features)
+        .enter().append("path")
+          .attr("fill", function(d) { return color(d.rate = selectedMapping.get(d.id)); })
+          .attr("d", path)
+          .on("click", function(d) {clickAction(d);})
+          //.attr("countyid", function(d) { return d.id; })
+        .append("title")
+          .text(function(d) { return getText(d); });
+          
+      container.append("path")
+          .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          .attr("class", "states")
+          .attr("d", path);
+    }
+    
     function unemploymentReady(error, us) {
       if (error) throw error;
 
