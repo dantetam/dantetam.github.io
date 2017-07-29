@@ -34,6 +34,7 @@ industryStrings = ["AllSectors",
         "OtherServices",
         "IndustriesNotClassified"]
         
+"""        
 educationStrings = [
         "Total1824",
         "LHS1824",
@@ -49,9 +50,18 @@ educationStrings = [
         "BDG25",
         "GPG25"
     ]
+"""
+educationStrings = [
+        "BDG25",
+]      
         
-allData = dict()        
+totalFile = "totalCountyCensusData.csv"        
         
+allData = dict()     
+allCountyIdsList = []
+dataByCounty = dict()       
+        
+#Organize all data by type i.e. income, unemployment, etc.
 for industryString in industryStrings:
     constr = "./businessbycounty/processed/" + industryString + ".csv|GEO.id2|PAYANN"
     allModes[industryString] = constr
@@ -82,8 +92,19 @@ for dataName,fileIdRate in allModes.items():
            
         for result in results:
             if len(result) > 0:
-                newData[result[indexId]] = result[indexData]
-
+                countyId = result[indexId].replace('"', "")
+                countyData = result[indexData]
+            
+                newData[countyId] = countyData
+                
+                if countyId not in dataByCounty:
+                    if "000" in countyId or len(countyId) != 5:
+                        continue
+                    allCountyIdsList.append(countyId)
+                    dataByCounty[countyId] = dict()
+                dataByCounty[countyId][dataName] = countyData
+                      
+                
         """
         with open(saveToFileName, 'w+') as outfile:
             writer = csv.writer(outfile)
@@ -94,7 +115,6 @@ for dataName,fileIdRate in allModes.items():
     
     allData[dataName] = newData
     
-#print(allData["Income"])
 
 def sanitizeNumber(num):
     numStr = num.replace('"', "").replace("$", "").replace(",", "")
@@ -131,14 +151,99 @@ def correlation(data1, data2):
     bottom = math.sqrt(n * sumX2 - sumX * sumX) * math.sqrt(n * sumY2 - sumY * sumY)
     return top/bottom    
     
-print(correlation(allData["Income"], allData["Poverty"]))    
-print(correlation(allData["Income"], allData["BDG25"]))    
+def averageAndVariance(data):
+    average = 0
+    n = 0
+    for k,v in data.items():
+        x = isNumber(sanitizeNumber(v))
+        if x == None:
+            continue
+        average += x
+        n += 1.0
+    average /= n
+    
+    variance = 0
+    for k,v in data.items():
+        x = isNumber(sanitizeNumber(v))
+        if x == None:
+            continue
+        dm = x - average    
+        variance += dm*dm
+    variance /= n
+    
+    return average, variance
+    
+            
+#print(correlation(allData["Income"], allData["Poverty"]))    
+#print(correlation(allData["Income"], allData["BDG25"]))    
+        
+#Calculate all possible permutations of the modes and their correlations
+     
+"""  
+possibleCorrelations = dict()       
+modesList = list(allModes.keys()) 
+for i in range(len(modesList)):
+    mode = modesList[i]
+    for j in range(len(modesList)):
+        if i <= j:
+            continue
+        otherMode = modesList[j]
+        r = correlation(allData[mode], allData[otherMode])
+        possibleCorrelations[mode + " : " + otherMode] = r
+possibleCorrelationsSorted = sorted(possibleCorrelations.items(), key=lambda x: abs(x[1]), reverse=True)
+
+for i in range(20):
+    print(possibleCorrelationsSorted[i])        
+"""        
+    
         
         
         
         
         
         
+        
+#print(dataByCounty["01001"])
+
+#for key in sorted(dataByCounty["01001"]):
+    #print(key, dataByCounty["01001"][key])
+    
+#Write all this data to one file, each row is a county,
+#the columns are all the possible modes alphabetized
+dataTypes = []
+for dataName,fileIdRate in allModes.items():
+    dataTypes.append(dataName)
+dataTypes = sorted(dataTypes)
+dataTypes.insert(0, "CountyId")
+
+with open(totalFile, 'w+') as outfile:
+    writer = csv.writer(outfile)
+    writer.writerow(dataTypes) #csv header
+    dataTypes.pop(0)
+    for countyId in allCountyIdsList:
+        totalCountyData = dataByCounty[countyId]
+        result = [countyId]
+        for key in sorted(dataTypes):
+            #print(key, totalCountyData[key])
+            if key not in totalCountyData or len(totalCountyData[key]) == 0:
+                result.append("NA")
+            else:
+                result.append(sanitizeNumber(totalCountyData[key]))
+        writer.writerow(result)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
         
 # 
