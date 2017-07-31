@@ -86,7 +86,9 @@
     <button id='saveButton'>Save Map as PNG</button>
     <p>&nbsp;</p>
     <!--<button id='saveButton'>Download this data</button>-->
-    <a href="./censusdata.zip">Download All Data</a>
+    <a href="./censusdata.zip">Download All Data (ZIP)</a>
+    <br>
+    <a href="./totalCountyCensusData.csv">Download Summary Data (CSV)</a>
     <svg width="1920" height="1080"></svg>
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -521,6 +523,15 @@
                 //window.location.reload();
             });
         }
+        mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancenters.html";
+        });
+        mapMenu.append("button").text("Closest Urban Centers").attr("title", "Closest Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancentersvoronoi.html";
+        });
+        
         //console.log(mapMenu.html());
         //mapMenu.html(mapMenu.html() + "<p>Description</p>");
         //console.log(mapMenu.html());
@@ -585,6 +596,14 @@
                 //window.location.reload();
             });
         }
+        mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancenters.html";
+        });
+        mapMenu.append("button").text("Closest Urban Centers").attr("title", "Closest Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancentersvoronoi.html";
+        });
 
         d3.queue()
             .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) { 
@@ -608,13 +627,13 @@
             desc = "Unemployment percentage per county";
             
             var x = d3.scaleLinear()
-                .domain([1, 10])
+                .domain([2, 10])
                 .rangeRound([450, 900]);
                 
             d3.queue()
                 .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-                .defer(d3.tsv, "unemployment.tsv", function(d) { 
-                    unemployment.set(d.id, +d.rate); 
+                .defer(d3.csv, "unemployment.csv", function(d) { 
+                    unemployment.set(d.id, +d["rate"]); 
                 })
                 .await(unemploymentReady);
         }

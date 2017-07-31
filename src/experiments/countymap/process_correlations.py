@@ -10,6 +10,17 @@ allModes = {
         "PopulationDensity" : "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv|CountyID|DENSITY_SQ_MILE",
         "SubstanceAbuse" : "./substanceabuse/substanceabuseProcessed.csv|FIPS|EstimatedAgeAdjustedDeathRateMin",
         "GDPPerCapita" : "./gdppercapita/gdppercapitaProcessedId.csv|CountyId|PerCapitaIncome",
+        "Gini" : "./giniequality/ACS_15_5YR_B19083.csv|CountyId|GiniMeasure",
+        
+        "TotalPopulation" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
+        "TotalWhiteOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
+        "TotalBlackOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC21",
+        "TotalIndianOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC22",
+        "TotalAsianOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC23",
+        "TotalPacificIslanderOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC24",
+        "TotalOtherOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC25",
+        "TotalMultiOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
+        "TotalHispanicOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28"
     }
     
 industryStrings = ["AllSectors",
@@ -52,8 +63,9 @@ educationStrings = [
     ]
 """
 educationStrings = [
-        "BDG25",
+        "BDG25"
 ]      
+
         
 totalFile = "totalCountyCensusData.csv"        
         
@@ -198,8 +210,11 @@ def guessNormalize(data):
     
 #print(guessNormalize({"a": 1, "b": 2, "c": 3, "d": 10}))
     
-            
-print(correlation(allData["Income"], allData["Poverty"]))    
+print(correlation(allData["SubstanceAbuse"], allData["GDPPerCapita"]))    
+print(correlation(allData["SubstanceAbuse"], allData["Income"]))    
+print(correlation(allData["SubstanceAbuse"], allData["Unemployment"]))         
+
+#print(correlation(allData["Income"], allData["Poverty"]))    
 #print(correlation(allData["Income"], allData["BDG25"]))    
         
 #Calculate all possible permutations of the modes and their correlations
