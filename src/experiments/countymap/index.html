@@ -120,15 +120,63 @@
         var result = d3.map();
         var entries = dividend.entries();
         for (var j = 0; j < entries.length; j++) {
-            var key = entries[j][0], value = entries[j][1];
+            var key = entries[j]["key"], value = entries[j]["value"];
             if (divisor.get(key) === undefined) {
                 
             }
             else {
-                result.set(key, num(divisor.get(key)) / num(value))
+                /*
+                console.log(value);
+                console.log(divisor.get(key));
+                console.log(num(value))
+                console.log(num(divisor.get(key)))
+                console.log("--------");
+                */
+                result.set(key, num(value) / num(divisor.get(key)))
             }
         }
         return result;
+    }
+    
+    //console.log(dictionaryDivide(d3.map().set("a", 1.0), d3.map().set("a", 2.0)));
+    
+    function arrayDivide(dividend, divisor) {
+        //Find all common entries first
+        /*
+        var result = d3.map();
+        var common = {};
+        for (var i = 0; i < dividend.length; i++) {
+            common[dividend[i]["key"]] = 1;
+        }
+        for (var i = 0; i < divisor.length; i++) {
+            common[divisor[i]["key"]]++;
+        }
+        for (var key in common) {
+            
+        }
+        for (var i = 0; i < dividend.length; i++) {
+            var posKey = dividend[i]["key"];
+            if (common.hasOwnProperty(posKey)) {
+                if (common[posKey] === 2) {
+                    var a = num(dividend);
+                    result.put(dividend[i]["key"])
+                }
+            }
+        }
+        */
+        var mapA = d3.map();
+        var mapB = d3.map();
+        for (var i = 0; i < dividend.length; i++) {
+            var key = dividend[i]["key"];
+            var value = dividend[i]["value"];
+            mapA.set(key, value);
+        }
+        for (var i = 0; i < divisor.length; i++) {
+            var key = divisor[i]["key"];
+            var value = divisor[i]["value"];
+            mapB.set(key, value);
+        }
+        return dictionaryDivide(mapA, mapB);
     }
 
     //var mode = "Unemployment";
@@ -144,90 +192,102 @@
             "PopulationDensity" : "./populationdensity/DEC_00_SF1_GCTPH1.US05PR.csv|CountyID|DENSITY_SQ_MILE",
             "SubstanceAbuse" : "./substanceabuse/substanceabuseProcessed.csv|FIPS|EstimatedAgeAdjustedDeathRateMin",
             "GDPPerCapita" : "./gdppercapita/gdppercapitaProcessedId.csv|CountyId|PerCapitaIncome",
-            "Gini" : "./giniequality/ACS_15_5YR_B19083.csv|CountyId|GiniMeasure",
+            "Gini" : "./giniequality/processedGini.csv|CountyId|GiniMeasure",
             
-            "TotalPopulation" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
-            "TotalWhiteOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
-            "TotalBlackOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC21",
-            "TotalIndianOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC22",
-            "TotalAsianOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC23",
-            "TotalPacificIslanderOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC24",
-            "TotalOtherOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC25",
-            "TotalMultiOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
-            "TotalHispanicOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28",
+            //"PopulationPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
+            "WhiteOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
+            "BlackOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC21",
+            "IndianOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC22",
+            "AsianOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC23",
+            "PacificIslanderOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC24",
+            "OtherOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC25",
+            "MultiOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
+            "HispanicOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28"
             
+            /*
             "WhitePercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalWhiteOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalWhiteOrigin"]);
+                    console.log(d["TotalPopulation"]);
+                    console.log(d["TotalWhiteOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalWhiteOrigin"]);
                 }   
             },
             "BlackPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalBlackOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalBlackOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalBlackOrigin"]);
                 }   
             },
             "IndianPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalIndianOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalIndianOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalIndianOrigin"]);
                 }   
             },
             "AsianPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalAsianOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalAsianOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalAsianOrigin"]);
                 }   
             },
             "PacificIslanderPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalPacificIslanderOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalPacificIslanderOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalPacificIslanderOrigin"]);
                 }   
             },
             "OtherPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalOtherOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalOtherOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalOtherOrigin"]);
                 }   
             },
             "MultiPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalMultiOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalMultiOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalMultiOrigin"]);
                 }   
             },
             "HispanicPercentage" : {
+                "compositeData" : true,
                 "required" : [
                     "TotalPopulation",
                     "TotalHispanicOrigin"
                 ],
                 "function" : function(d) {
-                    return dictionaryDivide(d["TotalPopulation"], d["TotalHispanicOrigin"]);
+                    return arrayDivide(d["TotalPopulation"], d["TotalHispanicOrigin"]);
                 }   
             }
+            */
         };
         
     industryStrings = ["AllSectors",
@@ -351,7 +411,7 @@
         else {
             n = input;
         }
-        if (!isNaN(parseFloat(n)) && isFinite(input)) {
+        if (!isNaN(parseFloat(n)) && isFinite(n)) {
             return n;
         }
         return null;
@@ -700,6 +760,17 @@
               .range([450, 900]);
             getTextFunction = dollars;
         }
+        else if (mode === "Gini") {  
+            color = d3.scaleThreshold()
+                .domain(d3.range(0.35, 0.65, 0.05))
+                .range(d3.schemeReds[6]);
+            title = "Gini Inequality";
+            desc = "Gini Inequality Index per County";
+            var x = d3.scaleQuantize()
+              .domain(d3.range(0.35, 0.65, 0.05))
+              .range([450, 900]);
+            getTextFunction = percentage;
+        }
         else if ($.inArray(mode, industryStrings) != -1) {   
             title = mode;
             
@@ -786,6 +857,21 @@
                 })
                 .await(educationReady);
         }
+        else if (mode.includes("Percentage")) {
+            color = d3.scaleThreshold()
+                .domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+                .range(d3.schemeBlues[9]);
+
+            title = mode;    
+
+            desc = mode;
+            
+            var x = d3.scaleLinear()
+                .domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
+                .rangeRound([450, 900]);
+                
+            getTextFunction = percentage;
+        }
         else {
             color = d3.scaleThreshold()
                 .domain([0, 100, 500, 2000, 10000, 20000, 50000, 200000, 500000, 1000000])
@@ -804,8 +890,45 @@
         
         //Look up and load the data under inspection
         if (mode in allModes && !(mode in educationStrings)) {
-            var dataString = allModes[mode]; //Contains the file name|county id column|true data column
-            loadCsvAndCallBack(dataString, jsonCsvDataReady, dataMap);
+            if (typeof allModes[mode] === "object" && "compositeData" in allModes[mode]) {
+                var dataObject = allModes[mode];
+                var listRequired = dataObject["required"];
+                var processFunction = dataObject["function"];
+                var dataDictionary = {};
+                var numDataLoaded = 0;
+                
+                for (var i = 0; i < listRequired.length; i++) {
+                    var copyDataName = listRequired[i];
+                    var dataString = allModes[listRequired[i]];
+
+                    var tokens = dataString.split("|");
+                    var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
+                    
+                    d3.csv(csvFileName) //TODO
+                        .row(function(d) { return {key: d[idColumnName], value: +num(d[dataColumnName])}; })
+                        .get(function(error, rows) {
+                            console.log(rows);
+                            dataDictionary[listRequired[numDataLoaded]] = d3.map(rows);
+                            numDataLoaded++;
+                            if (numDataLoaded === listRequired.length) {
+                                dataMap = processFunction(dataDictionary);
+                                console.log(dataMap);
+                                d3.queue()
+                                    .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                                    .await(function(error, us) {
+                                        jsonCsvDataReady(error, us);
+                                    });
+                            }
+                        });
+                        
+                    
+
+                }
+            }   
+            else {
+                var dataString = allModes[mode]; //Contains the file name|county id column|true data column
+                loadCsvAndCallBack(dataString, jsonCsvDataReady, dataMap);
+            }
         }
 
         if (mode !== null) {
