@@ -99,6 +99,37 @@
     <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
     <script src="./svgsave.js"></script>
     <script>
+    
+    function dictionaryAdd() {
+        var result = d3.map();
+        for (var i = 0; i < arguments.length; i++) {
+            var d3map = arguments[i];
+            var entries = d3map.entries();
+            for (var j = 0; j < entries.length; j++) {
+                var key = entries[j][0], value = entries[j][1];
+                if (result.get(key) === undefined) {
+                    result.set(key, 0);
+                }
+                result.set(num(result.get(key)) + num(value));
+            }
+        }
+        return result;
+    }
+    
+    function dictionaryDivide(dividend, divisor) { //returns dividend / divisor, key by key
+        var result = d3.map();
+        var entries = dividend.entries();
+        for (var j = 0; j < entries.length; j++) {
+            var key = entries[j][0], value = entries[j][1];
+            if (divisor.get(key) === undefined) {
+                
+            }
+            else {
+                result.set(key, num(divisor.get(key)) / num(value))
+            }
+        }
+        return result;
+    }
 
     //var mode = "Unemployment";
     //var mode = "Income";
@@ -123,7 +154,80 @@
             "TotalPacificIslanderOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC24",
             "TotalOtherOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC25",
             "TotalMultiOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
-            "TotalHispanicOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28"
+            "TotalHispanicOrigin" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28",
+            
+            "WhitePercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalWhiteOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalWhiteOrigin"]);
+                }   
+            },
+            "BlackPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalBlackOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalBlackOrigin"]);
+                }   
+            },
+            "IndianPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalIndianOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalIndianOrigin"]);
+                }   
+            },
+            "AsianPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalAsianOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalAsianOrigin"]);
+                }   
+            },
+            "PacificIslanderPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalPacificIslanderOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalPacificIslanderOrigin"]);
+                }   
+            },
+            "OtherPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalOtherOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalOtherOrigin"]);
+                }   
+            },
+            "MultiPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalMultiOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalMultiOrigin"]);
+                }   
+            },
+            "HispanicPercentage" : {
+                "required" : [
+                    "TotalPopulation",
+                    "TotalHispanicOrigin"
+                ],
+                "function" : function(d) {
+                    return dictionaryDivide(d["TotalPopulation"], d["TotalHispanicOrigin"]);
+                }   
+            }
         };
         
     industryStrings = ["AllSectors",
@@ -239,6 +343,20 @@
            return(false);
     }
 
+    function num(input) {
+        //if (x == null || isNaN(x)) return null;
+        if (typeof input === "string") {
+            n = input.replace(/[^0-9.]/g, "");
+        }
+        else {
+            n = input;
+        }
+        if (!isNaN(parseFloat(n)) && isFinite(input)) {
+            return n;
+        }
+        return null;
+    }
+    
     function numberWithCommas(x) {
         if (x == null) return "";
         var parts = x.toString().split(".");
@@ -423,7 +541,26 @@
             "<p>In this project we learn about the demographics of the United States and what affects people's living conditions and communities.</p>"
         );
     }    
-       
+     
+    function loadCsvAndCallBack(dataString, callback, dataMap) {
+        var tokens = dataString.split("|");
+        var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
+        
+        d3.queue()
+            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+            .defer(d3.csv, csvFileName, function(d) { 
+                var income = 0;
+                if (d[dataColumnName] === undefined) { //Account for possibly empty lines
+                    income = 0;
+                }
+                else {
+                    income = num(d[dataColumnName]);
+                    dataMap.set(d[idColumnName], +income);
+                }
+            })
+            .await(callback);
+    }
+     
     function loadMapWithMode(mode) {
         //Initialize everything, possibly or not for the first time, so we can redraw
     
@@ -668,22 +805,7 @@
         //Look up and load the data under inspection
         if (mode in allModes && !(mode in educationStrings)) {
             var dataString = allModes[mode]; //Contains the file name|county id column|true data column
-            var tokens = dataString.split("|");
-            var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
-            
-            d3.queue()
-                .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-                .defer(d3.csv, csvFileName, function(d) { 
-                    var income = 0;
-                    if (d[dataColumnName] === undefined) { //Account for possibly empty lines
-                        income = 0;
-                    }
-                    else {
-                        income = dataColumnName.replace(/\D/g,'');
-                        dataMap.set(d[idColumnName], +income); 
-                    }
-                })
-                .await(jsonCsvDataReady);
+            loadCsvAndCallBack(dataString, jsonCsvDataReady, dataMap);
         }
 
         if (mode !== null) {
