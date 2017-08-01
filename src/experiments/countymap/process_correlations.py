@@ -45,7 +45,6 @@ industryStrings = ["AllSectors",
         "OtherServices",
         "IndustriesNotClassified"]
         
-"""        
 educationStrings = [
         "Total1824",
         "LHS1824",
@@ -61,10 +60,6 @@ educationStrings = [
         "BDG25",
         "GPG25"
     ]
-"""
-educationStrings = [
-        "BDG25"
-]      
 
         
 totalFile = "totalCountyCensusData.csv"        
