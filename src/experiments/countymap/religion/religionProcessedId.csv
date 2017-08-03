@@ -1,4 +1,4 @@
-CountyName,Population,PopRank,Adherents,AdhRank,Congregations,ConRank,AdherentsPercent,AdhPercentRank,CongregationsPer10000,ConPer10000Rank
+CountyName,StateAbbr,CountyId,Population,PopRank,Adherents,AdhRank,Congregations,ConRank,AdherentsPercent,AdhPercentRank,CongregationsPer10000,ConPer10000Rank
 Autauga, AL,01001,54571,917,36938,691,106,838,67.7,546,19,1799
 Baldwin, AL,01003,182265,338,96918,303,271,248,53.2,1329,15,2268
 Barbour, AL,01005,27457,1516,15101,1392,89,1021,55.0,1206,32,701

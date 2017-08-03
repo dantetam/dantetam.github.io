@@ -197,6 +197,9 @@
             "SubstanceAbuse" : "./substanceabuse/substanceabuseProcessed.csv|FIPS|EstimatedAgeAdjustedDeathRateMin",
             "GDPPerCapita" : "./gdppercapita/gdppercapitaProcessedId.csv|CountyId|PerCapitaIncome",
             "Gini" : "./giniequality/processedGini.csv|CountyId|GiniMeasure",
+            "Religion" : "./religion/religionProcessedId.csv|CountyId|AdherentsPercent",
+            "CongregationDensity" : "./religion/religionProcessedId.csv|CountyId|CongregationsPer10000",
+            "Crime" : "./crime/crimeDataProcessed.csv|CountyId|crime_rate_per_100000",
             
             //"PopulationPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
             "WhiteOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
@@ -783,6 +786,23 @@
             x = d3.scaleQuantize()
               .domain(d3.range(0.35, 0.65, 0.05))
               .range([450, 900]);
+            getTextFunction = rawText;
+        }
+        else if (mode === "Religion" || mode === "CongregationDensity") {  
+            color = d3.scaleThreshold()
+                .domain(d3.range(0, 90, 10))
+                .range(d3.schemeReds[9]);
+            if (mode === "Religion") {
+                title = "Religion";
+                desc = "Religious Percentage per County";
+            }
+            else {
+                title = "Congregation Density";
+                desc = "Number of Congregations and Places of Worship per 10000 People in County";
+            }
+            x = d3.scaleQuantize()
+              .domain(d3.range(0, 90, 10))
+              .range([450, 900]);
             getTextFunction = percentage;
         }
         else if ($.inArray(mode, industryStrings) != -1) {   
@@ -887,13 +907,22 @@
             desc = mode;
             getTextFunction = percentage;
            
-            if ($.inArray(mode, smallPercentageModes) !== -1 || $.inArray(mode, workforcePercentageStrings) !== -1) {
+            if ($.inArray(mode, smallPercentageModes) !== -1) {
                 color = d3.scaleThreshold()
                     .domain([0, 5, 10, 15, 20, 25, 30, 35, 40, 45])
                     .range(d3.schemeBlues[9]);
                 
                 x = d3.scaleLinear()
                     .domain([0, 5, 10, 15, 20, 25, 30, 35, 40, 45])
+                    .rangeRound([450, 900]);
+            }
+            else if ($.inArray(mode, workforcePercentageStrings) !== -1) {
+                color = d3.scaleThreshold()
+                    .domain([0, 2.5, 5, 7.5, 10, 12.5, 15, 20])
+                    .range(d3.schemeBlues[7]);
+                
+                x = d3.scaleLinear()
+                    .domain([0, 2.5, 5, 7.5, 10, 12.5, 15, 20])
                     .rangeRound([450, 900]);
             }
             else {

@@ -45,7 +45,7 @@ with open('./ACS_15_5YR_S2405.csv', 'r+') as f:
         for index in dataIndices:
             allData[id].append(row[index])
         
-        allData[id] = [ '%.3f' % ( float(allData[id][i]) / float(allData[id][1]) * 100.0 ) if i >= 2 else int(allData[id][i]) for i in range(len(allData[id])) ]
+        allData[id] = [ '%.3f' % ( float(allData[id][i]) / float(allData[id][1]) * 100.0 ) if i >= 2 else allData[id][i] for i in range(len(allData[id])) ]
         #print(allData[id])
     
 header = ["CountyId", "Total", 
