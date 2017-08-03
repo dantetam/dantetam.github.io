@@ -142,6 +142,51 @@
         return result;
     }
     
+    function scaleMap(inspectMap, factor) {
+        var scaled = d3.map();
+        var entries = inspectMap.entries();
+        for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            scaled.set(entry.key, num(entry.value) * factor);
+        }
+        return scaled;
+    }
+    
+    function meanMap(inspectMap) {
+        var avg = 0;
+        var entries = inspectMap.entries();
+        for (var i = 0; i < entries.length; i++) {
+            avg += num(entries[i].value);
+        }
+        return avg / entries.length;
+    }
+    
+    function sampleVarianceMap(inspectMap) {
+        var avg = meanMap(inspectMap);
+        var variance = 0;
+        var entries = inspectMap.entries();
+        for (var i = 0; i < entries.length; i++) {
+            var dx = num(entries[i].value) - avg;
+            variance += dx * dx;
+        }
+        return variance / (entries.length - 1);
+    }
+    
+    function normalizeMap(inspectMap) {
+        var avg = meanMap(inspectMap);
+        var variance = sampleVarianceMap(inspectMap);
+        
+        var result = d3.map();
+        var entries = inspectMap.entries();
+        
+        for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            var normalized = (num(entries[i].value) - avg) / variance;
+            entries.set(entry.key, normalized);
+        }
+        return result;
+    }
+    
     //console.log(dictionaryDivide(d3.map().set("a", 1.0), d3.map().set("a", 2.0)));
     
     function arrayDivide(dividend, divisor) {
@@ -211,19 +256,37 @@
             "MultiOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
             "HispanicOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28",
             
-            /*
-            "WhitePercentage" : {
+            "TotalPopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
+            "OtherStatePopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC03_EST_VC01",
+            "ForeignPopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC04_EST_VC01",
+            
+            "OutOfStatePercentage" : {
                 "compositeData" : true,
                 "required" : [
-                    "TotalPopulation",
-                    "TotalWhiteOrigin"
+                    "TotalPopulationCount",
+                    "OtherStatePopulationCount"
                 ],
                 "function" : function(d) {
-                    console.log(d["TotalPopulation"]);
-                    console.log(d["TotalWhiteOrigin"]);
-                    return arrayDivide(d["TotalPopulation"], d["TotalWhiteOrigin"]);
+                    return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                 }   
             },
+            /*
+            "ForeignPercentage" : {
+                "compositeData" : true,
+                "required" : [
+                    "TotalPopulationCount",
+                    "ForeignPopulationCount"
+                ],
+                "function" : function(d) {
+                    console.log(d["ForeignPopulationCount"])
+                    console.log(d["TotalPopulationCount"])
+                    console.log(scaleMap(dictionaryDivide(d["ForeignPopulationCount"], d["TotalPopulationCount"]), 100.0))
+                    return scaleMap(dictionaryDivide(d["ForeignPopulationCount"], d["TotalPopulationCount"]), 100.0);
+                }   
+            }
+            */
+            /*
+            ,
             "BlackPercentage" : {
                 "compositeData" : true,
                 "required" : [
@@ -805,6 +868,17 @@
               .range([450, 900]);
             getTextFunction = percentage;
         }
+        else if (mode === "Crime") {  
+            color = d3.scaleThreshold()
+                .domain(d3.range(0, 900, 100))
+                .range(d3.schemeReds[9]);
+            title = "Crime";
+            desc = "Crime per 100,000 People in County";
+            x = d3.scaleQuantize()
+              .domain(d3.range(0, 900, 100))
+              .range([450, 900]);
+            getTextFunction = rawText;
+        }
         else if ($.inArray(mode, industryStrings) != -1) {   
             title = mode;
             
@@ -961,32 +1035,83 @@
                 var dataDictionary = {};
                 var numDataLoaded = 0;
                 
+                dataStrings = ["unemployment.csv", "unemployment.csv", "unemployment.csv", "unemployment.csv", "unemployment.csv"];
                 for (var i = 0; i < listRequired.length; i++) {
                     var copyDataName = listRequired[i];
-                    var dataString = allModes[listRequired[i]];
-
-                    var tokens = dataString.split("|");
-                    var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
+                    var dataStringTemplate = allModes[listRequired[i]];
+                    /*
+                    if (dataStringTemplate.indexOf("|") !== -1) {
+                        dataStrings[i] = dataStringTemplate.split("|")[0];
+                    }
+                    else {
+                        dataStrings[i] = dataStringTemplate;
+                    }
+                    */
+                    dataStrings[i] = dataStringTemplate;
+                }
+                 
+                d3.queue()
+                    .defer(d3.csv, dataStrings[0].split("|")[0])
+                    .defer(d3.csv, dataStrings[1].split("|")[0])
+                    .defer(d3.csv, dataStrings[2].split("|")[0])
+                    .defer(d3.csv, dataStrings[3].split("|")[0])
+                    .defer(d3.csv, dataStrings[4].split("|")[0])
+                    .await(function(error, file1, file2, file3, file4, file5) {
+                        if (error) {
+                            console.error('Oh dear, something went wrong: ' + error);
+                        }
+                        files = [file1, file2, file3, file4, file5];
+                        for (var i = 0; i < 5; i++) {
+                            if (dataStrings[i].indexOf("|") !== -1) {
+                                var tokens = dataStrings[i].split("|");
+                                var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
+                                var copyMap = d3.map();
+                                
+                                for (var j = 0; j < files[i].length; j++) {
+                                    var entry = files[i][j];
+                                    copyMap.set(entry[idColumnName] + "", entry[dataColumnName]);
+                                }
+                                
+                                dataDictionary[listRequired[i]] = copyMap;
+                            }
+                        }   
+                        
+                        dataMap = processFunction(dataDictionary);
+                        d3.queue()
+                            .defer(d3.json, "https://d3js.org/us-10m.v1.json")
+                            .await(function(error, us) {
+                                jsonCsvDataReady(error, us);
+                            });
+                    });
                     
+                    
+                    
+                    
+                    /*
                     d3.csv(csvFileName) //TODO
                         .row(function(d) { return {key: d[idColumnName], value: +num(d[dataColumnName])}; })
                         .get(function(error, rows) {
-                            dataDictionary[listRequired[numDataLoaded]] = d3.map(rows);
+                            console.log(dataString);
+                            var copyMap = d3.map();
+                            for (var j = 0; j < rows.length; j++) {
+                                var entry = rows[j];
+                                copyMap.set(entry.key, entry.value);
+                            }
+                            dataDictionary[listRequired[numDataLoaded]] = copyMap;
+                            
+                            console.log(copyMap);
+                            
                             numDataLoaded++;
                             if (numDataLoaded === listRequired.length) {
                                 dataMap = processFunction(dataDictionary);
-                                console.log(dataMap);
                                 d3.queue()
                                     .defer(d3.json, "https://d3js.org/us-10m.v1.json")
                                     .await(function(error, us) {
                                         jsonCsvDataReady(error, us);
                                     });
                             }
-                        });
-                        
-                    
+                        });*/
 
-                }
             }   
             else {
                 var dataString = allModes[mode]; //Contains the file name|county id column|true data column
