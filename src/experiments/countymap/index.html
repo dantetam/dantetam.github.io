@@ -142,6 +142,21 @@
         return result;
     }
     
+    function dictionarySubtract(base, subtract) {
+        var result = d3.map();
+        var entries = base.entries();
+        for (var j = 0; j < entries.length; j++) {
+            var key = entries[j]["key"], value = entries[j]["value"];
+            if (subtract.get(key) === undefined) {
+                
+            }
+            else {
+                result.set(key, num(value) - num(subtract.get(key)))
+            }
+        }
+        return result;
+    }
+    
     function scaleMap(inspectMap, factor) {
         var scaled = d3.map();
         var entries = inspectMap.entries();
@@ -153,7 +168,7 @@
     }
     
     function meanMap(inspectMap) {
-        var avg = 0;
+        var avg = 0.0;
         var entries = inspectMap.entries();
         for (var i = 0; i < entries.length; i++) {
             avg += num(entries[i].value);
@@ -163,13 +178,15 @@
     
     function sampleVarianceMap(inspectMap) {
         var avg = meanMap(inspectMap);
-        var variance = 0;
+        var variance = 0.0;
         var entries = inspectMap.entries();
         for (var i = 0; i < entries.length; i++) {
             var dx = num(entries[i].value) - avg;
             variance += dx * dx;
         }
-        return variance / (entries.length - 1);
+        //console.log(variance);
+        //console.log(variance / (entries.length - 1));
+        return Math.sqrt(variance / (entries.length - 1));
     }
     
     function normalizeMap(inspectMap) {
@@ -181,8 +198,9 @@
         
         for (var i = 0; i < entries.length; i++) {
             var entry = entries[i];
-            var normalized = (num(entries[i].value) - avg) / variance;
-            entries.set(entry.key, normalized);
+            //console.log(num(entry.value) + " " + avg + " " + variance);
+            var normalized = (num(entry.value) - avg) / variance;
+            result.set(entry.key, normalized);
         }
         return result;
     }
@@ -268,6 +286,65 @@
                 ],
                 "function" : function(d) {
                     return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
+                }   
+            },
+            
+            "Correlation" : {
+                "compositeData" : true,
+                "required" : [
+                    "Poverty", //red
+                    "Crime" //blue
+                ],
+                "function" : function(d) {
+                    //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
+                    var normalizedFirst = normalizeMap(d["Poverty"]);
+                    var normalizedSecond = normalizeMap(d["Crime"]);
+ 
+                    var result = d3.map();
+                    var entries = normalizedFirst.entries();
+                    for (var i = 0; i < entries.length; i++) {
+                        var key = entries[i].key;
+                        if (normalizedSecond.has(key)) {
+                            var value1 = num(normalizedFirst.get(key));
+                            var value2 = num(normalizedSecond.get(key));
+                            var normalizedDiff = Math.abs(value1 - value2);
+                            //console.log(value1 + " " + value2 + " " + normalizedDiff);
+                            if (normalizedDiff > 0.75) {
+                                if (value1 > value2) {
+                                    //return shades of red as normalizedDiff increases
+                                    //0 - 0.3
+                                    var extremeness = Math.min(normalizedDiff - 0.75, 1);
+                                    result.set(key, 0.3 * (1 - extremeness));
+                                }
+                                else {
+                                    //0.5 - 0.8
+                                    //return shades of blue
+                                    var extremeness = Math.min(normalizedDiff - 0.75, 1);
+                                    result.set(key, 0.5 + 0.3 * extremeness);
+                                }
+                            }
+                            else { 
+                                var avg = (value1 + value2) / 2.0;
+                                //return shades of purple as average increases
+                                //0.9 - 1.7
+                                var extremeness = Math.max(0, Math.min(avg, 1));
+                                result.set(key, 0.9 + 0.8 * extremeness);
+                                console.log(value1 + " " + value2 + " " + extremeness);
+                            }
+                            //console.log(result.get(key));
+                        }
+                    }
+                    
+                    //d3.schemeRdBu[9].concat(d3.schemePurples[9])
+                    color = d3.scaleThreshold()
+                        .domain(d3.range(0, 1.7, 0.1))
+                        .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
+                    title = "Poverty and Crime"; 
+                    desc = "Poverty and Crime by County";        
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    getTextFunction = rawText;
+                    
+                    return result;
                 }   
             },
             /*
@@ -359,6 +436,8 @@
             }
             */
         };
+        
+    console.log(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
         
     industryStrings = ["AllSectors",
             "AgricultureForestryFishingHunting",
@@ -492,7 +571,7 @@
             n = input;
         }
         if (!isNaN(parseFloat(n)) && isFinite(n)) {
-            return n;
+            return parseFloat(n);
         }
         return null;
     }
@@ -522,7 +601,7 @@
     //TODO: Implement this
     function jsonCsvDataReady(error, us) {
       if (error) throw error;
-
+      
       container.append("g")
           .attr("class", "counties")
         .selectAll("path")
@@ -611,6 +690,9 @@
         .style("opacity", 0);  
 
     var color = null;
+    
+    var correlationColorScheme = null;
+    
     var title = "Default Title";
     var desc = "Default Description";
     var desc2 = "Default Extended Description"
