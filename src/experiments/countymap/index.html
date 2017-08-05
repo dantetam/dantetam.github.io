@@ -88,6 +88,11 @@
     <button id='saveButton'>Save Map as PNG</button>
     <button id='toggleMenu'>Toggle Menu On/Off</button>
     <button id='resetMap'>Reset Map View</button>
+    
+    <!-- Allow the user to type in any two data types to see a red-blue correlation map -->
+    <input id='redCorrelationInput'>Correlation 1 (Red)</input>
+    <input id='blueCorrelationInput'>Correlation 2 (Blue)</input>
+    <button id='createCorrelationMap'>Create Correlation Map</button>
     <!--<button id='saveButton'>Download this data</button>-->
     &emsp;
     <a href="./censusdata.zip">Download All Data (ZIP)</a>
@@ -246,6 +251,48 @@
         return dictionaryDivide(mapA, mapB);
     }
 
+    function normalizedCorrelationMap(mapA, mapB) {
+        var normalizedFirst = normalizeMap(mapA);
+        var normalizedSecond = normalizeMap(mapB);
+
+        var result = d3.map();
+        var entries = normalizedFirst.entries();
+        for (var i = 0; i < entries.length; i++) {
+            var key = entries[i].key;
+            if (normalizedSecond.has(key)) {
+                var value1 = num(normalizedFirst.get(key));
+                var value2 = num(normalizedSecond.get(key));
+                var normalizedDiff = Math.abs(value1 - value2);
+                //console.log(value1 + " " + value2 + " " + normalizedDiff);
+                if (normalizedDiff > 0.75) {
+                    if (value1 > value2) {
+                        //return shades of red as normalizedDiff increases
+                        //0 - 0.3
+                        var extremeness = Math.min(normalizedDiff - 0.75, 1);
+                        result.set(key, 0.3 * (1 - extremeness));
+                    }
+                    else {
+                        //0.5 - 0.8
+                        //return shades of blue
+                        var extremeness = Math.min(normalizedDiff - 0.75, 1);
+                        result.set(key, 0.5 + 0.3 * extremeness);
+                    }
+                }
+                else { 
+                    var avg = (value1 + value2) / 2.0;
+                    //return shades of purple as average increases
+                    //0.9 - 1.7
+                    var extremeness = Math.max(0, Math.min(avg, 2)) / 2.0;
+                    result.set(key, 0.9 + 0.8 * extremeness);
+                    //console.log(value1 + " " + value2 + " " + extremeness);
+                }
+                //console.log(result.get(key));
+            }
+        }
+        
+        return result;
+    }
+    
     //var mode = "Unemployment";
     //var mode = "Income";
     //var mode = "Poverty";
@@ -295,47 +342,31 @@
                     "Poverty", //red
                     "Crime" //blue
                 ],
-                "function" : function(d) {
+                "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
-                    var normalizedFirst = normalizeMap(d["Poverty"]);
-                    var normalizedSecond = normalizeMap(d["Crime"]);
- 
-                    var result = d3.map();
-                    var entries = normalizedFirst.entries();
-                    for (var i = 0; i < entries.length; i++) {
-                        var key = entries[i].key;
-                        if (normalizedSecond.has(key)) {
-                            var value1 = num(normalizedFirst.get(key));
-                            var value2 = num(normalizedSecond.get(key));
-                            var normalizedDiff = Math.abs(value1 - value2);
-                            //console.log(value1 + " " + value2 + " " + normalizedDiff);
-                            if (normalizedDiff > 0.75) {
-                                if (value1 > value2) {
-                                    //return shades of red as normalizedDiff increases
-                                    //0 - 0.3
-                                    var extremeness = Math.min(normalizedDiff - 0.75, 1);
-                                    result.set(key, 0.3 * (1 - extremeness));
-                                }
-                                else {
-                                    //0.5 - 0.8
-                                    //return shades of blue
-                                    var extremeness = Math.min(normalizedDiff - 0.75, 1);
-                                    result.set(key, 0.5 + 0.3 * extremeness);
-                                }
-                            }
-                            else { 
-                                var avg = (value1 + value2) / 2.0;
-                                //return shades of purple as average increases
-                                //0.9 - 1.7
-                                var extremeness = Math.max(0, Math.min(avg, 1));
-                                result.set(key, 0.9 + 0.8 * extremeness);
-                                console.log(value1 + " " + value2 + " " + extremeness);
-                            }
-                            //console.log(result.get(key));
-                        }
-                    }
-                    
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
+                    
+                    color = d3.scaleThreshold()
+                        .domain(d3.range(0, 1.7, 0.1))
+                        .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
+                    title = listRequired[0] + " and " + listRequired[1]; 
+                    desc = title + " by County";        
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    getTextFunction = rawText;
+                    
+                    return normalizedCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
+                }   
+            },
+            "PovertyCrime" : {
+                "compositeData" : true,
+                "required" : [
+                    "Poverty", //red
+                    "Crime" //blue
+                ],
+                "function" : function(data, listRequired) {
+                    //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
+                    //d3.schemeRdBu[9].concat(d3.schemePurples[9])
+                    
                     color = d3.scaleThreshold()
                         .domain(d3.range(0, 1.7, 0.1))
                         .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
@@ -344,9 +375,31 @@
                     x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
                     getTextFunction = rawText;
                     
-                    return result;
+                    return normalizedCorrelationMap(data["Poverty"], data["Crime"]);
                 }   
             },
+            "PovertySubstanceAbuse" : {
+                "compositeData" : true,
+                "required" : [
+                    "Poverty", //red
+                    "SubstanceAbuse" //blue
+                ],
+                "function" : function(data, listRequired) {
+                    //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
+                    //d3.schemeRdBu[9].concat(d3.schemePurples[9])
+                    
+                    color = d3.scaleThreshold()
+                        .domain(d3.range(0, 1.7, 0.1))
+                        .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
+                    title = "Poverty and Substance Abuse"; 
+                    desc = "Poverty and Substance Abuse by County";        
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    getTextFunction = rawText;
+                    
+                    return normalizedCorrelationMap(data["Poverty"], data["SubstanceAbuse"]);
+                }   
+            },
+            
             /*
             "ForeignPercentage" : {
                 "compositeData" : true,
@@ -435,7 +488,7 @@
                 }   
             }
             */
-        };
+        };    
         
     console.log(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
         
@@ -476,6 +529,89 @@
             "ADG25",
             "BDG25",
             "GPG25"
+    ];
+    
+    var buttonTreeHierarchy = [
+            "AllData",
+            "Unemployment",
+            "Income",
+            "Poverty",
+            "PopulationDensity", 
+            "SubstanceAbuse", 
+            "GDPPerCapita",
+            "Gini",
+            "Religion",
+            "CongregationDensity",
+            "Crime",
+            
+            [
+                "IndustryData",
+                "AllSectors",
+                "AgricultureForestryFishingHunting",
+                "MiningQuarryingOilGas",
+                "Utilities",
+                "Construction",
+                "Manufacturing",
+                "WholesaleTrade",
+                "RetailTrade",
+                "TransportationWarehousing",
+                "Information",
+                "FinanceInsurance",
+                "RealEstate",
+                "ProfessionalScientificTechnical",
+                "Management",
+                "AdministrativeSupportWaste",
+                "Education",
+                "HealthcareSocialAssistance",
+                "ArtsEntertainmentRecreation",
+                "AccommodationFood",
+                "OtherServices",
+                "IndustriesNotClassified"
+            ],
+            
+            [
+                "EducationData",
+                "Total1824",
+                "LHS1824",
+                "HS1824",
+                "SC1824",
+                "BH1824",
+                "TotalG25",
+                "L9G25",
+                "912G25",
+                "HSG25",
+                "SCG25",
+                "ADG25",
+                "BDG25",
+                "GPG25"
+            ],
+            
+            [
+                "OriginPercentages",
+                "WhiteOriginPercentage",
+                "BlackOriginPercentage",
+                "IndianOriginPercentage",
+                "AsianOriginPercentage",
+                "PacificIslanderOriginPercentage",
+                "OtherOriginPercentage",
+                "MultiOriginPercentage",
+                "HispanicOriginPercentage",
+            ],
+            
+            [
+                "PopulationCounts",
+                "TotalPopulationCount",
+                "OtherStatePopulationCount",
+                "ForeignPopulationCount",
+                "OutOfStatePercentage"
+            ],
+            
+            [
+                "Correlations",
+                "Correlation",
+                "PovertyCrime",
+                "PovertySubstanceAbuse"
+            ]
     ];
         
     workforcePercentageStrings = [
@@ -548,6 +684,7 @@
 
     var mapMenu = d3.select("#mapchoices");
     var aboutText = d3.select("#aboutText");
+    var createCorMap = d3.select("#createCorrelationMap");
 
     var menuVisible = true;
     
@@ -725,9 +862,68 @@
         } : null;
     } 
 
+    function createButtonTreeMenu(parentDiv, inspectList) {
+        if (inspectList.length <= 1) {
+            return null;
+        }
+        var menuDiv = parentDiv.append("div");
+        
+        var menuButton = parentDiv.append("button").text(inspectList[0]).attr("title", inspectList[0]).attr("id", "menuTree" + inspectList[0]).on("click", function() {
+            var current = menuDiv.style("display");
+            if (current === "block") {
+                menuDiv.style("display", "none");
+                menuButton.style("background-color", "#aaaadd");
+                menuButton.style("color", "#ffffff");
+            }   
+            else {
+                menuDiv.style("display", "block");
+                menuButton.style("background-color", "#ffaaaa");  
+                menuButton.style("color", "black");
+            }
+        });
+        menuButton.style("background-color", "#aaaadd");
+        menuButton.style("color", "#ffffff");
+        
+        for (var i = 1; i < inspectList.length; i++) {
+            var elem = inspectList[i];
+            if ($.isArray(elem)) {
+                if (elem.length > 0) {
+                    /*
+                    var button = menuDiv.append("button").text(elem[0]).attr("title", elem[0]).attr("id", "placeholder").on("click", function() {
+                        console.log(this.textContent);
+                        loadMapWithMode(this.textContent);
+                    });
+                    */
+                    createButtonTreeMenu(menuDiv, elem);
+                }
+            }
+            else {
+                //menuDiv.html(menuDiv.html() + "&emsp;");
+                var button = menuDiv.append("button").text(elem).attr("title", elem).attr("id", "menuTree" + elem).on("click", function() {
+                    console.log(this.textContent);
+                    loadMapWithMode(this.textContent);
+                });
+                button.style("background-color", "#cccccc");
+                button.style("color", "black");
+            }
+        }
+        menuDiv.style("display", "none");
+        
+        return menuDiv;
+    }
+    function createButtons() {
+        var menuDiv = createButtonTreeMenu(d3.select("#mapchoices"), buttonTreeHierarchy);
+        menuDiv.style("display", "block");
+        
+        var allDataMenuButton = d3.select("#menuTreeAllData");
+        allDataMenuButton.style("background-color", "#ffaaaa");  
+        allDataMenuButton.style("color", "black");
+    }
+
     function loadAboutText() {
         mapMenu.selectAll("*").remove();
         mapMenu.html("");
+        /*
         for (var chooseMode in allModes) {
             if (allModes.hasOwnProperty(chooseMode)) {
                 //var chooseMode = allModes[i];  
@@ -744,6 +940,9 @@
                 });
             }
         }
+        */
+        createButtons();
+        
         mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
             console.log(this.textContent);
             window.location.href = "./urbancenters/urbancenters.html";
@@ -821,22 +1020,7 @@
         //Buttons at the top where the user can switch modes    
         mapMenu.selectAll("*").remove();
         mapMenu.html("");
-        for (var chooseMode in allModes) {
-            if (allModes.hasOwnProperty(chooseMode)) {
-                //var chooseMode = allModes[i];  
-                var id = chooseMode == mode ? "current" : "";
-                var title = allModesDesc[chooseMode] == null ? chooseMode + " per County" : allModesDesc[chooseMode];
-                var button = mapMenu.append("button").text(chooseMode).attr("title", title).attr("id", id).on("click", function() {
-                    console.log(this.textContent);
-                    loadMapWithMode(this.textContent);
-                    //window.history.pushState('index', this.textContent, '/index.html');
-                    //console.log("Redirect " + "./index.html?maptype=" + mode);
-                    //window.location.href = "index.html?maptype=" + new String(mode);
-                    //window.location.href = "./index.html?maptype=" + mode;
-                    //window.location.reload();
-                });
-            }
-        }
+        createButtons();
         mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
             console.log(this.textContent);
             window.location.href = "./urbancenters/urbancenters.html";
@@ -1158,7 +1342,7 @@
                             }
                         }   
                         
-                        dataMap = processFunction(dataDictionary);
+                        dataMap = processFunction(dataDictionary, listRequired);
                         d3.queue()
                             .defer(d3.json, "https://d3js.org/us-10m.v1.json")
                             .await(function(error, us) {
@@ -1287,6 +1471,16 @@
         //container.attr("transform")
         container.attr("transform", {"k": "1", "x": "0", "y": "0"});
     });
+    
+    createCorMap.on('click', function() {
+        var text1 = d3.select("#redCorrelationInput").property("value");
+        var text2 = d3.select("#blueCorrelationInput").property("value");
+        if (text1 in allModes && text2 in allModes) {
+            var modifyData = allModes["Correlation"];
+            modifyData["required"] = [text1, text2];
+            loadMapWithMode("Correlation");
+        }
+    }); 
 
     //Zoom functions
 
