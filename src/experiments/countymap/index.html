@@ -306,6 +306,27 @@
         return result;
     }
     
+    function normalizedInverseCorrelationMap(mapA, mapB) {
+        var normalizedFirst = normalizeMap(mapA);
+        var normalizedSecond = normalizeMap(mapB);
+
+        var result = d3.map();
+        var entries = normalizedFirst.entries();
+        for (var i = 0; i < entries.length; i++) {
+            var key = entries[i].key;
+            if (normalizedSecond.has(key)) {
+                var value1 = num(normalizedFirst.get(key));
+                var value2 = num(normalizedSecond.get(key));
+                var diff = Math.max(-3, Math.min(value1 - value2, 3));
+
+                var extremeness = (diff + 3) * 1.1 / 6.0;
+                result.set(key, extremeness);
+            }
+        }
+        
+        return result;
+    }
+    
     //var mode = "Unemployment";
     //var mode = "Income";
     //var mode = "Poverty";
@@ -381,14 +402,14 @@
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
                     
                     color = d3.scaleThreshold()
-                        .domain(d3.range(0, 1.7, 0.1))
-                        .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
+                        .domain(d3.range(0, 1.0, 0.1))
+                        .range(d3.schemeRdBu[11]);
                     title = listRequired[0] + " and " + listRequired[1]; 
                     desc = title + " by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    x = d3.scaleLinear().domain(d3.range(0, 1.0, 0.1)).rangeRound([450, 900]);  
                     getTextFunction = rawText;
                     
-                    return normalizedCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
+                    return normalizedInverseCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
                 }   
             },
             "PovertyCrime" : {
@@ -643,6 +664,7 @@
             [
                 "Correlations",
                 "Correlation",
+                "InverseCorrelation",
                 "PovertyCrime",
                 "PovertySubstanceAbuse"
             ]
@@ -779,7 +801,16 @@
         */
         
         countiesSortedField = allEntries.sort(function(x, y) {
-            return d3.descending(dataMap.get(x.key), dataMap.get(y.key));
+            var value1 = dataMap.get(x.key);
+            var value2 = dataMap.get(y.key);
+            if (value1 === value2) {
+                var rand = Math.random() - 0.5;
+                if (rand === 0) return 1;
+                return rand / Math.abs(rand); //Return the sign of rand, 1 or -1
+            }
+            else {
+                return d3.descending(dataMap.get(x.key), dataMap.get(y.key));
+            }
         });
     
         var inspectValue = dataMap.get(inspectId);
@@ -965,6 +996,8 @@
     var topCountiesPop = null; 
      
     var getTextFunction = null;
+    
+    var pageCounter = 0;
         
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -1014,7 +1047,11 @@
                 //menuDiv.html(menuDiv.html() + "&emsp;");
                 var button = menuDiv.append("button").text(elem).attr("title", elem).attr("id", "menuTree" + elem).on("click", function() {
                     console.log(this.textContent);
+                    container.attr("transform", {"k": "1", "x": "0", "y": "0"});
                     loadMapWithMode(this.textContent);
+                    
+                    window.history.pushState('page' + pageCounter, this.textContent, '/src/experiments/countymap/index.html?maptype=' + this.textContent);
+                    pageCounter++;
                 });
                 button.style("background-color", "#cccccc");
                 button.style("color", "black");
@@ -1603,7 +1640,7 @@
             svgString2Image( svgString, 2*width, 2*height, 'png', save ); // passes Blob and filesize String to the callback
 
             function save( dataBlob, filesize ){
-                saveAs( dataBlob, 'D3 vis exported to PNG.png' ); // FileSaver.js function
+                saveAs( dataBlob, 'CensusVisual' + mode + '.png' ); // FileSaver.js function
             }
         });
     }
