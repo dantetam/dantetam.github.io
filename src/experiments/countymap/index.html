@@ -76,6 +76,19 @@
         overflow: hidden;
     }
 
+    div.tooltip {	
+        position: absolute;			
+        text-align: center;							
+        padding: 2px;				
+        font: 12px sans-serif;		
+        background: lightsteelblue;	
+        border: 0px;		
+        border-radius: 8px;			
+        pointer-events: none;		
+        display:block;
+        overflow:auto;
+    }
+    
     </style>
 </head>
 <body>
@@ -756,8 +769,16 @@
         return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate);
     }
     
-    function activateComparisonMenu(inspectId) {
-        countiesSortedField = dataMap.entries().sort(function(x, y) {
+    function getDataComparisons(inspectId) {
+        var allEntries = dataMap.entries();
+        /*
+        var filteredEntries = allEntries.filter(function(d) { 
+            var population = num(populationById.get(d.key));
+            return population >= bigTownPopCutoff;
+        });
+        */
+        
+        countiesSortedField = allEntries.sort(function(x, y) {
             return d3.descending(dataMap.get(x.key), dataMap.get(y.key));
         });
     
@@ -774,23 +795,28 @@
             }
         }
         
-        console.log(sortedIndex);
+        var top = Math.max(0, sortedIndex - 5 + 1);
+        var bottom = Math.min(countiesSortedField.length - 1, sortedIndex + 5 + 2);
         
-        var top = Math.max(0, sortedIndex - 5);
-        var bottom = Math.min(countiesSortedField.length - 1, sortedIndex + 5);
+        var texts = []
         
         for (var i = top; i < sortedIndex; i++) {
             var otherCountyId = countiesSortedField[i].key;
             var tempKeyValue = {"id" : otherCountyId, "rate" : dataMap.get(otherCountyId)};
             var textValue = getTextFunction(tempKeyValue);
-            console.log(otherCountyId + " " + textValue);
+            texts.push(textValue);
         }
+        
+        //texts.push(); //push this county under inspection?
+        
         for (var i = sortedIndex; i < bottom; i++) {
             var otherCountyId = countiesSortedField[i].key;
             var tempKeyValue = {"id" : otherCountyId, "rate" : dataMap.get(otherCountyId)};
             var textValue = getTextFunction(tempKeyValue);
-            console.log(otherCountyId + " " + textValue);
+            texts.push(textValue);
         }
+        
+        return texts;
     }
     
     //General template for json/csv callback
@@ -812,9 +838,25 @@
           .attr("fill", function(d) { return color(d.rate = dataMap.get(d.id)); })
           .attr("d", path)
           .on("click", function(d) {
-            activateComparisonMenu(d.id);
-            console.log(d);
+            var texts = getDataComparisons(d.id);
+            
+            divTooltip.style("opacity", 1); 
+            var countyName = countyNameById.get(d.id);
+            divTooltip.html("<p>" + getTextFunction(d) + "</p>")
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+                
+            divTooltip.html(divTooltip.html() + "<p>");
+            for (var i = 0; i < texts.length; i++) {
+                divTooltip.html(divTooltip.html() + texts[i] + "<br>");
+            }
+            divTooltip.html(divTooltip.html() + "</p>");
           })
+          /*
+          .on("mousemove", function(d) {
+            
+          })
+          */
           //.attr("countyid", function(d) { return d.id; })
         .append("title")
           .text(function(d) { return getTextFunction(d); });
@@ -892,7 +934,8 @@
     // Define the div for the tooltip
     var divTooltip = d3.select("body").append("div")	
         .attr("class", "tooltip")				
-        .style("opacity", 0);  
+        .style("opacity", 0)
+        .style("z-index", 1);        
 
     var color = null;
     
@@ -1066,6 +1109,7 @@
         svg = d3.select("svg"),
             width = +svg.attr("width"),
             height = +svg.attr("height");
+        svg.style("z-index", 0);
             
         
         //TODO: Replace with a solution that updates the whole map insteading of replacing it
