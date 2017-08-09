@@ -407,6 +407,8 @@
             "Religion" : "./religion/religionProcessedId.csv|CountyId|AdherentsPercent",
             "CongregationDensity" : "./religion/religionProcessedId.csv|CountyId|CongregationsPer10000",
             "Crime" : "./crime/crimeDataProcessed.csv|CountyId|crime_rate_per_100000",
+            "Veterans" : "./rural_atlas/Veterans.csv|FIPS|Vets18OPct",
+            "UrbanIndex" : "./rural_atlas/CountyClassifications.csv|FIPS|RuralUrbanContinuumCode2013",
             
             //"PopulationPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
             "WhiteOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
@@ -688,6 +690,8 @@
             "Religion",
             "CongregationDensity",
             "Crime",
+            "Veterans",
+            "UrbanIndex",
             
             [
                 "IndustryData",
@@ -1375,13 +1379,13 @@
         }
         else if (mode === "PopulationDensity") {
             color = d3.scaleThreshold()
-                .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-                .range(d3.schemeReds[9]);
+                .domain([10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
+                .range(d3.schemeReds[8]);
             title = "Population Density";
             desc = "Population Density per County per Square Mile";
-            x = d3.scaleQuantize()
+            x = d3.scaleThreshold()
               .domain([0, 10, 50, 100, 350, 1000, 2500, 5000, 10000, 50000])
-              .range([450, 900]);
+              .range(d3.range(450, 950, 50));
             getTextFunction = rawText;
         }
         else if (mode === "SubstanceAbuse") {
@@ -1390,9 +1394,9 @@
                 .range(d3.schemeReds[9]); 
             title = "Substance Abuse";
             desc = "Substance Abuse per County";
-            x = d3.scaleQuantize()
+            x = d3.scaleThreshold()
               .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
-              .range([450, 900]);
+              .range(d3.range(450, 950, 50));
             getTextFunction = rawText;
         }
         else if (mode === "GDPPerCapita") {  
@@ -1401,9 +1405,9 @@
                 .range(d3.schemeGreens[9]);
             title = "GDP per Capita";
             desc = "GDP per Capita per County";
-            x = d3.scaleQuantize()
+            x = d3.scaleThreshold()
               .domain([0, 19000, 20900, 22000, 23100, 24750, 27250, 30000, 35000, 70000])
-              .range([450, 900]);
+              .range(d3.range(450, 950, 50));
             getTextFunction = dollars;
         }
         else if (mode === "Gini") {  
@@ -1412,9 +1416,9 @@
                 .range(d3.schemeReds[6]);
             title = "Gini Inequality";
             desc = "Gini Inequality Index per County";
-            x = d3.scaleQuantize()
-              .domain(d3.range(0.35, 0.65, 0.05))
-              .range([450, 900]);
+            x = d3.scaleLinear()
+              .domain([0.35, 0.65, 0.05])
+              .rangeRound([450, 950]);
             getTextFunction = rawText;
         }
         else if (mode === "Religion" || mode === "CongregationDensity") {  
@@ -1429,9 +1433,9 @@
                 title = "Congregation Density";
                 desc = "Number of Congregations and Places of Worship per 10000 People in County";
             }
-            x = d3.scaleQuantize()
-              .domain(d3.range(0, 90, 10))
-              .range([450, 900]);
+            x = d3.scaleLinear()
+              .domain([0, 90, 10])
+              .rangeRound([450, 900]);
             getTextFunction = percentage;
         }
         else if (mode === "Crime") {  
@@ -1440,9 +1444,31 @@
                 .range(d3.schemeReds[9]);
             title = "Crime";
             desc = "Crime per 100,000 People in County";
-            x = d3.scaleQuantize()
-              .domain(d3.range(0, 900, 100))
-              .range([450, 900]);
+            x = d3.scaleLinear()
+              .domain([0, 900, 100])
+              .rangeRound([450, 900]);
+            getTextFunction = rawText;
+        }
+        else if (mode === "Veterans") {  
+            color = d3.scaleThreshold()
+                .domain(d3.range(2, 20, 2))
+                .range(d3.schemeReds[9]);
+            title = "Veterans";
+            desc = "Veterans Percentage in County";
+            x = d3.scaleLinear()
+              .domain([2, 20, 2])
+              .rangeRound([450, 900]);
+            getTextFunction = percentage;
+        }
+        else if (mode === "UrbanIndex") {
+            color = d3.scaleThreshold()
+                .domain(d3.range(1, 9, 1))
+                .range(d3.schemeReds[9].reverse());
+            title = "Urban Index";
+            desc = "Urban Index by County";
+            x = d3.scaleLinear()
+              .domain([1, 9, 1])
+              .rangeRound([450, 900]);
             getTextFunction = rawText;
         }
         else if ($.inArray(mode, industryStrings) != -1) {   
@@ -1457,18 +1483,18 @@
                     .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
                     .range(d3.schemeReds[7]);
                     
-                x = d3.scaleQuantize()
+                x = d3.scaleThreshold()
                   .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
-                  .range([450, 900]);
+                  .range(d3.range(450, 950, 500.0 / 8));
             }
             else {
                 color = d3.scaleThreshold()
                     .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
                     .range(d3.schemeReds[8]);
             
-                x = d3.scaleQuantize()
+                x = d3.scaleThreshold()
                     .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
-                    .range([450, 900]);
+                    .range(d3.range(450, 950, 500 / 8));
             }
             
             getTextFunction = dollarsTimesThousand;
@@ -1482,9 +1508,9 @@
             
             desc = "Total population of age group in county";
             
-            x = d3.scaleQuantize()
+            x = d3.scaleThreshold()
               .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
-              .range([450, 900]);
+              .range(d3.range(450, 950, 50));
                 
             educationType = mode;
             
@@ -1731,7 +1757,12 @@
             g.call(d3.axisBottom(x)
                 .tickSize(13)
                 .tickFormat(function(x, i) { 
-                    return i ? x : x; 
+                    if (x % 1 === 0) {
+                        return x;
+                    }
+                    else {
+                        return x.toFixed(2);
+                    }
                 })
                 .tickValues(color.domain()))
               .select(".domain")
