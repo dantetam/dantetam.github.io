@@ -10,7 +10,10 @@
         font-size: 16px;
     }
     
-    html { overflow-y: hidden; }
+    html { 
+        overflow-y: hidden; 
+        overflow-x: hidden;
+    }
     
     .counties {
         fill: none;
@@ -61,7 +64,7 @@
     #mapchoices #current {
         background-color: #ff3b30;
     }
-
+    
     #saveButton, #toggleMenu, #resetMap {
         background-color: #ffaaaa;
         border: 1px solid white;
@@ -103,8 +106,8 @@
     <button id='resetMap'>Reset Map View</button>
     
     <!-- Allow the user to type in any two data types to see a red-blue correlation map -->
-    <input id='redCorrelationInput'>Correlation 1 (Red)</input>
-    <input id='blueCorrelationInput'>Correlation 2 (Blue)</input>
+    Correlation 1 (Red): <input id='redCorrelationInput'></input>
+    Correlation 2 (Blue): <input id='blueCorrelationInput'></input>
     <button id='createCorrelationMap'>Create Correlation Map</button>
     <!--<button id='saveButton'>Download this data</button>-->
     &emsp;
@@ -120,7 +123,40 @@
     <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
     <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
     <script src="./svgsave.js"></script>
-    <script>
+    <script> 
+
+    //Calculates the area from -infinity to x, of a distribution Normal(mean, variance)
+    function cdf(x, mean, variance) {
+        return 0.5 * (1 + erf((x - mean) / (Math.sqrt(2 * variance))));
+    }
+
+    function erf(x) {
+        // save the sign of x
+        var sign = (x >= 0) ? 1 : -1;
+        x = Math.abs(x);
+
+        // constants
+        var a1 =  0.254829592;
+        var a2 = -0.284496736;
+        var a3 =  1.421413741;
+        var a4 = -1.453152027;
+        var a5 =  1.061405429;
+        var p  =  0.3275911;
+
+        // A&S formula 7.1.26
+        var t = 1.0/(1.0 + p*x);
+        var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+        return sign * y; // erf(-x) = -erf(x);
+    }
+
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
     
     function dictionaryAdd() {
         var result = d3.map();
@@ -327,6 +363,33 @@
         return result;
     }
     
+    function normalizedTriCorrelationMap(mapA, mapB, mapC) {
+        var normalizedFirst = normalizeMap(mapA);
+        var normalizedSecond = normalizeMap(mapB);
+        var normalizedThird = normalizeMap(mapC);
+
+        var result = d3.map();
+        var entries = normalizedFirst.entries();
+        for (var i = 0; i < entries.length; i++) {
+            var key = entries[i].key;
+            if (normalizedSecond.has(key) && normalizedThird.has(key)) {
+                var value1 = num(normalizedFirst.get(key));
+                var value2 = num(normalizedSecond.get(key));
+                var value3 = num(normalizedThird.get(key));
+                
+                var red = cdf(value1, 0, 1), green = cdf(value2, 0, 1), blue = cdf(value3, 0, 1);
+                red = Math.floor(red * 255.0);
+                green = Math.floor(green * 255.0);
+                blue = Math.floor(blue * 255.0);
+                
+                result.set(key, [red, green, blue]);
+                //console.log(result.get(key));
+            }
+        }
+        
+        return result;
+    }
+    
     //var mode = "Unemployment";
     //var mode = "Income";
     //var mode = "Poverty";
@@ -410,6 +473,33 @@
                     getTextFunction = rawText;
                     
                     return normalizedInverseCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
+                }   
+            },
+            "TripleCorrelation" : {
+                "compositeData" : true,
+                "required" : [
+                    "Poverty", //red
+                    "SubstanceAbuse", //green
+                    "Crime" //blue
+                ],
+                "function" : function(data, listRequired) {
+                    //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
+                    //d3.schemeRdBu[9].concat(d3.schemePurples[9])
+                    
+                    color = function(arr) {
+                        if (arr === undefined) {
+                            return "#000000";
+                        }   
+                        //console.log(arr);
+                        console.log(rgbToHex(arr[0], arr[1], arr[2]));
+                        return rgbToHex(arr[0], arr[1], arr[2]);
+                    };
+                    title = listRequired[0] + ", " + listRequired[1] + ", and " + listRequired[2]; 
+                    desc = title + " by County";        
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    getTextFunction = rawText;
+                    
+                    return normalizedTriCorrelationMap(data[listRequired[0]], data[listRequired[1]], data[listRequired[2]]);
                 }   
             },
             "PovertyCrime" : {
@@ -665,6 +755,7 @@
                 "Correlations",
                 "Correlation",
                 "InverseCorrelation",
+                "TripleCorrelation",
                 "PovertyCrime",
                 "PovertySubstanceAbuse"
             ]
@@ -1008,25 +1099,45 @@
         } : null;
     } 
 
+    function clearAndRefreshMenu() {
+        //Buttons at the top where the user can switch modes    
+        mapMenu.selectAll("*").remove();
+        mapMenu.html("");
+        createButtons();
+        mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancenters.html";
+        });
+        mapMenu.append("button").text("Closest Urban Centers").attr("title", "Closest Urban Centers").on("click", function() {
+            console.log(this.textContent);
+            window.location.href = "./urbancenters/urbancentersvoronoi.html";
+        });
+    }
+    
     function createButtonTreeMenu(parentDiv, inspectList) {
         if (inspectList.length <= 1) {
             return null;
         }
         var menuDiv = parentDiv.append("div");
         
-        var menuButton = parentDiv.append("button").text(inspectList[0]).attr("title", inspectList[0]).attr("id", "menuTree" + inspectList[0]).on("click", function() {
-            var current = menuDiv.style("display");
-            if (current === "block") {
-                menuDiv.style("display", "none");
-                menuButton.style("background-color", "#aaaadd");
-                menuButton.style("color", "#ffffff");
-            }   
-            else {
-                menuDiv.style("display", "block");
-                menuButton.style("background-color", "#ffaaaa");  
-                menuButton.style("color", "black");
-            }
-        });
+        var menuButton = parentDiv.append("button")
+            .text(inspectList[0])
+            .attr("title", inspectList[0])
+            .attr("class", "menuTreeButton")
+            .attr("id", "menuTree" + inspectList[0])
+            .on("click", function() {
+                var current = menuDiv.style("display");
+                if (current === "block") {
+                    menuDiv.style("display", "none");
+                    menuButton.style("background-color", "#aaaadd");
+                    menuButton.style("color", "#ffffff");
+                }   
+                else {
+                    menuDiv.style("display", "block");
+                    menuButton.style("background-color", "#ffaaaa");  
+                    menuButton.style("color", "black");
+                }
+            });
         menuButton.style("background-color", "#aaaadd");
         menuButton.style("color", "#ffffff");
         
@@ -1045,14 +1156,24 @@
             }
             else {
                 //menuDiv.html(menuDiv.html() + "&emsp;");
-                var button = menuDiv.append("button").text(elem).attr("title", elem).attr("id", "menuTree" + elem).on("click", function() {
-                    console.log(this.textContent);
-                    container.attr("transform", {"k": "1", "x": "0", "y": "0"});
-                    loadMapWithMode(this.textContent);
-                    
-                    window.history.pushState('page' + pageCounter, this.textContent, '/src/experiments/countymap/index.html?maptype=' + this.textContent);
-                    pageCounter++;
-                });
+                var button = menuDiv.append("button")
+                    .text(elem)
+                    .attr("title", elem)
+                    .attr("class", "menuTreeButton")
+                    .attr("id", "menuTree" + elem)
+                    .on("click", function() {
+                        divTooltip.style("opacity", 0.0);
+                        
+                        //Buttons at the top where the user can switch modes  
+                        //clearAndRefreshMenu();
+                        
+                        console.log(this.textContent);
+                        container.attr("transform", {"k": "1", "x": "0", "y": "0"});
+                        loadMapWithMode(this.textContent);
+                        
+                        window.history.pushState('page' + pageCounter, this.textContent, '/src/experiments/countymap/index.html?maptype=' + this.textContent);
+                        pageCounter++;
+                    });
                 button.style("background-color", "#cccccc");
                 button.style("color", "black");
             }
@@ -1177,19 +1298,6 @@
         g = container.append("g")
             .attr("class", "key")
             .attr("transform", "translate(0,40)");
-            
-        //Buttons at the top where the user can switch modes    
-        mapMenu.selectAll("*").remove();
-        mapMenu.html("");
-        createButtons();
-        mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
-            console.log(this.textContent);
-            window.location.href = "./urbancenters/urbancenters.html";
-        });
-        mapMenu.append("button").text("Closest Urban Centers").attr("title", "Closest Urban Centers").on("click", function() {
-            console.log(this.textContent);
-            window.location.href = "./urbancenters/urbancentersvoronoi.html";
-        });
 
         //Load in the official full list of counties
         d3.queue()
@@ -1646,6 +1754,7 @@
     }
 
     loadMapWithMode(mode);
+    clearAndRefreshMenu();
 
     d3.select("#toggleMenu").on('click', function() {
         if (menuVisible) {
