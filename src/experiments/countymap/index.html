@@ -1463,9 +1463,9 @@
         else if (mode === "UrbanIndex") {
             color = d3.scaleThreshold()
                 .domain(d3.range(1, 9, 1))
-                .range(d3.schemeReds[9].reverse());
-            title = "Urban Index";
-            desc = "Urban Index by County";
+                .range(d3.schemeReds[9]);
+            title = "Rural-Urban Index";
+            desc = "Rural-Urban Index by County";
             x = d3.scaleLinear()
               .domain([1, 9, 1])
               .rangeRound([450, 900]);
