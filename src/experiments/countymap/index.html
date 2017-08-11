@@ -409,6 +409,7 @@
             "Crime" : "./crime/crimeDataProcessed.csv|CountyId|crime_rate_per_100000",
             "Veterans" : "./rural_atlas/Veterans.csv|FIPS|Vets18OPct",
             "UrbanIndex" : "./rural_atlas/CountyClassifications.csv|FIPS|RuralUrbanContinuumCode2013",
+            "PopulationGrowth" : "./rural_atlas/People.csv|FIPS|PopChangeRate1516",
             
             //"PopulationPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
             "WhiteOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
@@ -692,6 +693,7 @@
             "Crime",
             "Veterans",
             "UrbanIndex",
+            "PopulationGrowth",
             
             [
                 "IndustryData",
@@ -855,7 +857,7 @@
     function num(input) {
         //if (x == null || isNaN(x)) return null;
         if (typeof input === "string") {
-            n = input.replace(/[^0-9.]/g, "");
+            n = input.replace(/[^0-9.-]/g, "");
         }
         else {
             n = input;
@@ -865,6 +867,12 @@
         }
         return null;
     }
+    
+    console.log(num(1.4));
+    console.log(num("1.4"));
+    console.log(num("-37.9"));
+    console.log(num(-37.9));
+    console.log(-37.9);
     
     function numberWithCommas(x) {
         if (x == null) return "";
@@ -1470,6 +1478,17 @@
               .domain([1, 9, 1])
               .rangeRound([450, 900]);
             getTextFunction = rawText;
+        }
+        else if (mode === "PopulationGrowth") {
+            color = d3.scaleThreshold()
+                .domain(d3.range(-1, 3.5, 0.5))
+                .range(d3.schemeReds[9]);
+            title = "Population Growth";
+            desc = "Population Growth Percentage by County";
+            x = d3.scaleLinear()
+              .domain([-1, 3.5, 0.5])
+              .rangeRound([450, 900]);
+            getTextFunction = percentage;
         }
         else if ($.inArray(mode, industryStrings) != -1) {   
             title = mode;
