@@ -11,9 +11,19 @@
     }
 
     h3,h4 {
-      text-align: center;
-      margin: auto;
+        text-align: center;
+        margin: auto;
     }
+    
+    button {
+        background-color: #cccccc;
+        border: 1px solid white;
+        color: black; /* White text */
+        padding: 5px 12px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        float: left; /* Float the buttons side by side */
+    }
+
     </style>
     
     <link href="twitter_ipynb.css" rel="stylesheet">
@@ -32,6 +42,10 @@
             <p><i>Dante Tam, 8/13/2017</i></p>
             <br>
             <br>
+            <div style="position: fixed; top: 15%; left: 0;">
+                <button id='toggleProgressiveWealthTax'>Progressive Wealth Tax (Off)</button><br>
+                <button id='toggleCapitalGainsTax'>Capital Gains Tax (Off)</button>
+            </div>
             <br>
             <br>
             <br>
@@ -57,7 +71,7 @@
     var actors = [];
 
     var progressiveWealthTaxEnabled = false;
-    var capitalGainsTaxEnabled = true;
+    var capitalGainsTaxEnabled = false;
     
     var initNumActors = 1000;
     var initNumSuperManagers = 20;
@@ -155,6 +169,11 @@
 
     //This data is evaluated every year
 
+    // 2. Use the margin convention practice 
+    var margin = {top: 50, right: Math.round(window.innerWidth * 0.15), bottom: 50, left: Math.round(window.innerWidth * 0.15)}, 
+        width = window.innerWidth - margin.left - margin.right, // Use the window's width
+        height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
+
     //Evaluate a progressive tax based on the brackets table
     function getTaxOwed(income, dataSrc) {
         var bracketIndex = 0;
@@ -182,6 +201,7 @@
     //console.log(getTaxOwed(50000));
 
     function initActors() {
+        actors = [];
         for (var i = 0; i < initNumActors; i++) {
             var age = Math.floor(d3.randomUniform(16, 80)());
             var percentile = Math.random();
@@ -318,18 +338,18 @@
             var capitalPercent = classCapital / totalCapital;
             var incomePercent = classIncome / totalIncome;
             
-            console.log("Class between " + percentiles[i+1]*100 + " and " + percentiles[i]*100 + " percentiles");
-            console.log("has " + incomePercent + "% of total income, and " + capitalPercent + "% of all capital.");
-            console.log("--------");
+            //console.log("Class between " + percentiles[i+1]*100 + " and " + percentiles[i]*100 + " percentiles");
+            //console.log("has " + incomePercent + "% of total income, and " + capitalPercent + "% of all capital.");
+            //console.log("--------");
             
             capitalShareResults.push(capitalPercent);
             incomeShareResults.push(incomePercent);
         }
         
-        console.log("The average capital wealth is: " + averageCapital);
-        console.log("The average income is: " + averageIncome);
-        console.log("The capital income ratio: " + capitalIncomeRatio);
-        console.log("----------------------------------");
+        //console.log("The average capital wealth is: " + averageCapital);
+        //console.log("The average income is: " + averageIncome);
+        //console.log("The capital income ratio: " + capitalIncomeRatio);
+        //console.log("----------------------------------");
         
         return [percentiles, capitalShareResults, incomeShareResults, averageCapital, averageIncome, capitalIncomeRatio];
     }
@@ -349,62 +369,6 @@
         return result;
     }
     
-    console.log(sumArr([[1,2,3,4],[5,6,7]]));
-    
-    initActors();
-
-    //console.log(actors[0]);
-    //console.log(baseLaborIncome(0.57));
-    
-    console.log("Starting population: " + actors.length);
-    
-    var data = evaluateEquality();
-
-    var capitalShareResults = [];
-    var avgCapitalResults = [];
-    var avgIncomeResults = [];
-    var capitalIncomeRatioResults = [];
-    for (var i = 0; i < data[0].length - 1; i++) {
-        capitalShareResults.push([]);
-    }
-    for (var i = 0; i < numYears; i++) {
-        gameTurn();
-        var data = evaluateEquality();
-        for (var j = 0; j < data[0].length - 1; j++) {
-            capitalShareResults[j].push(data[1][j]);
-        }
-        avgCapitalResults.push(data[3]);
-        avgIncomeResults.push(data[4]);
-        capitalIncomeRatioResults.push(data[5]);
-    }
-    
-    console.log(capitalShareResults);
-    
-    console.log("Ending population: " + actors.length);
-
-    console.log(avgCapitalResults);
-    console.log(avgIncomeResults);
-    
-    //Render all the data found previously
-    
-    //var renderData = [0.10, 0.20, 0.30, 0.40, 0.10, 0.20, 0.30, 0.40, 0.0, -0.10, 0.20, 0.30, 0.10];
-    
-    var reversedResults = capitalShareResults.reverse();
-    
-    var compiledResults = [];
-    for (var i = 1; i <= reversedResults.length; i++) {
-        var arrays = [];
-        for (var j = 0; j < i; j++) {
-            arrays.push(reversedResults[j]);
-        }
-        compiledResults.push(sumArr(arrays));
-    }
-    
-    // 2. Use the margin convention practice 
-    var margin = {top: 50, right: Math.round(window.innerWidth * 0.15), bottom: 50, left: Math.round(window.innerWidth * 0.15)}
-      , width = window.innerWidth - margin.left - margin.right // Use the window's width 
-      , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
-
     function addSvgGraph(graphLabel, xScale, yScale) {
         var totalWidth = width + margin.left + margin.right;
         var totalHeight = height + margin.top + margin.bottom;
@@ -438,75 +402,163 @@
         return svg;
     }
     
-    function addLineToSvg(svg, data) {
+    function addLineToSvg(svg, data, line, dataName) {
         svg.append("path")
             .datum(data) 
             .attr("class", "line")
             .style("fill", "none")
             .style("stroke", "#000")
             .attr("d", line);
+            
+        svg.append("text")
+            .attr("x", 15)
+            .attr("y", function() {
+                var yScale = line.y();
+                return yScale(data[0]) + 25;
+            })
+            .attr("dy", "0.0em")
+            .style("font-size", "20px")
+            .text(dataName);
     }
     
-      
-    // The number of datapoints
-    var n = compiledResults[0].length;
-
-    // 5. X scale will use the index of our data
-    var xScale = d3.scaleLinear()
-        .domain([0, n-1]) // input
-        .range([0, width]); // output
-
-    // 6. Y scale will use the randomly generate number 
-    var yScale = d3.scaleLinear()
-        .domain([0, 1]) // input 
-        .range([height, 0]); // output 
-
-    // 7. d3's line generator
-    var line = d3.line()
-        .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
-        .y(function(d) { return yScale(d); }) // set the y values for the line generator 
-        .curve(d3.curveMonotoneX) // apply smoothing to the line
-
-    // 1. Add the SVG to the page and employ #2
-    var svg = addSvgGraph("Inequality of capital", xScale, yScale);
-
-    addLineToSvg(svg, compiledResults[0]);
-    addLineToSvg(svg, compiledResults[1]);
-    addLineToSvg(svg, compiledResults[2]);
-    addLineToSvg(svg, compiledResults[3]);
-
-        
-    var xScale = d3.scaleLinear()
-        .domain([0, n-1]) // input
-        .range([0, width]); // output
-
-    // 6. Y scale will use the randomly generate number 
-    var yScale = d3.scaleLinear()
-        .domain([0, 1000]) // input 
-        .range([height, 0]); // output     
-        
-    var svg = addSvgGraph("Average capital and income", xScale, yScale);
-        
-    addLineToSvg(svg, avgCapitalResults);
-    addLineToSvg(svg, avgIncomeResults);
+    function initSimulation() {
+        d3.selectAll("svg").remove();
     
+        initActors();
+
+        //console.log(actors[0]);
+        //console.log(baseLaborIncome(0.57));
+        
+        console.log("Starting population: " + actors.length);
+        
+        var data = evaluateEquality();
+
+        var capitalShareResults = [];
+        var avgCapitalResults = [];
+        var avgIncomeResults = [];
+        var capitalIncomeRatioResults = [];
+        for (var i = 0; i < data[0].length - 1; i++) {
+            capitalShareResults.push([]);
+        }
+        for (var i = 0; i < numYears; i++) {
+            gameTurn();
+            var data = evaluateEquality();
+            for (var j = 0; j < data[0].length - 1; j++) {
+                capitalShareResults[j].push(data[1][j]);
+            }
+            avgCapitalResults.push(data[3]);
+            avgIncomeResults.push(data[4]);
+            capitalIncomeRatioResults.push(data[5]);
+        }
+        
+        console.log(capitalShareResults);
+        
+        console.log("Ending population: " + actors.length);
+
+        console.log(avgCapitalResults);
+        console.log(avgIncomeResults);
+        
+        //Render all the data found previously
+        
+        //var renderData = [0.10, 0.20, 0.30, 0.40, 0.10, 0.20, 0.30, 0.40, 0.0, -0.10, 0.20, 0.30, 0.10];
+        
+        var reversedResults = capitalShareResults.reverse();
+        
+        var compiledResults = [];
+        for (var i = 1; i <= reversedResults.length; i++) {
+            var arrays = [];
+            for (var j = 0; j < i; j++) {
+                arrays.push(reversedResults[j]);
+            }
+            compiledResults.push(sumArr(arrays));
+        }        
+          
+        // The number of datapoints
+        var n = compiledResults[0].length;
+
+        // 5. X scale will use the index of our data
+        var xScale = d3.scaleLinear()
+            .domain([0, n-1]) // input
+            .range([0, width]); // output
+
+        // 6. Y scale will use the randomly generate number 
+        var yScale = d3.scaleLinear()
+            .domain([0, 1]) // input 
+            .range([height, 0]); // output 
+            
+        // 7. d3's line generator
+        var line = d3.line()
+            .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
+            .y(function(d) { return yScale(d); }) // set the y values for the line generator 
+            .curve(d3.curveMonotoneX) // apply smoothing to the line    
+            
+        // 1. Add the SVG to the page and employ #2
+        var svg = addSvgGraph("Inequality of capital", xScale, yScale);
+
+        addLineToSvg(svg, compiledResults[3], line, ">99th Percentile");
+        addLineToSvg(svg, compiledResults[2], line, "90-99th Percentile");
+        addLineToSvg(svg, compiledResults[1], line, "50-90th Percentile");
+        addLineToSvg(svg, compiledResults[0], line, "<50th Percentile");
+
+            
+        var xScale = d3.scaleLinear()
+            .domain([0, n-1]) // input
+            .range([0, width]); // output
+
+        // 6. Y scale will use the randomly generate number 
+        var yScale = d3.scaleLinear()
+            .domain([0, 1000]) // input 
+            .range([height, 0]); // output     
+            
+        var svg = addSvgGraph("Average capital and income", xScale, yScale);
+            
+        addLineToSvg(svg, avgCapitalResults, line, "Average Capital");
+        addLineToSvg(svg, avgIncomeResults, line, "Average Income");
+        
+        
+        
+       
+        
+        var xScale = d3.scaleLinear()
+            .domain([0, n-1]) // input
+            .range([0, width]); // output
+
+        // 6. Y scale will use the randomly generate number 
+        var yScale = d3.scaleLinear()
+            .domain([0, 25]) // input 
+            .range([height, 0]); // output 
+            
+        var svg = addSvgGraph("Capital to income ratio", xScale, yScale);
+            
+        addLineToSvg(svg, capitalIncomeRatioResults, line, "Capital/Income Ratio");
+    }
     
-    
+    var wealthTaxButton = d3.select("#toggleProgressiveWealthTax");
+    var capitalTaxButton = d3.select("#toggleCapitalGainsTax");
    
+    wealthTaxButton.on("click", function() {
+        progressiveWealthTaxEnabled = !progressiveWealthTaxEnabled;
+        initSimulation();
+        if (progressiveWealthTaxEnabled) {
+            d3.select(this).text("Progressive Wealth Tax (On)");
+        }
+        else {
+            d3.select(this).text("Progressive Wealth Tax (Off)");
+        }
+    });
+    capitalTaxButton.on("click", function() {
+        capitalGainsTaxEnabled = !capitalGainsTaxEnabled;
+        initSimulation();
+        if (capitalGainsTaxEnabled) {
+            d3.select(this).text("Capital Gains Tax (On)");
+        }
+        else {
+            d3.select(this).text("Capital Gains Tax (Off)");
+        }
+    });
     
-    var xScale = d3.scaleLinear()
-        .domain([0, n-1]) // input
-        .range([0, width]); // output
-
-    // 6. Y scale will use the randomly generate number 
-    var yScale = d3.scaleLinear()
-        .domain([0, 25]) // input 
-        .range([height, 0]); // output 
-        
-    var svg = addSvgGraph("Capital to income ratio", xScale, yScale);
-        
-    addLineToSvg(svg, capitalIncomeRatioResults);
-
+    initSimulation();
+    
     
     </script>
 </body>
