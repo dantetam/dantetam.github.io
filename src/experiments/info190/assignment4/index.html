@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>04: SVG, Selections, Data Binding</title>
+  <meta name="author" content="Dante Tam">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FYI this is an HTML comment, it will be ignored by the browser -->
+  <!-- load the d3 library locally -->
+  <!-- we could load the non-minified version, plain old "d3.js", for debugging purposes instead if desired -->
+  <!--<script src="./d3.min.js"></script>-->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+    
+  <!-- Our CSS goes within the <style> tag -->
+  <!-- Like JS, we could also link to an external CSS file using the <link /> tag -->
+  <style>
+
+    /* here's how we write a comment in CSS */
+    body {
+      margin:0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    text {
+      fill: #333;
+    }
+
+    .axis--x path {
+      display: none;
+    }
+
+    /*
+    .bar {
+      fill: steelblue;
+    }
+    */
+    
+    /*  we didn't do this in class, but check out what happens when we use the :hover psuedo property!   */
+    .bar:hover {
+      fill: brown;
+    }
+
+    .bar-label {
+      font-size: 0.8em;
+    }
+    
+    #intro {
+      text-align: center;
+      margin: auto;
+    }
+    
+    body {
+      font-family: 'Roboto';
+      font-size: 14px;
+    }
+
+  </style>
+
+</head>
+
+<!-- all visible HTML goes within the <body> tag -->
+<body>
+
+  <script src="data.js"></script>
+  <script src="main.js"></script>
+  <div id="intro">
+    <h1>D3 Selection and Data Binding</h1>
+    <h2>Dante Tam, 26282180, datam@berkeley.edu, dantetam (Github)</h2>
+    <p>I used Microsoft IIS to create a localhost website for testing.</p>
+    <p>Base code from class, plus text rotation, d3 normal distribution data, and coloring based on frequency</p>
+  </div>
+</body>
