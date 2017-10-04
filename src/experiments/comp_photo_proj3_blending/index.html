@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" />
+<title>CS194-26 Project 3</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<link rel="stylesheet" href="bootstrap.css">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+<style type="text/css">
+h1,h2,h3,h4 {
+    margin: auto;
+    text-align: center;
+}
+
+p {
+    /*text-align: left;*/
+    text-align: center;
+}
+
+.large {
+    width: 60%;
+}
+
+img {
+    width: 30%;
+}
+
+.fourth {
+    width: 20%;
+}
+
+.fifth {
+    width: 15%;
+}
+
+#content {
+    /*margin: auto;*/
+}
+
+body {
+    font-family: 'Roboto', serif;
+    font-size: 14px;
+}
+
+#headerimage h1 {
+    position: absolute;
+    width: 100%;
+
+    color: steelblue;
+    font-size: 30px;
+    text-shadow: 1px 1px 2px white;
+    /*text-decoration: underline;*/
+
+    top: 5%;
+    display: block;
+}
+
+tr:nth-child(even) {
+    background-color: #ffffff;
+}
+
+tr:nth-child(odd) {
+    background-color: #dddddd;
+}
+</style>
+
+<!-- Custom stylesheet, it must be in the same directory as the html file -->
+<link rel="stylesheet" href="custom.css">
+
+<!-- Loading mathjax macro -->
+<!-- Load mathjax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <!-- MathJax configuration -->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {'.MathJax_Display': {"margin": 0}},
+            linebreaks: { automatic: true }
+        }
+    });
+    </script>
+    <!-- End of mathjax configuration --></head>
+<body>
+
+<div id="headerimage" style="text-align: center;">
+    <img src="./header.png" style="width: 100%;">
+    <h1>CS194-26 Computational Photography: 
+    <br> 
+    Fun with Frequencies and Gradients
+    <br>
+    <br>
+    Dante Tam
+    <!--
+    <br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br>
+    <br><br>
+    <p>Winter is coming...</p>
+    -->
+    </h1>
+    <br>
+    <br>
+</div>
+<br>
+<h2></h2>
+<br>
+<div id="content">
+
+<p>In this project, we examine frequency blending, Gaussian stack multiresolution blending, and Poisson blending, 
+as methods to seamlessly blend images together. The results are entertaining, profound, and deeply expressive.</p>
+
+<h2>1.1 Sharpening Warmup</h2>
+<img src="./sharpen/hike.jpg">
+<img src="./sharpen/sharpened_hike.jpg">
+<br>
+<br>
+<br>
+
+<h2>1.2 Hybrid Images</h2>
+<img src="./hybrid_image_0/DerekPicture.jpg">
+<img src="./hybrid_image_0/nutmeg.jpg">
+<img src="./hybrid_image_0/final_hybrid.jpg">
+<br>
+<br>
+<br>
+<h2>Seaguin, Pengull, Cute Flying Rat of the Sky (+ More Hybrid Images)</h2>
+<img src="./hybrid_image_1/penguin-chick.jpeg">
+<img src="./hybrid_image_1/p21s_seagull_on_piling.jpg">
+<img src="./hybrid_image_1/final_hybrid.jpg">
+<br>
+<br>
+<br>
+<h3>+ Fourier Analysis</h3>
+<p>In order from left to right: fft(im1), fft(im2), fft(low(im1)), fft(high(im2)), fft(final)</p>
+<p>The FFT converts regular images into their frequency representations. These frequencies are filtered out in obht passes. In the low pass, the image becomes darker due to high frequencies being filtered out, and similarly for the image that underwent a high pass. The final result is a blend of these two filtered images, as evidenced by the large bright cross formed in the center in the final image.</p>
+<img class="fifth" src="./hybrid_image_1/fft_im1.jpg">
+<img class="fifth" src="./hybrid_image_1/fft_im2.jpg">
+<img class="fifth" src="./hybrid_image_1/fft_low_pass_im1.jpg">
+<img class="fifth" src="./hybrid_image_1/fft_high_pass_im2.jpg">
+<img class="fifth" src="./hybrid_image_1/fft_final.jpg">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<h3>Whose Hooves? (+ Failure)</h3>
+<p>I attribute this to great contrasts in the lighting of the source images, the fact that they don't overlap, and misaligned points (determined by a mistaken hand, of course).</p><br>
+<img src="./hybrid_image_2/Full_Blood_Wagyu_Bull_in_Chile.jpg">
+<img src="./hybrid_image_2/hippo-milk-pink-1.jpg">
+<img src="./hybrid_image_2/final_hybrid.jpg">
+<br>
+<br>
+<br>
+
+<h2>Rose Leslie, the Wildling (+ More Hybrid Images)</h2>
+<h4></h4>
+<img src="./hybrid_image_3/ygritte.jpg">
+<img src="./hybrid_image_3/twittah.jpg">
+<img src="./hybrid_image_3/final_hybrid.jpg">
+<br>
+<br>
+<br>
+
+<h2>1.3 Gaussian and Laplacian Stacks</h2>
+<p>(Please see iPython notebook for implementation and results.)</p>
+<p>I implemented this the same way mostly everyone did. For the Gaussian stack, I applied Gaussian filters successively to an image. The Laplacian stack is formed from the differences between the respective Gaussian stack levels i.e. LaplacianStack(image)[i] = GaussianStack(image)[i] - GaussianStack(image)[i+1].</p>
+<br>
+<br>
+<br>
+
+<h2>1.4 Multiresolution Blending</h2>
+<h3>Oraple Blend</h3>
+<img class="fourth" src="./laplacian_blend_oraple/apple.jpeg">
+<img class="fourth" src="./laplacian_blend_oraple/orange.jpeg">
+<img class="fourth" src="./laplacian_blend_oraple/mask_oraple.jpeg">
+<img class="fourth" src="./laplacian_blend_oraple/test-oraple.jpg">
+<br>
+<br>
+<br>
+<h3>Two Faced Terminator (More Multiresolution Blending)</h3>
+<h4><i>He's got multiple personalities.</i></h4>
+<br>
+<img class="fourth" src="./laplacian_blend_2/terminator_skel.jpg">
+<img class="fourth" src="./laplacian_blend_2/two_face.jpg">
+<img class="fourth" src="./laplacian_blend_2/custom_mask_2.jpeg">
+<img class="fourth" class="fourth" src="./laplacian_blend_2/test-two-face-terminator.jpg">
+<br>
+<br>
+<br>
+<h4><i>Houston, we have a problem.</i></h4>
+<img class="fourth" src="./laplacian_blend_3/meteor_source.jpg">
+<img class="fourth" src="./laplacian_blend_3/moon_target.jpg">
+<img class="fourth" src="./laplacian_blend_3/meteor_moon_mask.jpg">
+<img class="fourth" src="./laplacian_blend_3/test-meteor-astronaut.jpg">
+
+<h2>2.2 Poisson Blending</h2>
+<h4><i>Winter is coming...</i></h4>
+<img src="./blend_6/night_king.jpg">
+<img src="./blend_6/dante_tam.jpg">
+<img src="./blend_6/blend_mask_3.jpg">
+<img src="./blend_6/dante_tam_night_king_cut.jpg">
+<img src="./blend_6/test_poisson_blend_6_contrast.png">
+<br>
+<br>
+<br>
+<h4><i>Idiocracy</i></h4>
+<img src="./blend_5/trump_source.jpg">
+<img src="./blend_5/idiocracy_target.jpeg">
+<img src="./blend_5/trump_mask.jpg">
+<img class="large" src="./blend_5/test_poisson_blend_5.png">
+<br>
+<br>
+<br>
+<h2>+ Failure</h2>
+<h4><i>The Rose and Jack Conspiracy</i></h4>
+<p>While entertaining, this photo is not very realistic due to the least squares solver wanting to match Jamie from Mythbusters to the blue, moon-lit background of the Jack and Rose Titanic shot. Still, the blend is nice.</p>
+<img src="./blend_4/jaime_mythbusters.jpg">
+<img src="./blend_4/titanic_jack_and_rose.jpg">
+<img src="./blend_4/leo_mask.jpg">
+<img class="large" src="./blend_4/test_poisson_blend_4_contrast.png">
+<br>
+<br>
+<br>
+
+<h2>+ Blending Algorithm Comparison</h2>
+<img class="fourth" src="./laplacian_blend_2/terminator_skel.jpg">
+<img class="fourth" src="./laplacian_blend_2/two_face.jpg">
+<img class="fourth" src="./laplacian_blend_2/custom_mask_2.jpeg">
+<br>
+<br>
+<br>
+<h2>Left: Hybrid Frequency; Middle: Gaussian Pyramid; Right: Poisson Blending</h4>
+<h4><i>The only morality in a cruel world...is artificial intelligence.</i></h4>
+<p>The best approach for these images was Poisson blending. This worked because the Gaussian pyramid always produced a noticable seam, as well as differences in the background color. The Poisson approach seems to be better when images agree in color scheme and need to be "imposed" on each other, whereas the Gaussian method works by seamlessly hiding a rough cut. Furthermore, the hybrid image method works when we want to compose two images together that need to be seen individually depending on focus level and distance.</p>
+<img src="./hybrid_image_4/final_hybrid.jpg">
+<img src="./laplacian_blend_2/test-two-face-terminator.jpg">
+<img src="./blend_7/poisson_blend.png">
+<br>
+<br>
+<br>
+
+</div>
+
+</body>
+
+ 
+
+
+</html>
