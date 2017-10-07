@@ -33,6 +33,26 @@ table {
   width: 100%;
 }
 
+div.gallery {
+    margin: 5px;
+    border: 1px solid #ccc;
+    float: left;
+    width: 180px;
+}
+
+div.gallery:hover {
+    border: 1px solid #777;
+}
+
+div.gallery img {
+    width: 100%;
+    height: auto;
+}
+
+div.desc {
+    text-align: center;
+}
+
 </style>
 <html lang="en">
   <head>
@@ -44,7 +64,7 @@ table {
     <meta name="author" content="Dante Tam">
     <link rel="icon" href="../favicon.ico">
 
-    <title>Info 190: Dante Tam</title>
+    <title>CS 194-26: Dante Tam</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../../dist/css/bootstrap.min.css" rel="stylesheet">
@@ -158,13 +178,24 @@ table {
         <br>
         <br>
         <br>
-        <h1>Info 190 Data Visualization with d3.js</h1>
+        <h1>CS 194-26 Image Manipulation and Computational Photography</h1>
         <h2>Dante Tam, 26282180, datam@berkeley.edu, dantetam (Github)</h2><br>
         
-        <a href="./assignment2/index.html">Calculator App from class 2</a><br>
-        <a href="./assignment3/index.html">Canvas Bar Chart from class 3</a><br>
-        <a href="./assignment4/index.html">D3 Selection and Data Binding</a><br>
-        <a href="./assignment5/index.html">D3 General Update Pattern</a><br>
+        <br>
+        
+        <div class="gallery" style="width: 25%;">
+          <a target="_blank" href="../comp_photo_proj1/index.html">
+            <img src="./kura_river.jpg">
+          </a>
+          <div class="desc"><a href="../comp_photo_proj1/index.html">Recolorizing RGB Glass Negatives</a></div>
+        </div>
+        
+        <div class="gallery" style="width: 25%;">
+          <a target="_blank" href="../comp_photo_proj3_blending/index.html">
+            <img src="./two_face_terminator.png">
+          </a>
+          <div class="desc"><a href="../comp_photo_proj3_blending/index.html">Photorealistic Image Blending and Composition</a></div>
+        </div>
       </div>
 
     </div><!-- /.container -->
