@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>05: General Update Pattern</title>
+  <meta name="author" content="your name here">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FYI this is an HTML comment, it will be ignored by the browser -->
+  <!-- load the d3 library locally -->
+  <!-- we could load the non-minified version, plain old "d3.js", for debugging purposes instead if desired -->
+  <script src="./lib/d3.min.js"></script>
+
+  <!-- Our CSS goes within the <style> tag -->
+  <!-- Like JS, we could also link to an external CSS file using the <link /> tag -->
+  <style>
+    /* here's how we write a comment in CSS */
+    body {
+      margin:0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+  </style>
+
+</head>
+<body>
+  <!-- Remember that all visible HTML goes within the <body> tag -->
+  <!-- TO DO: Within the body tag, add a script tag for your main.js file -->
+  <!--<svg width="500" height="200"></svg>-->
+  
+  <script src="main.js"></script>
+  
+  <!--
+  <script>
+  
+  var svg = d3.select("body").append("svg").attr("width", 500).attr("height", 200);
+  var dataSet = [10, 20, 30, 40, 50]; //The original
+  var dataSet2 = [75, 100, 110]; //Use this dataset, which may overlap with the previous, to demonstrate the general update pattern
+  
+  var t = d3.transition().duration(3000).ease(d3.easeBounceInOut);
+  
+  //Note that enter and append return new selections,
+  //white attr returns the same selection so that we can chain functions and changes
+  
+  var circles = svg.selectAll("circle") //Empty selection
+    .data(dataSet) //Bind dataset
+    .enter() //Contains the objects relating to the dataset
+    .append("circle") //Create a circle for each item in the enter() call
+    .attr("cx", function(d) {return d;}) //Set their properties using accessor functions
+    .attr("cy", function(d) {return d;})
+    .attr("r", 10)
+    .attr("fill", "red")
+    .attr("stroke", "black");
+  
+  var circleNewData = circles.data(dataSet2);
+   
+  //circleNewData.exit().transition(t).attr("opacity", 0.0);
+  
+  circleNewData.exit().transition(t).attr("fill", 'rgba(0,0,0,0)').remove();
+  
+  /*
+  //Nothing happens in this block due to the way that the dataset updates
+  circleNewData.enter().append("circle")
+    .attr("cx", function(d) {return d;}) //Set their properties using accessor functions
+    .attr("cy", function(d) {return d;})
+    .attr("r", 10)
+    .attr("fill", "blue")
+    .attr("stroke", "black");
+  */
+  
+  circleNewData.exit().transition(t).remove();
+  
+  circleNewData
+    .transition(t)
+    .attr("cx", function(d) {return d;}) //Set their properties using accessor functions
+    .attr("cy", function(d) {return d;})
+    .attr("r", 10)
+    .attr("fill", "blue")
+    .attr("stroke", "black");
+  
+  </script>
+  -->
+</body>

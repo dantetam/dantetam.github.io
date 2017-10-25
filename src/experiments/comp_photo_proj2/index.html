@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8" />
+<title>CS194-26 Project 2</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<link rel="stylesheet" href="bootstrap.css">
+
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
+<style type="text/css">
+h1,h2,h3,h4 {
+    margin: auto;
+    text-align: center;
+}
+
+p {
+    text-align: left;
+}
+
+.smallimg {
+    width: 20%;
+}
+
+.largeimg {
+    width: 50%;
+}
+
+#content {
+    /*margin: auto;*/
+}
+
+body {
+    font-family: 'Roboto', serif;
+    font-size: 14px;
+}
+</style>
+
+<!-- Custom stylesheet, it must be in the same directory as the html file -->
+<link rel="stylesheet" href="custom.css">
+
+<!-- Loading mathjax macro -->
+<!-- Load mathjax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+    <!-- MathJax configuration -->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+            processEscapes: true,
+            processEnvironments: true
+        },
+        // Center justify equations in code and markdown cells. Elsewhere
+        // we use CSS to left justify single line equations in code cells.
+        displayAlign: 'center',
+        "HTML-CSS": {
+            styles: {'.MathJax_Display': {"margin": 0}},
+            linebreaks: { automatic: true }
+        }
+    });
+    </script>
+    <!-- End of mathjax configuration --></head>
+<body>
+
+<h1>CS194-26 Project 2: <br> Constructing a Pinhole Camera</h1>
+<br>
+<h2>Dante Tam</h2>
+<h4>No other team members</h4>
+<br>
+<div id="content">
+<p>In this project, we build an improvised pinhole camera to capture long exposure images, which uses the camera obscura effect.</p>
+<p>My design is quite simple, which is made up a lightproof cereal box with four pinhole diameters: 0.8mm, 2mm, 2.5mm, and 5mm.</p>
+<p>There is a larger hole for the camera aperture. I borrowed a specially configured Canon PowerShot for this project.</p>
+<br>
+<p>There were a few problems with my pinhole box setup. Initially, it was not lightproof, and there was a noticable red light artifact.</p>
+<p>Furthermore, I had two screen setups and two resulting focal distances: 10cm, and 30cm.</p>
+<p>The first screen setup was far too short, since I was not capable of creating a pinhole of 0.1-0.2mm</p>
+<p>using the formula $ d = 2\sqrt{f \lambda} $.</p>
+<p>The second screen projected onto a screen that had too long of an aspect ratio.</p>
+<p>This was perfect for taking pictures of tall and wide objects like the Campanile and the Memorial Glade, but not others.</p> 
+<p>In both cases, the camera could not focus closer than the screen sizes. This camera was specifically designed for long-distance detail shots.</p>
+<br>
+<p>The correct pinhole is a balance. Smaller pinholes do not let enough light in, which leads to an unfocused, low-contrast image.</p>
+<p>Larger pinholes let in too much light, resulting in very bright monotone images.</p>
+<p>Images become much sharper and more defined as the pinhole diameters approaches the optimum in terms of focal laws and physics.</p>
+
+<img class="smallimg" src="./data/pinhole_camera_des1.jpg">
+<img class="smallimg" src="./data/pinhole_camera_des2.jpg">
+<p>Pinhole camera design</p>
+<br>
+<br>
+<br>
+<br>
+
+<img class="smallimg" src="./data/fixedimages/vlsb_1_small.jpg">
+<p>VLSB architecture detail, 1mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/vlsb_2_small.jpg">
+<p>VLSB architecture detail, 2mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/vlsb_25_small.jpg">
+<p>VLSB architecture detail, 2.5mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/vlsb_5_small.jpg">
+<p>VLSB architecture detail, 5mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/cam_1_small.jpg">
+<p>Campanile, SW side, 1mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/cam_2_small.jpg">
+<p>Campanile, SW side, 2mm</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/cam_25_small.jpg">
+<p>Campanile, SW side, 2.5mm (Oops, and also me.)</p>
+<br>
+<br>
+<img class="smallimg" src="./data/fixedimages/cam_5_small.jpg">
+<p>Campanile, SW side, 5mm</p>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+
+<h2>My Own Selected Images</h2>
+<img class="largeimg" src="./data/fixedimages/campanile_dist_small.jpg">
+<p>Campanile, W side from a distance, 2mm</p>
+<br>
+<br>
+<img class="largeimg" src="./data/fixedimages/hearst_mining_circle_small.jpg">
+<p>Hearst Mining Circle, Stanley Hall, 2mm</p>
+<br>
+<br>
+<img class="largeimg" src="./data/fixedimages/wheeler_small.jpg">
+<p>Wheeler south side, architecture detail, 2mm</p>
+<br>
+<br>
+<img class="largeimg" src="./data/fixedimages/memorial_glade_small.jpg">
+<p>Memorial Glade, McCone Hall, McLaughlin Hall, Evans Hall, 2mm</p>
+<br>
+<br>
+
+<br>
+<br>
+<br>
+
+<h2>(Side by Side) Pinhole Diameter Comparisons</h2>
+<p>1, 2, 2.5, 5mm from left to right</p>
+<img class="smallimg" src="./data/fixedimages/vlsb_1_small.jpg">
+<img class="smallimg" src="./data/fixedimages/vlsb_2_small.jpg">
+<img class="smallimg" src="./data/fixedimages/vlsb_25_small.jpg">
+<img class="smallimg" src="./data/fixedimages/vlsb_5_small.jpg">
+<br>
+<br>
+<p>1, 2, 2.5, 5mm from left to right</p>
+<img class="smallimg" src="./data/fixedimages/cam_1_small.jpg">
+<img class="smallimg" src="./data/fixedimages/cam_2_small.jpg">
+<img class="smallimg" src="./data/fixedimages/cam_25_small.jpg">
+<img class="smallimg" src="./data/fixedimages/cam_5_small.jpg">
+<br>
+<br>
+<br>
+
+
+</div>
+
+</body>
+
+ 
+
+
+</html>

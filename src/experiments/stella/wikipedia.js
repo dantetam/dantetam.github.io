@@ -3,7 +3,9 @@ function getWikipediaContentForSearchStrings(strings, finalCallback=null) {
   var callback = function(rawContent) {
     //console.log("VVV");
     console.log(rawContent);
-    titles.push(rawContent.query.search[0].title);
+    if (rawContent.query !== null) {
+      titles.push(rawContent.query.search[0].title);
+    }
     if (titles.length === strings.length) {
       if (finalCallback !== null) {
         finalCallback(titles);
