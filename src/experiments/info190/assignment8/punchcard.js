@@ -34,6 +34,8 @@ var genTypes = [];
 var svg = null;
 var g = null;
 
+var map = null;
+
 //Listen for and emit certain custom events    
 var dispatch = d3.dispatch("load", "statechange");
 
@@ -74,7 +76,7 @@ function renderChart(error, data) {
     .key(function(d) { return d.gen; })
     .entries(data);
 
-  var map = d3.map(nested, function(d) { return d.key; });
+  map = d3.map(nested, function(d) { return d.key; });
 
   //Dispatch events
   //Create a dropdown menu programmatically

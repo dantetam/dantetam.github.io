@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  height: 100%;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  height: 5%;
+}
+
+img {
+  margin: auto;
+  width: 10%;
+}
+
+input {
+  width: 50%;
+}
+
+table {
+  width: 80%;
+  margin: auto;
+}
+
+#map {
+  height: 400px;
+  width: 100%;
+}
+
+</style>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" name="referrer" content="no-referrer">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Description of my ML expertise">
+    <meta name="author" content="Dante Tam">
+    <link rel="icon" href="../favicon.ico">
+
+    <title>Dante Tam</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../../../dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="index.css" rel="stylesheet">
+		<link href="default.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="../../../assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+		<!--<script src="d3.v3.min.js"></script>-->
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+      body, blockquote {
+        font-family: 'Roboto', serif;
+        font-size: 14px;
+      }
+      
+      intro {
+        top: 20%;
+      }
+    </style>
+
+    <script src="https://use.typekit.net/itd8uey.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+		<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-intro navbar-fixed-top navie" id="mainNavbar">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+          </button>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav navbar-intro">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@dantetam<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li class="dropdown-header">Professional</li>
+								<li><a href="https://github.com/dantetam" target="_blank">GitHub</a></li>
+								<li><a href="mailto:dante.tam1@gmail.com">E-mail</a></li>
+								<li role="separator" class="divider"></li>
+								<li class="dropdown-header">Personal</li>
+								<li><a href="#"></a></li>
+								<li><a href="#"></a></li>
+							</ul>
+						</li>
+            <li><a href="../../../index.html">Home</a></li>
+            <li><a href="../../projects.html">Personal Projects</a></li>
+            <li><a href="../../design/dante_design.pdf">Design</a></li>
+						<li><a href="../../writings.html">Writings</a></li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Technical Drawings<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li class="dropdown-header">Design</li>
+								<li><a href="../../opstrykon_gdd.pdf">Game Design Document</a></li>
+								<li><a href="../../drawings.html">Architecture</a></li>
+								<li role="separator" class="divider"></li>
+								<li class="dropdown-header">Nav header</li>
+								<li><a href="#"></a></li>
+								<li><a href="#"></a></li>
+							</ul>
+						</li>
+						<li><a href="../../courses.html">Courses</a></li>
+						<li><a href="../../resume.pdf">Resume</a></li>
+						<li class="dropdown active">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Experiments<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li class="dropdown-header">Design and Data</li>
+                <li class="active"><a href="../../experiments/stella/index.html">Stella AI</a></li>
+								<li><a href="../../experiments/resume/index.html">Interactive Resume (d3.js)</a></li>
+								<li><a href="../../experiments/testglwebsite/src/index.html">Graphics (WebGL)</a></li>
+								<li><a href="../../experiments/datavisual/index.html">Data Visualization (d3.js)</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#"></a></li>
+								<li><a href="#"></a></li>
+							</ul>
+						</li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="intro">
+        <br>
+        <br>
+        <br>
+        <h2>Dante Tam</h2><br>
+        <p><a href="mailto:datam@berkeley.edu">datam@berkeley.edu</a>, <a href="github.com/dantetam">dantetam</a>@Github</p>
+        
+        <!--
+        <a href="./assignment2/index.html">Calculator App from class 2</a><br>
+        <a href="./assignment3/index.html">Canvas Bar Chart from class 3</a><br>
+        <a href="./assignment4/index.html">D3 Selection and Data Binding</a><br>
+        <a href="./assignment5/index.html">D3 General Update Pattern - Barley "Punch Card"</a><br>
+        <a href="./assignment6/index.html">D3 General Update Pattern - Tidal Waves NOAA</a><br>
+        <a href="./assignment7/index.html">D3 Interactivity - Tidal Waves NOAA</a><br>
+        <a href="./assignment8/index.html">D3 Input &amp; Interactivity</a><br>
+        -->
+        
+        <p>The purpose of this document is to detail all of my relevant ML expertise, for myself and employers.<br>
+        I have taken UC Berkeley's unique machine learning course, <a href="https://people.eecs.berkeley.edu/~jrs/189/">CS 189</a>. From the syllabus:</p>
+        <div style="text-align:left">
+            <blockquote>
+            classification: perceptrons, support vector machines (SVMs), Gaussian discriminant analysis (LDA, QDA),<br>
+            decision trees, neural networks, convolutional neural networks, nearest neighbor search;<br>
+            regression: least-squares linear regression, logistic regression, polynomial regression, ridge regression, Lasso;<br>
+            density estimation: maximum likelihood estimation (MLE);<br>
+            dimensionality reduction: principal components analysis (PCA), random projection, latent factor analysis; and<br>
+            clustering: k-means clustering, hierarchical clustering, spectral graph clustering. <br>
+            </blockquote>
+        </div>
+        <p>I further expanded on this base with several machine learning projects, below.</p>
+        <p><a href="../stella/index.html">Stella</a>, a conversational agent for Android and the web, developed in multiple platforms:<br>
+        in Java, <a href="https://github.com/dantetam/dantetam.github.io/tree/master/src/experiments/stella">JS</a>,
+        and <a href="https://github.com/dantetam/tensorflowtest/tree/master/tensorflowtest/">Python w/ TensorFlow</a>;</p>
+        <p>A part-of-speech tagger, a multiclass logistic regression trained to find feature probabilities, 
+        which are used in a <a href="www.ai.mit.edu/courses/6.891-nlp/READINGS/maxent.pdf">MEMM</a> with 
+        <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm">Viterbi decoding</a>.</p>
+        
+      </div>
+
+    </div><!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="../../../dist/js/bootstrap.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../../assets/js/ie10-viewport-bug-workaround.js"></script>
+   
+    <script>
+    //Show navbar when mouse moves toward top
+    d3.select("#mainNavbar").on("mouseenter", function() {
+      d3.select("#mainNavbar").transition()
+        .duration(200)
+        .style("opacity", 1); //.style("pointer-events", "auto");
+    });
+    d3.select("#mainNavbar").on("mouseleave", function() {
+      d3.select("#mainNavbar").transition()
+        .duration(200)
+        .style("opacity", 0); //.style("pointer-events", "none");
+    });
+    </script>
+
+  </body>
+</html>
