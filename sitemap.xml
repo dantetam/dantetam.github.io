@@ -8,146 +8,278 @@
 
 <url>
   <loc>https://dantetam.github.io/</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>1.00</priority>
 </url>
 <url>
-  <loc>https://dantetam.github.io/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
-  <priority>0.80</priority>
-</url>
-<url>
   <loc>https://dantetam.github.io/src/projects.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/design/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/opstrykon_gdd.pdf</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/drawings.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/pressreleases.html</loc>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/courses.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/resume.pdf</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/experiments/stella/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/experiments/resume/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/experiments/datavisual/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://dantetam.github.io/src/experiments/testglwebsite/src/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/openstreetmap/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/countymap/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/comp_photo_proj1/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/comp_photo_proj3_blending/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/piketty/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/experiments/twitter/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/experiments/neuralnetwork/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/convagents/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/machlearn/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/cs194/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/design/dante_design.pdf</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/serenine/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://dantetam.github.io/src/writings.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <loc>https://dantetam.github.io/src/experiments/testglwebsite/src/index.html</loc>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.64</priority>
 </url>
 <url>
-  <loc>https://dantetam.github.io/src/index.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <loc>https://dantetam.github.io/index.html</loc>
+  <lastmod>2017-10-26T08:29:45+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/writings.html</loc>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/piketty/PikettyReviewDanteTam.pdf</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/piketty/capitalNotes.pdf</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/twitter/Twitter_and_ML.pdf</loc>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/neuralnetwork/Neural_Networks.pdf</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/stella/</loc>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/convagents/Stella_Conversational_Agents.pdf</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment2/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment3/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment4/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment6/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment7/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/info190/assignment8/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://dantetam.github.io/src/experiments/comp_photo_proj2/index.html</loc>
+  <lastmod>2017-10-26T08:29:46+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/lua1-1.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/lua1-2.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/java1-0.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/java1-1.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/des1-1.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 <url>
   <loc>https://dantetam.github.io/src/materials/des1-2.html</loc>
-  <lastmod>2017-05-28T16:49:29+00:00</lastmod>
-  <changefreq>daily</changefreq>
+  <lastmod>2017-10-26T08:29:47+00:00</lastmod>
+  <changefreq>weekly</changefreq>
   <priority>0.51</priority>
 </url>
 </urlset>
