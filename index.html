@@ -92,8 +92,8 @@ dante.tam1@gmail.com
 							</ul>
 						</li>
             <li class="active"><a href="/">Home</a></li>
-            <li><a href="/src/projects.html">Personal Projects</a></li>
-            <li><a href="/design/index.html">Design</a></li>
+            <li><a href="/src/projects.html">Projects</a></li>
+            <li><a href="/design/index.html">Design [PDF]</a></li>
 						<!--<li><a href="./src/writings.html">Writings</a></li>-->
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Technical Drawings<span class="caret"></span></a>
@@ -139,6 +139,7 @@ dante.tam1@gmail.com
                     <li><a href="/src/experiments/cs194/index.html"><img src="/src/images/ic_add_a_photo_black_24dp_2x.png" style="width: 20px; height: 20px;"></img> Comp. Photography (CS 194-26)</a></li>
                 </ul>
             </li>
+            <li><a class="data-switch-contrast aria-hidden" id="nightmode">Night Mode</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -251,7 +252,7 @@ dante.tam1@gmail.com
       <gcse:search></gcse:search>
     </div>
     -->
-
+    
     <!-- Bootstrap core CSS -->
     <link href="./dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -319,6 +320,65 @@ dante.tam1@gmail.com
 
     ga('create', 'UA-98263948-1', 'auto');
     ga('send', 'pageview');
+    </script>
+    
+    <script>
+    var nightModeEnabled = false;
+    
+    $("#nightmode").click(function() {
+      if (!nightModeEnabled) {
+        //Go into night mode, with less bright blue and white colors
+        $("a,h1,div,p,body").css({ 
+          'color': '#888888', 
+          'background-color': '#000000' 
+        });
+        
+        //Remove the black background from hover image captions
+        $(".carousel-inner .item a p").css({
+          'color': '#000000', 
+          'background-color': '#00000000' 
+        });
+
+        //Shift the transition to be more gray, both within and outside a hover event
+        $(".carousel-inner .item img").css({
+          "-webkit-filter": "grayscale(70%)",
+          "filter": "grayscale(70%)"
+        });
+        
+        $(".carousel-inner:hover .item img").css({
+          "-webkit-filter": "grayscale(100%)",
+          "filter": "grayscale(100%)"
+        });
+      }
+      else {
+        //Reverse the effects of night mode
+        $("a").css({ 
+          'color': '#337ab7', 
+          'background-color': '#00000000' 
+        });
+        
+        $("h1,div,p,body").css({ 
+          'color': '#000000', 
+          'background-color': '#00000000' 
+        });
+        
+        $(".carousel-inner .item a p").css({
+          'color': '#337ab7', 
+          'background-color': '#00000000' 
+        });
+        
+        $(".carousel-inner .item img").css({
+          "-webkit-filter": "grayscale(0%)",
+          "filter": "grayscale(0%)"
+        });
+        
+        $(".carousel-inner:hover .item img").css({
+          "-webkit-filter": "grayscale(70%)",
+          "filter": "grayscale(70%)"
+        });
+      }
+      nightModeEnabled = !nightModeEnabled;
+    });
     </script>
 
 		<script>
