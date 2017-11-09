@@ -287,6 +287,8 @@ dante.tam1@gmail.com
       }
     </style>
     
+    <script src="/src/nightmode.js" />
+    
     <script type="application/ld+json">
     {
       "@context": "http://schema.org",
@@ -320,65 +322,6 @@ dante.tam1@gmail.com
 
     ga('create', 'UA-98263948-1', 'auto');
     ga('send', 'pageview');
-    </script>
-    
-    <script>
-    var nightModeEnabled = false;
-    
-    $("#nightmode").click(function() {
-      if (!nightModeEnabled) {
-        //Go into night mode, with less bright blue and white colors
-        $("a,h1,div,p,body").css({ 
-          'color': '#888888', 
-          'background-color': '#000000' 
-        });
-        
-        //Remove the black background from hover image captions
-        $(".carousel-inner .item a p").css({
-          'color': '#000000', 
-          'background-color': '#00000000' 
-        });
-
-        //Shift the transition to be more gray, both within and outside a hover event
-        $(".carousel-inner .item img").css({
-          "-webkit-filter": "grayscale(70%)",
-          "filter": "grayscale(70%)"
-        });
-        
-        $(".carousel-inner:hover .item img").css({
-          "-webkit-filter": "grayscale(100%)",
-          "filter": "grayscale(100%)"
-        });
-      }
-      else {
-        //Reverse the effects of night mode
-        $("a").css({ 
-          'color': '#337ab7', 
-          'background-color': '#00000000' 
-        });
-        
-        $("h1,div,p,body").css({ 
-          'color': '#000000', 
-          'background-color': '#00000000' 
-        });
-        
-        $(".carousel-inner .item a p").css({
-          'color': '#337ab7', 
-          'background-color': '#00000000' 
-        });
-        
-        $(".carousel-inner .item img").css({
-          "-webkit-filter": "grayscale(0%)",
-          "filter": "grayscale(0%)"
-        });
-        
-        $(".carousel-inner:hover .item img").css({
-          "-webkit-filter": "grayscale(70%)",
-          "filter": "grayscale(70%)"
-        });
-      }
-      nightModeEnabled = !nightModeEnabled;
-    });
     </script>
 
 		<script>
