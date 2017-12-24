@@ -110,7 +110,7 @@
     </nav>
 
     <div style="pointer-events: auto;">
-      <div id="#project0" class="project-page">
+      <div id="project0" class="project-page">
         <div style="width: 40%; height: 80%; float: left; background-color: lightblue;">
           <img src="./images/stella_hexagon.png">
         </div>
@@ -229,12 +229,11 @@
 
     d3.select('body') //.call(d3.keybinding()
       .on('click', function() {
-        var oldPage = d3.select("#project" + projectIndex);
-        console.log(oldPage);
-        var projTransition = d3.transition()
-          .duration(500)
-          .ease(d3.easeLinear);
+        var oldPage = d3.select("#project" + parseInt(projectIndex));
+        //console.log(oldPage);
+        var projTransition = d3.transition().duration(500).ease(d3.easeLinear);
         oldPage.transition(projTransition).style("opacity", 0);
+
         /*
         bookmark--;
         var anchor = document.querySelector("bookmark" + bookmark);
