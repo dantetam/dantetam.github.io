@@ -143,7 +143,7 @@ h3 {
 		Given a list of actions, this is a relatively easy task for a human. However, it is much harder for computers to see grammatical structures,
 		word contexts, etc.</p>
 		<br>
-		<p>In machine learning, this is called a classification problem. 
+		<p>In machine learning, this is called a classification problem.
 			For review, a classification asks given some data point $X_i$, what is the actual class or category $y_i$?
 			In this case, our input data is a sentence, and our possible class choices are the various commands. For example,</p>
 		<br>
@@ -154,7 +154,8 @@ h3 {
 		Technically, we achieved this using WordNet, a collection of English words organized into a graph.
 		Words that are similar to each other i.e. synonyms, are connected together. We analyzed the similarity of two words by their degrees of connection.
 			Much like how LinkedIn shows you more of your closer friends and 1st degree connections, we prioritized first degree synonyms.
-		We also give less but significant priority to similarity of defintions and sentence usages i.e. dictionary entries. </p>
+		We also give less but significant priority to similarity of defintions and sentence usages i.e. dictionary entries.
+    In the future, this method could be improved with NLP research in <a href="https://en.wikipedia.org/wiki/Lesk_algorithm">Lesk dictionary methods</a>, which rely on words' contexts.</p>
 		<br>
 		<p><b>Second Approach, Zero-One Encoded Vectors w/ Softmax Regression:</b> We represent the inputs as vectors, and the commands as numbered labels.
 		The problem transforms below, from the first type to the second:</p>
@@ -179,11 +180,11 @@ h3 {
 		<br>
 		<p>Overall, this approach had near 73% validation accuracy, and while quite neat, was not strong enough for our applications.</p>
 		<br>
-		<p><b>Third Approach, Convolutional Neural Networks for Sentence Classification:</b> We use a convolutional neural network (CNN) on a large sentence vector, 
+		<p><b>Third Approach, Convolutional Neural Networks for Sentence Classification:</b> We use a convolutional neural network (CNN) on a large sentence vector,
 			as described in the <a href="http://www.aclweb.org/anthology/D14-1181">research paper of the same name</a> (Yoon Kim, 2014).
 		We use word2vec, a tool developed which converts words into vectors of length $k$, such that similar words have similar vectors.
 		Sentences are now $n$ by $k$ matrices, where $n$ is the maximum length of all sentences and $k$ is the dimension from earlier.
-		This essentially gives us an image, which is processed well by CNNs. 
+		This essentially gives us an image, which is processed well by CNNs.
 		For regular images, CNNs can become edge detectors, brightness detectors, and so on, just as our CNN can begin to recognize large, semi-abstract concepts
 		such as grammatical structures, word contexts, etc.</p>
 		<br>
@@ -194,10 +195,29 @@ h3 {
 		It is organized into its own Pythom module, which can be called in a desktop application, web server, etc. It is a good solution.</p>
 		<br>
 		<h3><a href="Stella_Conversational_Agents.pdf">[PDF]</a></h3>
+    <br>
+    <div id="citations">
+      <p><b>Citations</b></p>
+      <br>
+      <p>Princeton University "About WordNet." WordNet. Princeton University. 2010. &lt;http://wordnet.princeton.edu&gt;</p>
+      <p>Mihalcea, Tarau. "TextRank: Bringing Order into Texts." University of North Texas. 2005. &lt;https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf&gt;</p>
+      <p>S. Brin and L. Page. 1998. The anatomy of a large-scale hyper-textual Web search engine. Computer Networks and ISDN Systems, 30(1–7).</p>
+      <p>Pak, Paroubek. Twitter as a Corpus for Sentiment Analysis and Opinion Mining. Universit ́e de Paris-Sud, Laboratoire LIMSI-CNRS. 2011. &lt; http://web.archive.org/web/20111119181304/http://deepthoughtinc.com/wp-content/uploads/2011/01/Twitter-as-a-Corpus-for-Sentiment-Analysis-and-Opinion-Mining.pdf &gt;</p>
+      <p>Tan, Steinbach, Kumar. "Association Analysis: Basic Concepts and Algorithms." Introduction to Data Mining. Pearson, 2005. &lt; https://www-users.cs.umn.edu/~kumar/dmbook/ch6.pdf &gt;</p>
+      <p>Porter, 1980, An algorithm for suffix stripping, Program, Vol. 14, no. 3, pp 130-137.</p>
+      <p>Manning, Christopher D., Mihai Surdeanu, John Bauer, Jenny Finkel, Steven J. Bethard, and David McClosky. 2014. The Stanford CoreNLP Natural Language Processing Toolkit In Proceedings of the 52nd Annual Meeting of the Association for Computational Linguistics: System Demonstrations, pp. 55-60.<p>
+      <p>Manning, Christopher D, et al. An Introduction to Information Retrieval. Cambridge, England, Cambridge University Press, 2009.</p>
+      <p>Olah, Christopher. "Understanding LSTM Networks." Colah\'s Blog. N.p., 27 Aug. 2015. Web. 16 May 2017. http://colah.github.io/posts/2015-08-Understanding-LSTMs/>.</p>
+      <p>O. Vinyals, Q.V. Le. A Neural Conversational Model. ICML Deep Learning Workshop, arXiv 2015.</p>
+      <p>With help from the APIs: Google (Calendar, Gmail, Maps, Custom Search Engine, Finance, StaticMap); MediaWiki Wikipedia Content and Search; Facebook; Messenger; Yahoo (YQL, Finance); NASA GIBS</p>
+      <p>Inspired by UC Berkeley's CS 170 and CS 189 courses in algorithms and machine learning, as well as natural language processing.</p>
+      <p>Built with d3.js, Bootstrap, jQuery & AJAX, deployed with GitHub Pages.</p>
+      <p>Icons from game-icons.net.</p>
+    </div>
 		<br>
 		<br>
 		<br>
-		
+
 
 </div>
 </div>
