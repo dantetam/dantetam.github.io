@@ -1,19 +1,28 @@
 body {
   padding-top: 50px;
   font-family: 'Open Sans', sans-serif;
-  margin-left: 10%;
-  margin-right: 10%;
 }
 
 .project-page {
   margin-top: 5%;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
-.card {
+.card, .finalrow {
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
+}
+
+.cardtitle {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+p.solid {
+  border-style: solid;
 }
 
 .intro {
