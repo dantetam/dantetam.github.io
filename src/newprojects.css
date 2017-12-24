@@ -1,12 +1,13 @@
 body {
   padding-top: 50px;
   font-family: 'Open Sans', sans-serif;
+  overflow-x: hidden; /* Remove horizontal scroll bar, use transitions */
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 .project-page {
   margin-top: 5%;
-  margin-left: 10%;
-  margin-right: 10%;
 }
 
 .card, .finalrow {
