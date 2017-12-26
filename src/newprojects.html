@@ -54,8 +54,8 @@
                 <li><a href="https://www.linkedin.com/in/daptam" target="_blank"><img src="/src/images/linkedin.png" style="width: 20px; height: 20px;"></img> LinkedIn</a></li>
 							</ul>
 						</li>
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="/src/projects.html">Projects</a></li>
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/src/projects.html">Projects</a></li>
             <li><a href="/design/index.html">Design [PDF]</a></li>
 						<!--<li><a href="./src/writings.html">Writings</a></li>-->
 						<li class="dropdown">
@@ -113,7 +113,7 @@
 
       <button id="cycleprojects" style="position: relative; margin-top: 5%;">Next Project</button>
 
-      <div id="project0" class="project-page" style="position: relative; opacity: 1;">
+      <div id="project0" class="project-page" style="opacity: 1;">
         <div style="width: 40%; height: 80%; float: left; background-color: white;">
           <img src="./images/stella_hexagon.png">
         </div>
@@ -179,22 +179,34 @@
         </div>
       </div>
 
-      <div id="project1" class="project-page" style="position: relative; opacity: 0;">
-        <div style="width: 40%; height: 80%; float: left; background-color: lightblue;">
-          Text
+      <div id="project1" class="project-page" style="opacity: 0;">
+
+        <div id="proj1-pressrelease">
+          <div class="triangle-topleft" style="width: 5vw; height: 5vw; position: absolute; background-color: transparent;"></div>
+          <p style="position: absolute;">Press Releases</p>
+        </div>
+
+        <div style="width: 40%; height: 80%; float: left; background-color: white;">
+          <img src="./images/logo.png">
         </div>
         <div style="width: 60%; height: 80%; float: right; background-color: white;">
           <div class="row" style="width: 100%;">
             <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
               <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
               <div style="text-align: center;">
-
+                Android Java development<br>
+                Google GeoLocation APIs<br>
+                Migrating to OpenStreetMap API<br>
+                2D and 3D Android map interfaces
               </div>
             </div>
             <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
-              <div class="cardtitle" style="background-color: lightblue;">TITLE</div>
+              <div class="cardtitle" style="background-color: lightblue;">STARLIGHT</div>
               <div style="text-align: center;">
-
+                Android social life-themed adventure<br>
+                Build and manage settlements<br>
+                while living, working in the real world<br>
+                with geolocation abilities.
               </div>
             </div>
             <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
@@ -219,8 +231,7 @@
             </div>
           </div>
           <div class="finalrow" style="width: 100%; background-color: lightblue; border-style: solid;">
-            <a href="https://github.com/dantetam/dantetam.github.io/tree/master/src/experiments/stella" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source (Online)</a>&emsp;&emsp;
-            <a href="https://github.com/dantetam/stella" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source (Offline)</a>
+            <a href="https://github.com/dantetam/starlight" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source</a>
             <br>
             <a href="mailto:dante.tam1@gmail.com" target="_blank"><img src="/src/images/email_icon.png" style="width: 20px; height: 20px;">&emsp;Inquire</a>
             <br>
@@ -266,15 +277,17 @@
     function launchFullScreen(element) {
       if (element.requestFullScreen) {
         element.requestFullScreen();
-      } else if(element.mozRequestFullScreen) {
+      } else if (element.mozRequestFullScreen) {
         element.mozRequestFullScreen();
-      } else if(element.webkitRequestFullScreen) {
+      } else if (element.webkitRequestFullScreen) {
         element.webkitRequestFullScreen();
       }
     }
     // Launch fullscreen for browsers that support it!
     //launchFullScreen(document.documentElement); // the whole page
     //launchFullScreen(document.getElementById("videoElement")); // any individual element
+
+    var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
 
     d3.select('#cycleprojects') //.call(d3.keybinding()
       .on('click', function() {
@@ -290,14 +303,13 @@
         var oldPage = d3.select("#project" + parseInt(oldProjectIndex));
         var newPage = d3.select("#project" + parseInt(projectIndex));
         //console.log(oldPage);
-        var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
 
         oldPage.transition(projTransition).style("opacity", 0);
         oldPage.transition(projTransition)
           .style("left", "100%");
         newPage.style("left", "-100%");
         newPage.transition(projTransition)
-          .style("left", "0%");
+          .style("left", "10%");
         newPage.transition(projTransition).style("opacity", 1);
 
         /*
@@ -308,6 +320,26 @@
         */
       });
 
+    d3.select("#proj1-pressrelease")
+      .on('click', function() {
+        
+      });
+
+    /*
+    d3.selectAll(".triangle-topleft,.triangle-topright")
+      .on('mouseover', function() {
+        d3.select(this)
+          .transition(projTransition)
+          .style("width", "10vw")
+          .style("height", "10vw");
+      })
+      .on('mouseout', function() {
+        d3.select(this)
+          .transition(projTransition)
+          .style("width", "5vw")
+          .style("height", "5vw");
+      });
+    */
 
     </script>
 

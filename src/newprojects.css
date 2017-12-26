@@ -2,6 +2,7 @@ body {
   padding-top: 50px;
   font-family: 'Open Sans', sans-serif;
   overflow-x: hidden; /* Remove horizontal scroll bar, use transitions */
+  overflow-y: hidden;
   margin-left: 10%;
   margin-right: 10%;
 }
@@ -9,11 +10,13 @@ body {
 button {
   border-style: solid;
   background-color: lightblue;
-
 }
 
 .project-page {
   margin-top: 2%;
+  width: 80%;
+  height: 100%;
+  position: absolute;
 }
 
 .card, .finalrow, button {
@@ -75,3 +78,30 @@ a:focus {
 .extended-image2 {
   width: 0%;
 }
+
+/* CSS tricks to create a triangle element for toggling "press releases" */
+.triangle-topleft {
+  width: 0; height: 0; border-top: 5vw solid lightblue; border-right: 5vw solid transparent;
+  -webkit-transition: border-top 0.5s, border-right 0.5s; /* For Safari 3.1 to 6.0 */
+  transition: border-top 0.5s, border-right 0.5s;
+}
+.triangle-topright {
+  width: 0; height: 0; border-top: 5vw solid lightblue; border-left: 5vw solid transparent;
+  -webkit-transition: border-top 0.5s, border-right 0.5s; /* For Safari 3.1 to 6.0 */
+  transition: border-top 0.5s, border-right 0.5s;
+}
+
+.triangle-topleft:hover { border-top: 8vw solid lightblue; border-right: 8vw solid transparent; }
+.triangle-topright:hover { border-top: 8vw solid lightblue; border-left: 8vw solid transparent; }
+
+
+
+
+
+
+
+
+
+
+
+/* A comment to hold the line */
