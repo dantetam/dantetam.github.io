@@ -6,11 +6,17 @@ body {
   margin-right: 10%;
 }
 
-.project-page {
-  margin-top: 5%;
+button {
+  border-style: solid;
+  background-color: lightblue;
+
 }
 
-.card, .finalrow {
+.project-page {
+  margin-top: 2%;
+}
+
+.card, .finalrow, button {
   padding-left: 10px;
   padding-right: 10px;
   padding-top: 10px;
