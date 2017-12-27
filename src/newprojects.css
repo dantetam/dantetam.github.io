@@ -81,11 +81,13 @@ a:focus {
 
 /* CSS tricks to create a triangle element for toggling "press releases" */
 .triangle-topleft {
+  cursor: pointer;
   width: 0; height: 0; border-top: 5vw solid lightblue; border-right: 5vw solid transparent;
   -webkit-transition: border-top 0.5s, border-right 0.5s; /* For Safari 3.1 to 6.0 */
   transition: border-top 0.5s, border-right 0.5s;
 }
 .triangle-topright {
+  cursor: pointer;
   width: 0; height: 0; border-top: 5vw solid lightblue; border-left: 5vw solid transparent;
   -webkit-transition: border-top 0.5s, border-right 0.5s; /* For Safari 3.1 to 6.0 */
   transition: border-top 0.5s, border-right 0.5s;

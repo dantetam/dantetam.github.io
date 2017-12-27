@@ -109,6 +109,14 @@
       </div>
     </nav>
 
+    <div id="imagebox" style="width: 80%; height: 100%; position: absolute; z-index: 1; opacity: 0; pointer-events: none;">
+      <div style="position: absolute; opacity: 1;">
+        <img id="closeImageBox" src="./images/close-icon.png" style="width: 5vw; height: 5vw; left: 95vw; z-index: 2;">
+      </div>
+      <img id="project1image" src="./images/starlight_promo.png" style="opacity: 0;">
+      <img id="project2image" src="./images/proj2-2.png" style="opacity: 0;">
+    </div>
+
     <div style="pointer-events: auto;">
 
       <button id="cycleprojects" style="position: relative; margin-top: 5%;">Next Project</button>
@@ -183,7 +191,7 @@
 
         <div id="proj1-pressrelease">
           <div class="triangle-topleft" style="width: 5vw; height: 5vw; position: absolute; background-color: transparent;"></div>
-          <p style="position: absolute;">Press Releases</p>
+          <p style="position: absolute; pointer-events: none;">Press Releases</p>
         </div>
 
         <div style="width: 40%; height: 80%; float: left; background-color: white;">
@@ -287,7 +295,30 @@
     //launchFullScreen(document.documentElement); // the whole page
     //launchFullScreen(document.getElementById("videoElement")); // any individual element
 
-    var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
+    //The image box is a div that allows for slideshow style images overlayed the main window
+    function activateImage(imageDomId) {
+      var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
+
+      //Show the imagebox, hide all elements within except the desired image and the exit button
+      d3.select("#imagebox").transition(projTransition).style("opacity", 1.0);
+      d3.select("#imagebox").selectAll("img").style("opacity", 0.0);
+      d3.select("#closeImageBox").style("opacity", 1.0);
+      d3.select("#" + imageDomId).style("opacity", 1.0);
+      d3.select("#imagebox").style("pointer-events", "auto");
+
+      d3.select("body").transition(projTransition).style("background-color", "black");
+    }
+
+    function deactivateImage() {
+      var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
+
+      d3.select("#imagebox").transition(projTransition).style("opacity", 0.0);
+      d3.select("#imagebox").selectAll("img").transition(projTransition).style("opacity", 0.0);
+      d3.select("#closeImageBox").style("opacity", 0.0);
+      d3.select("#imagebox").style("pointer-events", "none");
+
+      d3.select("body").transition(projTransition).style("background-color", "transparent");
+    }
 
     d3.select('#cycleprojects') //.call(d3.keybinding()
       .on('click', function() {
@@ -303,6 +334,8 @@
         var oldPage = d3.select("#project" + parseInt(oldProjectIndex));
         var newPage = d3.select("#project" + parseInt(projectIndex));
         //console.log(oldPage);
+
+        var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
 
         oldPage.transition(projTransition).style("opacity", 0);
         oldPage.transition(projTransition)
@@ -320,10 +353,23 @@
         */
       });
 
+    d3.select("#imagebox")
+      .on("contextmenu", function(d, i) {
+        d3.event.preventDefault();
+        deactivateImage();
+      });
+
+    d3.select("#closeImageBox")
+      .on("click", function(d, i) {
+        deactivateImage();
+      });
+
     d3.select("#proj1-pressrelease")
       .on('click', function() {
-        
+        activateImage("project1image");
       });
+
+    
 
     /*
     d3.selectAll(".triangle-topleft,.triangle-topright")
@@ -340,10 +386,6 @@
           .style("height", "5vw");
       });
     */
-
-    </script>
-
-    <script>
 
     </script>
 
