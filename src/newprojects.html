@@ -111,10 +111,10 @@
 
     <div id="imagebox" style="width: 80%; height: 100%; position: absolute; z-index: 1; opacity: 0; pointer-events: none;">
       <div style="position: absolute; opacity: 1;">
-        <img id="closeImageBox" src="./images/close-icon.png" style="width: 5vw; height: 5vw; left: 95vw; z-index: 2;">
+        <img id="closeImageBox" src="./images/close-icon.png" style="z-index: 2;">
       </div>
-      <img id="project1image" src="./images/starlight_promo.png" style="opacity: 0;">
-      <img id="project2image" src="./images/proj2-2.png" style="opacity: 0;">
+      <img id="project1image" src="./images/starlight_promo.png" style="opacity: 0; z-index: 2;">
+      <img id="project2image" src="./images/proj2-2.png" style="opacity: 0; z-index: 2;">
     </div>
 
     <div style="pointer-events: auto;">
@@ -122,10 +122,11 @@
       <button id="cycleprojects" style="position: relative; margin-top: 5%;">Next Project</button>
 
       <div id="project0" class="project-page" style="opacity: 1;">
-        <div style="width: 40%; height: 80%; float: left; background-color: white;">
+
+        <div style="width: 40%; height: 80%; float: left; background-color: transparent;">
           <img src="./images/stella_hexagon.png">
         </div>
-        <div style="width: 60%; height: 80%; float: right; background-color: white;">
+        <div style="width: 60%; height: 80%; float: right; background-color: transparent;">
           <div class="row" style="width: 100%;">
             <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
               <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
@@ -189,15 +190,15 @@
 
       <div id="project1" class="project-page" style="opacity: 0;">
 
-        <div id="proj1-pressrelease">
+        <div id="proj1-pressrelease" class="press-release-button">
           <div class="triangle-topleft" style="width: 5vw; height: 5vw; position: absolute; background-color: transparent;"></div>
-          <p style="position: absolute; pointer-events: none;">Press Releases</p>
+          <p style="position: absolute; pointer-events: none;">Press<br>Releases</p>
         </div>
 
-        <div style="width: 40%; height: 80%; float: left; background-color: white;">
+        <div style="width: 40%; height: 80%; float: left; background-color: transparent;">
           <img src="./images/logo.png">
         </div>
-        <div style="width: 60%; height: 80%; float: right; background-color: white;">
+        <div style="width: 60%; height: 80%; float: right; background-color: transparent;">
           <div class="row" style="width: 100%;">
             <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
               <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
@@ -251,6 +252,222 @@
 
     </div><!-- /.container -->
 
+
+    <div id="carousel-portfolio" class="carousel slide" data-ride="carousel">
+      <ol class="carousel-indicators">
+
+        <li class="carousel-indicator" data-target="#carousel-portfolio" data-slide-to="0" class="active"></li>
+        <li class="carousel-indicator" data-target="#carousel-portfolio" data-slide-to="1"></li>
+        <li class="carousel-indicator" data-target="#carousel-portfolio" data-slide-to="2"></li>
+
+      </ol>
+      <div class="carousel-inner" role="listbox">
+
+        <div id="project0" class="project-page item active">
+
+          <div style="width: 40%; height: 80%; float: left;">
+            <img src="./images/stella_hexagon.png">
+          </div>
+          <div style="width: 60%; height: 80%; float: right;">
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
+                <div style="text-align: center;">
+                  JS/d3.js Front End,<br>
+                  RESTful API calls,<br>
+                  Python (TensorFlow) for ML<br>
+                  Java (CoreNLP) for NLP<br>
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">STELLA</div>
+                <div style="text-align: center;">
+                  <a href="https://blog.statsbot.co/chatbots-machine-learning-e83698b1a91e">Conversational Agent</a><br>
+                  for Android and desktop.<br>
+                  Analyzes structure of text,<br>
+                  and runs ML and NLP algs.<br>
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">ALGORITHMS</div>
+                <div style="text-align: center;">
+                  Classifiers and analyzers,<br>
+                  logistic regression, CNNs,<br>
+                  NLP domain methods,<br>
+                  Bayesian algs., <a href="https://github.com/dantetam/tensorflowtest/tree/master/tensorflowtest">and more</a>.
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">RESEARCH</div>
+                <div style="text-align: center;">
+                  Built on recent papers in<br>
+                  cutting edge ML,NLP research.<br>
+                  WordNet, CoreNLP, CNNs, etc.<br>
+                  within <a href="https://dantetam.github.io/src/experiments/convagents/index.html#citations">the full citations</a>.
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <br>
+            <div class="finalrow" style="width: 100%; background-color: white; border-style: solid;">
+              <a href="https://github.com/dantetam/dantetam.github.io/tree/master/src/experiments/stella" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source (Online)</a>&emsp;&emsp;
+              <a href="https://github.com/dantetam/stella" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source (Offline)</a>
+              <br>
+              <a href="mailto:dante.tam1@gmail.com" target="_blank"><img src="/src/images/email_icon.png" style="width: 20px; height: 20px;">&emsp;Inquire</a>
+              <br>
+              <a href="./experiments/stella/index.html" target="_blank"><img src="/src/images/ic_map_black_24dp_2x.png" style="width: 20px; height: 20px;">&emsp;Explore Demo</a>
+              <br>
+              <a href="./Dante_Tam_Resume_Dec_2017_New.pdf" target="_blank"><img src="/src/images/resume-script-icon.png" style="width: 20px; height: 20px;">&emsp;Resume</a>
+              <br>
+            </div>
+          </div>
+        </div>
+
+        <div id="project1" class="project-page item">
+
+          <div id="proj1-pressrelease" class="press-release-button">
+            <div class="triangle-topleft" style="width: 5vw; height: 5vw; position: absolute; background-color: transparent;"></div>
+            <p style="position: absolute; pointer-events: none;">Press<br>Releases</p>
+          </div>
+
+          <div style="width: 40%; height: 80%; float: left; background-color: transparent;">
+            <img src="./images/logo.png">
+          </div>
+          <div style="width: 60%; height: 80%; float: right; background-color: transparent;">
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
+                <div style="text-align: center;">
+                  Android Java development<br>
+                  Google GeoLocation APIs<br>
+                  Migrating to OpenStreetMap API<br>
+                  2D and 3D Android map interfaces
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">STARLIGHT</div>
+                <div style="text-align: center;">
+                  Android social life-themed adventure<br>
+                  Build and manage settlements<br>
+                  while living, working in the real world<br>
+                  with geolocation abilities.
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">ALGORITHMS</div>
+                <div style="text-align: center;">
+
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">RESEARCH</div>
+                <div style="text-align: center;">
+
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <div class="finalrow" style="width: 100%; background-color: lightblue; border-style: solid;">
+              <a href="https://github.com/dantetam/starlight" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source</a>
+              <br>
+              <a href="mailto:dante.tam1@gmail.com" target="_blank"><img src="/src/images/email_icon.png" style="width: 20px; height: 20px;">&emsp;Inquire</a>
+              <br>
+              <a href="./experiments/stella/index.html" target="_blank"><img src="/src/images/ic_map_black_24dp_2x.png" style="width: 20px; height: 20px;">&emsp;Explore Demo</a>
+              <br>
+            </div>
+          </div>
+        </div>
+
+        <div id="project2" class="project-page item">
+
+          <div id="proj2-pressrelease" class="press-release-button">
+            <div class="triangle-topleft" style="width: 5vw; height: 5vw; position: absolute; background-color: transparent;"></div>
+            <p style="position: absolute; pointer-events: none;">Press<br>Releases</p>
+          </div>
+
+          <div style="width: 100%; height: 100%; position: absolute; z-index: 2;">
+            <img src="./images/CensusVisualPoveryCrime.png">
+          </div>
+          <div style="width: 40%; height: 80%; float: left; background-color: transparent;">
+            <img src="./images/logo.png">
+          </div>
+          <div style="width: 60%; height: 80%; float: right; background-color: transparent;">
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">TECH STACK</div>
+                <div style="text-align: center;">
+                  Android Java development<br>
+                  Google GeoLocation APIs<br>
+                  Migrating to OpenStreetMap API<br>
+                  2D and 3D Android map interfaces
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">STARLIGHT</div>
+                <div style="text-align: center;">
+                  Android social life-themed adventure<br>
+                  Build and manage settlements<br>
+                  while living, working in the real world<br>
+                  with geolocation abilities.
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <div class="row" style="width: 100%;">
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">ALGORITHMS</div>
+                <div style="text-align: center;">
+
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">RESEARCH</div>
+                <div style="text-align: center;">
+
+                </div>
+              </div>
+              <div class="card" style="width: 33%; height: 80%; float: left; background-color: white;">
+                <div class="cardtitle" style="background-color: lightblue;">FEATURE</div>
+              </div>
+            </div>
+            <div class="finalrow" style="width: 100%; background-color: lightblue; border-style: solid;">
+              <a href="https://github.com/dantetam/starlight" target="_blank"><img src="/src/images/github-octocat.png" style="width: 20px; height: 20px;">&emsp;Source</a>
+              <br>
+              <a href="mailto:dante.tam1@gmail.com" target="_blank"><img src="/src/images/email_icon.png" style="width: 20px; height: 20px;">&emsp;Inquire</a>
+              <br>
+              <a href="./experiments/stella/index.html" target="_blank"><img src="/src/images/ic_map_black_24dp_2x.png" style="width: 20px; height: 20px;">&emsp;Explore Demo</a>
+              <br>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <a class="left carousel-control" id="left-carousel" href="#carousel-portfolio" role="button" data-slide="prev">
+        <span class="icon-prev" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" id="right-carousel" href="#carousel-portfolio" role="button" data-slide="next">
+        <span class="icon-next" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -297,7 +514,7 @@
 
     //The image box is a div that allows for slideshow style images overlayed the main window
     function activateImage(imageDomId) {
-      var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
+      var projTransition = d3.transition().duration(1250).ease(d3.easeLinear);
 
       //Show the imagebox, hide all elements within except the desired image and the exit button
       d3.select("#imagebox").transition(projTransition).style("opacity", 1.0);
@@ -306,16 +523,26 @@
       d3.select("#" + imageDomId).style("opacity", 1.0);
       d3.select("#imagebox").style("pointer-events", "auto");
 
+      // Hide and deactivate buttons which could disrupt the transition process
+      d3.select("#cycleprojects").style("opacity", 0.0).style("pointer-events", "none");
+      d3.selectAll(".press-release-button").style("opacity", 0.0).style("pointer-events", "none");
+
       d3.select("body").transition(projTransition).style("background-color", "black");
     }
 
     function deactivateImage() {
-      var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
+      var projTransition = d3.transition().duration(1250).ease(d3.easeLinear);
 
       d3.select("#imagebox").transition(projTransition).style("opacity", 0.0);
       d3.select("#imagebox").selectAll("img").transition(projTransition).style("opacity", 0.0);
       d3.select("#closeImageBox").style("opacity", 0.0);
       d3.select("#imagebox").style("pointer-events", "none");
+
+      // Activate the project cycling and press release buttons again
+      d3.select("#cycleprojects").transition(projTransition).style("opacity", 1.0);
+      d3.selectAll(".press-release-button").transition(projTransition).style("opacity", 1.0);
+      d3.select("#cycleprojects").style("opacity", 0.0).style("pointer-events", "auto");
+      d3.selectAll(".press-release-button").style("opacity", 0.0).style("pointer-events", "auto");
 
       d3.select("body").transition(projTransition).style("background-color", "transparent");
     }
@@ -331,12 +558,25 @@
           projectIndex++;
         }
 
+        // Hide all pages, reshow the current page and transition the future page into the viewport
+        /*
+        In essence,
+        hide all pages and move them to stage left except,
+        keep the current page and play it off to stage right,
+        and move the new page from stage left to center.
+        */
+
+        var allPages = d3.selectAll(".project-page");
+
+        allPages.style("opacity", 0.0).style("left", "-100%");
+
         var oldPage = d3.select("#project" + parseInt(oldProjectIndex));
         var newPage = d3.select("#project" + parseInt(projectIndex));
         //console.log(oldPage);
 
         var projTransition = d3.transition().duration(1250).ease(d3.easeSinInOut);
 
+        oldPage.style("opacity", 1.0).style("left", "0%");
         oldPage.transition(projTransition).style("opacity", 0);
         oldPage.transition(projTransition)
           .style("left", "100%");
@@ -369,7 +609,10 @@
         activateImage("project1image");
       });
 
-    
+    d3.select("#proj2-pressrelease")
+      .on('click', function() {
+        activateImage("project2image");
+      });
 
     /*
     d3.selectAll(".triangle-topleft,.triangle-topright")

@@ -12,10 +12,11 @@ button {
   background-color: lightblue;
 }
 
+.carousel {
+  background-color: transparent;
+}
+
 .project-page {
-  margin-top: 2%;
-  width: 80%;
-  height: 100%;
   position: absolute;
 }
 
@@ -96,7 +97,21 @@ a:focus {
 .triangle-topleft:hover { border-top: 8vw solid lightblue; border-right: 8vw solid transparent; }
 .triangle-topright:hover { border-top: 8vw solid lightblue; border-left: 8vw solid transparent; }
 
+div p {
+  padding-left: 10px;
+}
 
+#closeImageBox {
+  padding: 0.75vw;
+  width: 5vw; height: 5vw; left: 95vw;
+  -webkit-transition: width 0.5s, height 0.5s, padding 0.5s; /* For Safari 3.1 to 6.0 */
+  transition: width 0.5s, height 0.5s, padding 0.5s;
+}
+
+#closeImageBox:hover {
+  /* width: 8vw; height: 8vw; */
+  padding: 0.25vw;
+}
 
 
 
