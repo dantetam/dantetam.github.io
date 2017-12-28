@@ -2,7 +2,7 @@ body {
   padding-top: 50px;
   font-family: 'Open Sans', sans-serif;
   overflow-x: hidden; /* Remove horizontal scroll bar, use transitions */
-  overflow-y: hidden;
+  overflow-y: visible;
   margin-left: 10%;
   margin-right: 10%;
 }
@@ -16,22 +16,16 @@ button {
   background-color: transparent;
   margin-top: 5%;
 }
-.carousel-control.left, .carousel-control.right {
-  background: none !important;
-  filter: progid: none !important;
-  outline: 0;
-  background-image: none !important;
- }
-.carousel .carousel-control {
-  background-color: transparent;
-  background-image: none;
-}
 .carousel:hover .carousel-control {
   visibility: visible;
+}
+.carousel-inner {
+  overflow: visible;
 }
 
 .project-page {
   position: absolute;
+  height: 100% !important;
 }
 
 .card, .finalrow, button {
