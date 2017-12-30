@@ -2,19 +2,19 @@
 <meta charset="utf-8">
 <head>
     <title>US Census Visuals</title>
-    
+
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
     body,button,a,h1 {
         font-family: 'Roboto', serif;
         font-size: 16px;
     }
-    
-    html { 
-        overflow-y: hidden; 
+
+    html {
+        overflow-y: hidden;
         overflow-x: hidden;
     }
-    
+
     .counties {
         fill: none;
     }
@@ -64,7 +64,7 @@
     #mapchoices #current {
         background-color: #ff3b30;
     }
-    
+
     #saveButton, #toggleMenu, #resetMap {
         background-color: #ffaaaa;
         border: 1px solid white;
@@ -79,32 +79,32 @@
         overflow: hidden;
     }
 
-    div.tooltip {	
-        position: absolute;			
-        text-align: center;							
-        padding: 2px;				
-        font: 12px sans-serif;		
-        background: lightsteelblue;	
-        border: 0px;		
-        border-radius: 8px;			
-        pointer-events: none;		
+    div.tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
         display:block;
         overflow:auto;
     }
-    
+
     </style>
 </head>
 <body>
     <div id="mapchoices">
-      
+
     </div>
     <div id="aboutText">
-      
+
     </div>
     <button id='saveButton'>Save Map as PNG</button>
     <button id='toggleMenu'>Toggle Menu On/Off</button>
     <button id='resetMap'>Reset Map View</button>
-    
+
     <!-- Allow the user to type in any two data types to see a red-blue correlation map -->
     Correlation 1 (Red): <input id='redCorrelationInput'></input>
     Correlation 2 (Blue): <input id='blueCorrelationInput'></input>
@@ -123,7 +123,7 @@
     <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
     <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
     <script src="./svgsave.js"></script>
-    <script> 
+    <script>
 
     //Calculates the area from -infinity to x, of a distribution Normal(mean, variance)
     function cdf(x, mean, variance) {
@@ -157,7 +157,7 @@
     function rgbToHex(r, g, b) {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
-    
+
     function dictionaryAdd() {
         var result = d3.map();
         for (var i = 0; i < arguments.length; i++) {
@@ -173,14 +173,14 @@
         }
         return result;
     }
-    
+
     function dictionaryDivide(dividend, divisor) { //returns dividend / divisor, key by key
         var result = d3.map();
         var entries = dividend.entries();
         for (var j = 0; j < entries.length; j++) {
             var key = entries[j]["key"], value = entries[j]["value"];
             if (divisor.get(key) === undefined) {
-                
+
             }
             else {
                 /*
@@ -195,14 +195,14 @@
         }
         return result;
     }
-    
+
     function dictionarySubtract(base, subtract) {
         var result = d3.map();
         var entries = base.entries();
         for (var j = 0; j < entries.length; j++) {
             var key = entries[j]["key"], value = entries[j]["value"];
             if (subtract.get(key) === undefined) {
-                
+
             }
             else {
                 result.set(key, num(value) - num(subtract.get(key)))
@@ -210,7 +210,7 @@
         }
         return result;
     }
-    
+
     function scaleMap(inspectMap, factor) {
         var scaled = d3.map();
         var entries = inspectMap.entries();
@@ -220,7 +220,7 @@
         }
         return scaled;
     }
-    
+
     function meanMap(inspectMap) {
         var avg = 0.0;
         var entries = inspectMap.entries();
@@ -229,7 +229,7 @@
         }
         return avg / entries.length;
     }
-    
+
     function sampleVarianceMap(inspectMap) {
         var avg = meanMap(inspectMap);
         var variance = 0.0;
@@ -242,14 +242,14 @@
         //console.log(variance / (entries.length - 1));
         return Math.sqrt(variance / (entries.length - 1));
     }
-    
+
     function normalizeMap(inspectMap) {
         var avg = meanMap(inspectMap);
         var variance = sampleVarianceMap(inspectMap);
-        
+
         var result = d3.map();
         var entries = inspectMap.entries();
-        
+
         for (var i = 0; i < entries.length; i++) {
             var entry = entries[i];
             //console.log(num(entry.value) + " " + avg + " " + variance);
@@ -258,9 +258,9 @@
         }
         return result;
     }
-    
+
     //console.log(dictionaryDivide(d3.map().set("a", 1.0), d3.map().set("a", 2.0)));
-    
+
     function arrayDivide(dividend, divisor) {
         //Find all common entries first
         /*
@@ -273,7 +273,7 @@
             common[divisor[i]["key"]]++;
         }
         for (var key in common) {
-            
+
         }
         for (var i = 0; i < dividend.length; i++) {
             var posKey = dividend[i]["key"];
@@ -327,7 +327,7 @@
                         result.set(key, 0.5 + 0.3 * extremeness);
                     }
                 }
-                else { 
+                else {
                     var avg = (value1 + value2) / 2.0;
                     //return shades of purple as average increases
                     //0.9 - 1.7
@@ -338,10 +338,10 @@
                 //console.log(result.get(key));
             }
         }
-        
+
         return result;
     }
-    
+
     function normalizedInverseCorrelationMap(mapA, mapB) {
         var normalizedFirst = normalizeMap(mapA);
         var normalizedSecond = normalizeMap(mapB);
@@ -359,10 +359,10 @@
                 result.set(key, extremeness);
             }
         }
-        
+
         return result;
     }
-    
+
     function normalizedTriCorrelationMap(mapA, mapB, mapC) {
         var normalizedFirst = normalizeMap(mapA);
         var normalizedSecond = normalizeMap(mapB);
@@ -376,26 +376,26 @@
                 var value1 = num(normalizedFirst.get(key));
                 var value2 = num(normalizedSecond.get(key));
                 var value3 = num(normalizedThird.get(key));
-                
+
                 var red = cdf(value1, 0, 1), green = cdf(value2, 0, 1), blue = cdf(value3, 0, 1);
                 red = Math.floor(red * 255.0);
                 green = Math.floor(green * 255.0);
                 blue = Math.floor(blue * 255.0);
-                
+
                 result.set(key, [red, green, blue]);
                 //console.log(result.get(key));
             }
         }
-        
+
         return result;
     }
-    
+
     //var mode = "Unemployment";
     //var mode = "Income";
     //var mode = "Poverty";
     var mode = null; // = "MiningQuarryingOilGas";
 
-    //Sort the total data into many individual files        
+    //Sort the total data into many individual files
     var allModes = {
             "Unemployment" : "unemployment.csv|id|rate",
             "Income" : "povertyincome.csv|County ID|Median Household Income in Dollars",
@@ -410,7 +410,7 @@
             "Veterans" : "./rural_atlas/Veterans.csv|FIPS|Vets18OPct",
             "UrbanIndex" : "./rural_atlas/CountyClassifications.csv|FIPS|RuralUrbanContinuumCode2013",
             "PopulationGrowth" : "./rural_atlas/People.csv|FIPS|PopChangeRate1516",
-            
+
             //"PopulationPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
             "WhiteOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC20",
             "BlackOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC21",
@@ -420,11 +420,11 @@
             "OtherOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC25",
             "MultiOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC26",
             "HispanicOriginPercentage" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC28",
-            
+
             "TotalPopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC01_EST_VC01",
             "OtherStatePopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC03_EST_VC01",
             "ForeignPopulationCount" : "./selecteddemographics/processedDemographics.csv|CountyId|HC04_EST_VC01",
-            
+
             "OutOfStatePercentage" : {
                 "compositeData" : true,
                 "required" : [
@@ -433,9 +433,9 @@
                 ],
                 "function" : function(d) {
                     return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
-                }   
+                }
             },
-            
+
             "Correlation" : {
                 "compositeData" : true,
                 "required" : [
@@ -445,38 +445,38 @@
                 "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
-                    
+
                     color = d3.scaleThreshold()
                         .domain(d3.range(0, 1.7, 0.1))
                         .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
-                    title = listRequired[0] + " and " + listRequired[1]; 
-                    desc = title + " by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    title = listRequired[0] + " and " + listRequired[1];
+                    desc = title + " by County";
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);
                     getTextFunction = rawText;
-                    
+
                     return normalizedCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
-                }   
+                }
             },
             "InverseCorrelation" : {
                 "compositeData" : true,
                 "required" : [
                     "Poverty",
-                    "Crime" 
+                    "Crime"
                 ],
                 "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
-                    
+
                     color = d3.scaleThreshold()
                         .domain(d3.range(0, 1.0, 0.1))
                         .range(d3.schemeRdBu[11]);
-                    title = listRequired[0] + " and " + listRequired[1]; 
-                    desc = title + " by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.0, 0.1)).rangeRound([450, 900]);  
+                    title = listRequired[0] + " and " + listRequired[1];
+                    desc = title + " by County";
+                    x = d3.scaleLinear().domain(d3.range(0, 1.0, 0.1)).rangeRound([450, 900]);
                     getTextFunction = rawText;
-                    
+
                     return normalizedInverseCorrelationMap(data[listRequired[0]], data[listRequired[1]]);
-                }   
+                }
             },
             "TripleCorrelation" : {
                 "compositeData" : true,
@@ -488,22 +488,22 @@
                 "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
-                    
+
                     color = function(arr) {
                         if (arr === undefined) {
                             return "#000000";
-                        }   
+                        }
                         //console.log(arr);
                         console.log(rgbToHex(arr[0], arr[1], arr[2]));
                         return rgbToHex(arr[0], arr[1], arr[2]);
                     };
-                    title = listRequired[0] + ", " + listRequired[1] + ", and " + listRequired[2]; 
-                    desc = title + " by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    title = listRequired[0] + ", " + listRequired[1] + ", and " + listRequired[2];
+                    desc = title + " by County";
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);
                     getTextFunction = rawText;
-                    
+
                     return normalizedTriCorrelationMap(data[listRequired[0]], data[listRequired[1]], data[listRequired[2]]);
-                }   
+                }
             },
             "PovertyCrime" : {
                 "compositeData" : true,
@@ -514,17 +514,17 @@
                 "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
-                    
+
                     color = d3.scaleThreshold()
                         .domain(d3.range(0, 1.7, 0.1))
                         .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
-                    title = "Poverty and Crime"; 
-                    desc = "Poverty and Crime by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    title = "Poverty and Crime";
+                    desc = "Poverty and Crime by County";
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);
                     getTextFunction = rawText;
-                    
+
                     return normalizedCorrelationMap(data["Poverty"], data["Crime"]);
-                }   
+                }
             },
             "PovertySubstanceAbuse" : {
                 "compositeData" : true,
@@ -535,19 +535,19 @@
                 "function" : function(data, listRequired) {
                     //return scaleMap(dictionaryDivide(d["OtherStatePopulationCount"], d["TotalPopulationCount"]), 100.0);
                     //d3.schemeRdBu[9].concat(d3.schemePurples[9])
-                    
+
                     color = d3.scaleThreshold()
                         .domain(d3.range(0, 1.7, 0.1))
                         .range(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
-                    title = "Poverty and Substance Abuse"; 
-                    desc = "Poverty and Substance Abuse by County";        
-                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);  
+                    title = "Poverty and Substance Abuse";
+                    desc = "Poverty and Substance Abuse by County";
+                    x = d3.scaleLinear().domain(d3.range(0, 1.7, 0.1)).rangeRound([450, 900]);
                     getTextFunction = rawText;
-                    
+
                     return normalizedCorrelationMap(data["Poverty"], data["SubstanceAbuse"]);
-                }   
+                }
             },
-            
+
             /*
             "ForeignPercentage" : {
                 "compositeData" : true,
@@ -560,7 +560,7 @@
                     console.log(d["TotalPopulationCount"])
                     console.log(scaleMap(dictionaryDivide(d["ForeignPopulationCount"], d["TotalPopulationCount"]), 100.0))
                     return scaleMap(dictionaryDivide(d["ForeignPopulationCount"], d["TotalPopulationCount"]), 100.0);
-                }   
+                }
             }
             */
             /*
@@ -573,7 +573,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalBlackOrigin"]);
-                }   
+                }
             },
             "IndianPercentage" : {
                 "compositeData" : true,
@@ -583,7 +583,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalIndianOrigin"]);
-                }   
+                }
             },
             "AsianPercentage" : {
                 "compositeData" : true,
@@ -593,7 +593,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalAsianOrigin"]);
-                }   
+                }
             },
             "PacificIslanderPercentage" : {
                 "compositeData" : true,
@@ -603,7 +603,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalPacificIslanderOrigin"]);
-                }   
+                }
             },
             "OtherPercentage" : {
                 "compositeData" : true,
@@ -613,7 +613,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalOtherOrigin"]);
-                }   
+                }
             },
             "MultiPercentage" : {
                 "compositeData" : true,
@@ -623,7 +623,7 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalMultiOrigin"]);
-                }   
+                }
             },
             "HispanicPercentage" : {
                 "compositeData" : true,
@@ -633,13 +633,13 @@
                 ],
                 "function" : function(d) {
                     return arrayDivide(d["TotalPopulation"], d["TotalHispanicOrigin"]);
-                }   
+                }
             }
             */
-        };    
-        
+        };
+
     console.log(d3.schemeRdBu[9].concat(d3.schemePurples[9]));
-        
+
     industryStrings = ["AllSectors",
             "AgricultureForestryFishingHunting",
             "MiningQuarryingOilGas",
@@ -662,7 +662,7 @@
             "OtherServices",
             "IndustriesNotClassified"
     ];
-            
+
     educationStrings = [
             "Total1824",
             "LHS1824",
@@ -678,14 +678,14 @@
             "BDG25",
             "GPG25"
     ];
-    
+
     var buttonTreeHierarchy = [
             "AllData",
             "Unemployment",
             "Income",
             "Poverty",
-            "PopulationDensity", 
-            "SubstanceAbuse", 
+            "PopulationDensity",
+            "SubstanceAbuse",
             "GDPPerCapita",
             "Gini",
             "Religion",
@@ -694,7 +694,7 @@
             "Veterans",
             "UrbanIndex",
             "PopulationGrowth",
-            
+
             [
                 "IndustryData",
                 "AllSectors",
@@ -719,7 +719,7 @@
                 "OtherServices",
                 "IndustriesNotClassified"
             ],
-            
+
             [
                 "EducationData",
                 "Total1824",
@@ -736,7 +736,7 @@
                 "BDG25",
                 "GPG25"
             ],
-            
+
             [
                 "OriginPercentages",
                 "WhiteOriginPercentage",
@@ -748,7 +748,7 @@
                 "MultiOriginPercentage",
                 "HispanicOriginPercentage",
             ],
-            
+
             [
                 "PopulationCounts",
                 "TotalPopulationCount",
@@ -756,7 +756,7 @@
                 "ForeignPopulationCount",
                 "OutOfStatePercentage"
             ],
-            
+
             [
                 "Correlations",
                 "Correlation",
@@ -766,34 +766,34 @@
                 "PovertySubstanceAbuse"
             ]
     ];
-        
-    var bigTownPopCutoff = 500000;   
-        
+
+    var bigTownPopCutoff = 500000;
+
     workforcePercentageStrings = [
-        "NaturalResources", "Construction", "Manufacturing", "WholesaleTrade", "RetailTrade", 
-        "TransportationUtilities", "Information", "Finance", "ProfessionalScientific", "Education", 
+        "NaturalResources", "Construction", "Manufacturing", "WholesaleTrade", "RetailTrade",
+        "TransportationUtilities", "Information", "Finance", "ProfessionalScientific", "Education",
         "ArtsEntertainment", "OtherServices", "Administration"
     ];
-        
+
     //Organize all data by type i.e. income, unemployment, etc.
     for (var i = 0; i < industryStrings.length; i++) {
         industryString = industryStrings[i];
         constr = "./businessbycounty/processed/" + industryString + ".csv|GEO.id2|PAYANN";
         allModes[industryString] = constr;
     }
-        
+
     for (var i = 0; i < educationStrings.length; i++) {
         educationString = educationStrings[i];
         constr = "./education/simplifiedEducationCount.csv|CountyID|" + educationString;
         allModes[educationString] = constr;
     }
-    
+
     for (var i = 0; i < workforcePercentageStrings.length; i++) {
         workforcePercentageString = workforcePercentageStrings[i]
         constr = "./industry/industryPercentageProcessed.csv|CountyId|" + workforcePercentageString;
         allModes["WorkforcePercentage" + workforcePercentageString] = constr;
     }
-    
+
     var allModesDesc = {
         "Unemployment" : null,
         "Income" : null,
@@ -842,7 +842,7 @@
     var createCorMap = d3.select("#createCorrelationMap");
 
     var menuVisible = true;
-    
+
     function getQueryVariable(variable)
     {
            var query = window.location.search.substring(1);
@@ -867,13 +867,7 @@
         }
         return null;
     }
-    
-    console.log(num(1.4));
-    console.log(num("1.4"));
-    console.log(num("-37.9"));
-    console.log(num(-37.9));
-    console.log(-37.9);
-    
+
     function numberWithCommas(x) {
         if (x == null) return "";
         var parts = x.toString().split(".");
@@ -893,16 +887,16 @@
     function rawText(d) {
         return countyNameById.get(d.id) + ": " + numberWithCommas(d.rate);
     }
-    
+
     function getDataComparisons(inspectId) {
         var allEntries = dataMap.entries();
         /*
-        var filteredEntries = allEntries.filter(function(d) { 
+        var filteredEntries = allEntries.filter(function(d) {
             var population = num(populationById.get(d.key));
             return population >= bigTownPopCutoff;
         });
         */
-        
+
         countiesSortedField = allEntries.sort(function(x, y) {
             var value1 = dataMap.get(x.key);
             var value2 = dataMap.get(y.key);
@@ -915,7 +909,7 @@
                 return d3.descending(dataMap.get(x.key), dataMap.get(y.key));
             }
         });
-    
+
         var inspectValue = dataMap.get(inspectId);
         var sortedIndex = 0;
         for (var i = 0; i < countiesSortedField.length - 1; i++) {
@@ -928,42 +922,42 @@
                 break;
             }
         }
-        
+
         var top = Math.max(0, sortedIndex - 5 + 1);
         var bottom = Math.min(countiesSortedField.length - 1, sortedIndex + 5 + 2);
-        
+
         var texts = []
-        
+
         for (var i = top; i < sortedIndex; i++) {
             var otherCountyId = countiesSortedField[i].key;
             var tempKeyValue = {"id" : otherCountyId, "rate" : dataMap.get(otherCountyId)};
             var textValue = getTextFunction(tempKeyValue);
             texts.push(textValue);
         }
-        
+
         //texts.push(); //push this county under inspection?
-        
+
         for (var i = sortedIndex; i < bottom; i++) {
             var otherCountyId = countiesSortedField[i].key;
             var tempKeyValue = {"id" : otherCountyId, "rate" : dataMap.get(otherCountyId)};
             var textValue = getTextFunction(tempKeyValue);
             texts.push(textValue);
         }
-        
+
         return texts;
     }
-    
+
     //General template for json/csv callback
     //variables: selectedMapping - d3 map, clickAction(d) - function, getText(d) - function
     //TODO: Implement this
     function jsonCsvDataReady(error, us) {
       if (error) throw error;
-      
+
       entries = dataMap.entries();
       sortedEntries = entries.sort(function(x, y) {
         return d3.descending(x.value, y.value);
       });
-      
+
       container.append("g")
           .attr("class", "counties")
         .selectAll("path")
@@ -973,13 +967,13 @@
           .attr("d", path)
           .on("click", function(d) {
             var texts = getDataComparisons(d.id);
-            
-            divTooltip.style("opacity", 1); 
+
+            divTooltip.style("opacity", 1);
             var countyName = countyNameById.get(d.id);
             divTooltip.html("<p>" + getTextFunction(d) + "</p>")
-                .style("left", (d3.event.pageX) + "px")		
-                .style("top", (d3.event.pageY - 28) + "px");	
-                
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+
             divTooltip.html(divTooltip.html() + "<p>");
             for (var i = 0; i < texts.length; i++) {
                 divTooltip.html(divTooltip.html() + texts[i] + "<br>");
@@ -988,13 +982,13 @@
           })
           /*
           .on("mousemove", function(d) {
-            
+
           })
           */
           //.attr("countyid", function(d) { return d.id; })
         .append("title")
           .text(function(d) { return getTextFunction(d); });
-          
+
       container.append("path")
           .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
           .attr("class", "states")
@@ -1008,10 +1002,10 @@
     ];
     var higherG25 = [
         "L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
-    ];  
+    ];
     function educationReady(error, us) {
       if (error) throw error;
-      
+
       container.append("g")
           .attr("class", "counties")
         .selectAll("path")
@@ -1019,7 +1013,7 @@
         .enter().append("path")
           .attr("fill", function(d) {
             if (educationType === "Total1824") {
-                return color(d.rate = dataMap.get(d.id)["Total1824"]); 
+                return color(d.rate = dataMap.get(d.id)["Total1824"]);
             }
             else if (educationType === "TotalG25") {
                 return color(d.rate = dataMap.get(d.id)["TotalG25"]);
@@ -1043,7 +1037,7 @@
                 }
                 percentage = count / total;
             }
-            return color(d.rate = percentage); 
+            return color(d.rate = percentage);
           })
           .attr("d", path)
           .on("click", function(d) {console.log(d.id); })
@@ -1066,15 +1060,15 @@
     }
 
     // Define the div for the tooltip
-    var divTooltip = d3.select("body").append("div")	
-        .attr("class", "tooltip")				
+    var divTooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
         .style("opacity", 0)
-        .style("z-index", 1);        
+        .style("z-index", 1);
 
     var color = null;
-    
+
     var correlationColorScheme = null;
-    
+
     var title = "Default Title";
     var desc = "Default Description";
     var desc2 = "Default Extended Description"
@@ -1082,7 +1076,7 @@
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
-        
+
     var container = svg.append("g");
 
     var dataMap = d3.map();
@@ -1092,16 +1086,16 @@
     var g = container.append("g")
         .attr("class", "key")
         .attr("transform", "translate(0,40)");
-        
+
     var countyNameById = d3.map();
     var populationById = d3.map();
-    var countiesSortedPopulation = null; 
-    var topCountiesPop = null; 
-     
+    var countiesSortedPopulation = null;
+    var topCountiesPop = null;
+
     var getTextFunction = null;
-    
+
     var pageCounter = 0;
-        
+
     function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -1109,10 +1103,10 @@
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
-    } 
+    }
 
     function clearAndRefreshMenu() {
-        //Buttons at the top where the user can switch modes    
+        //Buttons at the top where the user can switch modes
         mapMenu.selectAll("*").remove();
         mapMenu.html("");
         createButtons();
@@ -1125,13 +1119,13 @@
             window.location.href = "./urbancenters/urbancentersvoronoi.html";
         });
     }
-    
+
     function createButtonTreeMenu(parentDiv, inspectList) {
         if (inspectList.length <= 1) {
             return null;
         }
         var menuDiv = parentDiv.append("div");
-        
+
         var menuButton = parentDiv.append("button")
             .text(inspectList[0])
             .attr("title", inspectList[0])
@@ -1143,16 +1137,16 @@
                     menuDiv.style("display", "none");
                     menuButton.style("background-color", "#aaaadd");
                     menuButton.style("color", "#ffffff");
-                }   
+                }
                 else {
                     menuDiv.style("display", "block");
-                    menuButton.style("background-color", "#ffaaaa");  
+                    menuButton.style("background-color", "#ffaaaa");
                     menuButton.style("color", "black");
                 }
             });
         menuButton.style("background-color", "#aaaadd");
         menuButton.style("color", "#ffffff");
-        
+
         for (var i = 1; i < inspectList.length; i++) {
             var elem = inspectList[i];
             if ($.isArray(elem)) {
@@ -1175,14 +1169,13 @@
                     .attr("id", "menuTree" + elem)
                     .on("click", function() {
                         divTooltip.style("opacity", 0.0);
-                        
-                        //Buttons at the top where the user can switch modes  
+
+                        //Buttons at the top where the user can switch modes
                         //clearAndRefreshMenu();
                         
-                        console.log(this.textContent);
                         container.attr("transform", {"k": "1", "x": "0", "y": "0"});
                         loadMapWithMode(this.textContent);
-                        
+
                         window.history.pushState('page' + pageCounter, this.textContent, '/src/experiments/countymap/index.html?maptype=' + this.textContent);
                         pageCounter++;
                     });
@@ -1191,15 +1184,15 @@
             }
         }
         menuDiv.style("display", "none");
-        
+
         return menuDiv;
     }
     function createButtons() {
         var menuDiv = createButtonTreeMenu(d3.select("#mapchoices"), buttonTreeHierarchy);
         menuDiv.style("display", "block");
-        
+
         var allDataMenuButton = d3.select("#menuTreeAllData");
-        allDataMenuButton.style("background-color", "#ffaaaa");  
+        allDataMenuButton.style("background-color", "#ffaaaa");
         allDataMenuButton.style("color", "black");
     }
 
@@ -1209,7 +1202,7 @@
         /*
         for (var chooseMode in allModes) {
             if (allModes.hasOwnProperty(chooseMode)) {
-                //var chooseMode = allModes[i];  
+                //var chooseMode = allModes[i];
                 var id = chooseMode == mode ? "current" : "";
                 var title = allModesDesc[chooseMode] == null ? chooseMode + " per County" : allModesDesc[chooseMode];
                 var button = mapMenu.append("button").text(chooseMode).attr("title", title).attr("id", id).on("click", function() {
@@ -1225,7 +1218,7 @@
         }
         */
         createButtons();
-        
+
         mapMenu.append("button").text("Urban Centers").attr("title", "Urban Centers").on("click", function() {
             console.log(this.textContent);
             window.location.href = "./urbancenters/urbancenters.html";
@@ -1234,25 +1227,25 @@
             console.log(this.textContent);
             window.location.href = "./urbancenters/urbancentersvoronoi.html";
         });
-        
+
         //console.log(mapMenu.html());
         //mapMenu.html(mapMenu.html() + "<p>Description</p>");
         //console.log(mapMenu.html());
-        
+
         aboutText.html(
             "<p>A visualization of US Census data in d3.js. Data is represented county per county.</p>" +
             "<p>This data includes household income, poverty, industry statistics, education completions, and more.</p>" +
             "<p>In this project we learn about the demographics of the United States and what affects people's living conditions and communities.</p>"
         );
-    }    
-     
+    }
+
     function loadCsvAndCallBack(dataString, callback, dataMap) {
         var tokens = dataString.split("|");
         var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
-        
+
         d3.queue()
             .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-            .defer(d3.csv, csvFileName, function(d) { 
+            .defer(d3.csv, csvFileName, function(d) {
                 var income = 0;
                 if (d[dataColumnName] === undefined) { //Account for possibly empty lines
                     income = 0;
@@ -1264,10 +1257,10 @@
             })
             .await(callback);
     }
-     
+
     function loadMapWithMode(mode) {
         //Initialize everything, possibly or not for the first time, so we can redraw
-    
+
         if (mode == null) {
             loadAboutText();
             return;
@@ -1280,8 +1273,8 @@
             width = +svg.attr("width"),
             height = +svg.attr("height");
         svg.style("z-index", 0);
-            
-        
+
+
         //TODO: Replace with a solution that updates the whole map insteading of replacing it
         svg.selectAll("*").remove();
 
@@ -1290,49 +1283,49 @@
         container.on("mousemove", function(d) {
             console.log("call");
             divTooltip.style("opacity", 1);
-            divTooltip.style("left", (d3.event.pageX) + "px")		
-                .style("top", (d3.event.pageY - 28) + "px");	
+            divTooltip.style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
             divTooltip.html("Test");
         });
         */
-        
+
         dataMap = d3.map();
-       
+
         path = d3.geoPath();
 
         countyNameById = d3.map();
         populationById = d3.map();
-        
+
         getTextFunction = null;
-        
+
         //console.log(svg.select("g"));
-        
+
         g = container.append("g")
             .attr("class", "key")
             .attr("transform", "translate(0,40)");
 
         //Load in the official full list of counties
         d3.queue()
-            .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) { 
+            .defer(d3.csv, "./countyIdByNameProcessed.csv", function(d) {
                 //console.log(d);
                 //console.log(d["TotalCountyId"] + ", " + d["CountyName"]);
                 if (d["TotalCountyId"] === null) {
-                
+
                 }
                 else {
-                    countyNameById.set(d["TotalCountyId"], d["CountyName"] + ", " + d["StateAbbr"]); 
+                    countyNameById.set(d["TotalCountyId"], d["CountyName"] + ", " + d["StateAbbr"]);
                 }
             });
-            
+
         d3.queue()
-            .defer(d3.csv, "./population/populationProcessed.csv", function(d) { 
+            .defer(d3.csv, "./population/populationProcessed.csv", function(d) {
                 //console.log(d);
                 //console.log(d["TotalCountyId"] + ", " + d["CountyName"]);
                 if (d["PopulationTotal"] === null) {
-                
+
                 }
                 else {
-                    populationById.set(d["CountyId"], num(d["PopulationTotal"])); 
+                    populationById.set(d["CountyId"], num(d["PopulationTotal"]));
                 }
             })
             .await(function(error) {
@@ -1353,14 +1346,14 @@
                         break;
                     }
                 }
-            });   
+            });
 
         //TODO: Do not hardcode this data
-        if (mode === "Unemployment") {  
+        if (mode === "Unemployment") {
             color = d3.scaleThreshold()
                 .domain(d3.range(2, 10))
                 .range(d3.schemeBlues[9]);
-            title = "Unemployment";  
+            title = "Unemployment";
             desc = "Unemployment percentage per county";
             x = d3.scaleLinear().domain([2, 10]).rangeRound([450, 900]);
             getTextFunction = percentage;
@@ -1369,9 +1362,9 @@
             color = d3.scaleThreshold()
                 .domain(d3.range(20000, 100000, 10000))
                 .range(d3.schemeGreens[9]);
-            title = "Median Household Income"; 
-            desc = "Median household income by county";        
-            x = d3.scaleLinear().domain([20000, 100000, 10000]).rangeRound([450, 900]);  
+            title = "Median Household Income";
+            desc = "Median household income by county";
+            x = d3.scaleLinear().domain([20000, 100000, 10000]).rangeRound([450, 900]);
             getTextFunction = dollars;
         }
         else if (mode === "Poverty") {
@@ -1382,7 +1375,7 @@
                 .domain([6, 36, 3])
                 .rangeRound([450, 900]);
             title = "Percentage under Poverty Line";
-            desc = "Percentage of people below poverty line per county";    
+            desc = "Percentage of people below poverty line per county";
             getTextFunction = percentage;
         }
         else if (mode === "PopulationDensity") {
@@ -1399,7 +1392,7 @@
         else if (mode === "SubstanceAbuse") {
             color = d3.scaleThreshold()
                 .domain([0, 2, 4, 8, 12, 16, 20, 24, 28, 32])
-                .range(d3.schemeReds[9]); 
+                .range(d3.schemeReds[9]);
             title = "Substance Abuse";
             desc = "Substance Abuse per County";
             x = d3.scaleThreshold()
@@ -1407,7 +1400,7 @@
               .range(d3.range(450, 950, 50));
             getTextFunction = rawText;
         }
-        else if (mode === "GDPPerCapita") {  
+        else if (mode === "GDPPerCapita") {
             color = d3.scaleThreshold()
                 .domain([0, 19000, 20900, 22000, 23100, 24750, 27250, 30000, 35000, 70000])
                 .range(d3.schemeGreens[9]);
@@ -1418,7 +1411,7 @@
               .range(d3.range(450, 950, 50));
             getTextFunction = dollars;
         }
-        else if (mode === "Gini") {  
+        else if (mode === "Gini") {
             color = d3.scaleThreshold()
                 .domain(d3.range(0.35, 0.65, 0.05))
                 .range(d3.schemeReds[6]);
@@ -1429,7 +1422,7 @@
               .rangeRound([450, 950]);
             getTextFunction = rawText;
         }
-        else if (mode === "Religion" || mode === "CongregationDensity") {  
+        else if (mode === "Religion" || mode === "CongregationDensity") {
             color = d3.scaleThreshold()
                 .domain(d3.range(0, 90, 10))
                 .range(d3.schemeReds[9]);
@@ -1446,7 +1439,7 @@
               .rangeRound([450, 900]);
             getTextFunction = percentage;
         }
-        else if (mode === "Crime") {  
+        else if (mode === "Crime") {
             color = d3.scaleThreshold()
                 .domain(d3.range(0, 900, 100))
                 .range(d3.schemeReds[9]);
@@ -1457,7 +1450,7 @@
               .rangeRound([450, 900]);
             getTextFunction = rawText;
         }
-        else if (mode === "Veterans") {  
+        else if (mode === "Veterans") {
             color = d3.scaleThreshold()
                 .domain(d3.range(2, 20, 2))
                 .range(d3.schemeReds[9]);
@@ -1490,18 +1483,18 @@
               .rangeRound([450, 900]);
             getTextFunction = percentage;
         }
-        else if ($.inArray(mode, industryStrings) != -1) {   
+        else if ($.inArray(mode, industryStrings) != -1) {
             title = mode;
-            
+
             desc = "Annual Payroll per County and Industry";
-            
+
             x = null;
-              
+
             if (mode === "AllSectors") {
                 color = d3.scaleThreshold()
                     .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
                     .range(d3.schemeReds[7]);
-                    
+
                 x = d3.scaleThreshold()
                   .domain([0, 100000, 300000, 1000000, 2500000, 10000000, 25000000, 100000000])
                   .range(d3.range(450, 950, 500.0 / 8));
@@ -1510,34 +1503,34 @@
                 color = d3.scaleThreshold()
                     .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
                     .range(d3.schemeReds[8]);
-            
+
                 x = d3.scaleThreshold()
                     .domain([0, 1000, 10000, 50000, 200000, 500000, 1000000, 2500000, 10000000])
                     .range(d3.range(450, 950, 500 / 8));
             }
-            
+
             getTextFunction = dollarsTimesThousand;
         }
         else if (mode === "Total1824" || mode === "TotalG25") {
             color = d3.scaleThreshold()
                 .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
                 .range(d3.schemeReds[9]);
-             
+
             title = mode;
-            
+
             desc = "Total population of age group in county";
-            
+
             x = d3.scaleThreshold()
               .domain([0, 500, 2500, 10000, 50000, 100000, 250000, 1000000, 2500000, 5000000])
               .range(d3.range(450, 950, 50));
-                
+
             educationType = mode;
-            
+
             getTextFunction = rawText;
-            
+
             d3.queue()
                 .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) {
                     addData = {};
                     //var educationModes = [
                         //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
@@ -1554,21 +1547,21 @@
                 .domain([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
                 .range(d3.schemeReds[9]);
 
-            title = mode;    
+            title = mode;
 
             desc = "Percentage of people in age-group and county who have completed this degree or greater";
-            
+
             x = d3.scaleLinear()
                 .domain([0.1, 1, 0.1])
                 .rangeRound([450, 900]);
-            
+
             educationType = mode;
-            
+
             getTextFunction = rawText;
-            
+
             d3.queue()
                 .defer(d3.json, "https://d3js.org/us-10m.v1.json")
-                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) { 
+                .defer(d3.csv, "./education/simplifiedEducationCount.csv", function(d) {
                     addData = {};
                     //var educationModes = [
                         //"Total1824","LHS1824","HS1824","SC1824","BH1824","TotalG25","L9G25","912G25","HSG25","SCG25","ADG25","BDG25","GPG25"
@@ -1582,21 +1575,21 @@
         }
         else if (mode.includes("Percentage")) {
             smallPercentageModes = [
-                "IndianOriginPercentage", 
-                "AsianOriginPercentage", 
-                "PacificIslanderOriginPercentage", 
-                "OtherOriginPercentage", 
+                "IndianOriginPercentage",
+                "AsianOriginPercentage",
+                "PacificIslanderOriginPercentage",
+                "OtherOriginPercentage",
                 "MultiOriginPercentage"
             ];
-            title = mode;    
+            title = mode;
             desc = mode;
             getTextFunction = percentage;
-           
+
             if ($.inArray(mode, smallPercentageModes) !== -1) {
                 color = d3.scaleThreshold()
                     .domain([0, 5, 10, 15, 20, 25, 30, 35, 40, 45])
                     .range(d3.schemeBlues[9]);
-                
+
                 x = d3.scaleLinear()
                     .domain([0, 5, 10, 15, 20, 25, 30, 35, 40, 45])
                     .rangeRound([450, 900]);
@@ -1605,7 +1598,7 @@
                 color = d3.scaleThreshold()
                     .domain([0, 2.5, 5, 7.5, 10, 12.5, 15, 20])
                     .range(d3.schemeBlues[7]);
-                
+
                 x = d3.scaleLinear()
                     .domain([0, 2.5, 5, 7.5, 10, 12.5, 15, 20])
                     .rangeRound([450, 900]);
@@ -1614,29 +1607,29 @@
                 color = d3.scaleThreshold()
                     .domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
                     .range(d3.schemeBlues[9]);
-                
+
                 x = d3.scaleLinear()
                     .domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
                     .rangeRound([450, 900]);
             }
-            
+
         }
         else {
             color = d3.scaleThreshold()
                 .domain([0, 100, 500, 2000, 10000, 20000, 50000, 200000, 500000, 1000000])
                 .range(d3.schemeBlues[9]);
 
-            title = mode;    
+            title = mode;
 
             desc = mode;
-            
+
             x = d3.scaleLinear()
                 .domain([0, 100, 500, 2000, 10000, 20000, 50000, 200000, 500000, 1000000])
                 .rangeRound([450, 900]);
-                
+
             getTextFunction = rawText;
         }
-        
+
         //Look up and load the data under inspection
         if (mode in allModes && $.inArray(mode, educationStrings) === -1) {
             if (typeof allModes[mode] === "object" && "compositeData" in allModes[mode]) {
@@ -1645,7 +1638,7 @@
                 var processFunction = dataObject["function"];
                 var dataDictionary = {};
                 var numDataLoaded = 0;
-                
+
                 dataStrings = ["unemployment.csv", "unemployment.csv", "unemployment.csv", "unemployment.csv", "unemployment.csv"];
                 for (var i = 0; i < listRequired.length; i++) {
                     var copyDataName = listRequired[i];
@@ -1660,7 +1653,7 @@
                     */
                     dataStrings[i] = dataStringTemplate;
                 }
-                 
+
                 d3.queue()
                     .defer(d3.csv, dataStrings[0].split("|")[0])
                     .defer(d3.csv, dataStrings[1].split("|")[0])
@@ -1677,16 +1670,16 @@
                                 var tokens = dataStrings[i].split("|");
                                 var csvFileName = tokens[0], idColumnName = tokens[1], dataColumnName = tokens[2];
                                 var copyMap = d3.map();
-                                
+
                                 for (var j = 0; j < files[i].length; j++) {
                                     var entry = files[i][j];
                                     copyMap.set(entry[idColumnName] + "", entry[dataColumnName]);
                                 }
-                                
+
                                 dataDictionary[listRequired[i]] = copyMap;
                             }
-                        }   
-                        
+                        }
+
                         dataMap = processFunction(dataDictionary, listRequired);
                         d3.queue()
                             .defer(d3.json, "https://d3js.org/us-10m.v1.json")
@@ -1694,10 +1687,10 @@
                                 jsonCsvDataReady(error, us);
                             });
                     });
-                    
-                    
-                    
-                    
+
+
+
+
                     /*
                     d3.csv(csvFileName) //TODO
                         .row(function(d) { return {key: d[idColumnName], value: +num(d[dataColumnName])}; })
@@ -1709,9 +1702,9 @@
                                 copyMap.set(entry.key, entry.value);
                             }
                             dataDictionary[listRequired[numDataLoaded]] = copyMap;
-                            
+
                             console.log(copyMap);
-                            
+
                             numDataLoaded++;
                             if (numDataLoaded === listRequired.length) {
                                 dataMap = processFunction(dataDictionary);
@@ -1723,7 +1716,7 @@
                             }
                         });*/
 
-            }   
+            }
             else {
                 var dataString = allModes[mode]; //Contains the file name|county id column|true data column
                 loadCsvAndCallBack(dataString, jsonCsvDataReady, dataMap);
@@ -1733,7 +1726,7 @@
         if (mode !== null) {
             desc2 = allModesDesc[mode];
         }
-       
+
         if (color == null) {
 
         }
@@ -1750,7 +1743,7 @@
                 .attr("x", function(d) { return x(d[0]); })
                 .attr("width", function(d) { return x(d[1]) - x(d[0]); })
                 .attr("fill", function(d) { return color(d[0]); });
-                
+
             g.selectAll("text").remove();
 
             g.append("text")
@@ -1761,7 +1754,7 @@
                 .attr("text-anchor", "start")
                 .attr("font-weight", "bold")
                 .text(title + ": " + desc);
-                
+
             /*
             g.append("text")
                 .attr("class", "caption")
@@ -1772,10 +1765,10 @@
                 .attr("font-weight", "bold")
                 .text(desc);
             */
-            
+
             g.call(d3.axisBottom(x)
                 .tickSize(13)
-                .tickFormat(function(x, i) { 
+                .tickFormat(function(x, i) {
                     if (x % 1 === 0) {
                         return x;
                     }
@@ -1791,7 +1784,7 @@
                     //svg.attr("transform", d3.event.transform)
                     //}));
         }
-        
+
         // Set-up the export button
         d3.select('#saveButton').on('click', function(){
             var svgString = getSVGString(svg.node());
@@ -1817,12 +1810,12 @@
         }
         menuVisible = !menuVisible;
     });
-    
+
     d3.select("#resetMap").on('click', function() {
         //container.attr("transform")
         container.attr("transform", {"k": "1", "x": "0", "y": "0"});
     });
-    
+
     createCorMap.on('click', function() {
         var text1 = d3.select("#redCorrelationInput").property("value");
         var text2 = d3.select("#blueCorrelationInput").property("value");
@@ -1831,7 +1824,7 @@
             modifyData["required"] = [text1, text2];
             loadMapWithMode("Correlation");
         }
-    }); 
+    });
 
     //Zoom functions
 
@@ -1874,7 +1867,7 @@
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
-        
+
     svg.call(zoom);
 
     </script>

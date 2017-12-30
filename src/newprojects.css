@@ -22,10 +22,8 @@ button {
 .carousel-inner {
   overflow: visible;
 }
-
-.project-page {
-  position: absolute;
-  height: 100% !important;
+.carousel-control {
+  min-height: 100%;
 }
 
 .card, .finalrow, button {
