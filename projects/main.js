@@ -55,6 +55,11 @@ var context = svg.append("g")
   .attr("class", "context")
   .attr("transform", "translate(" + smallMargin.left + "," + smallMargin.top + ")");
 
+var tooltip = svg.append("g")
+  .attr("id", "tooltip")
+  .attr("transform", "translate(0,0)")
+  .style("opacity", 0.5);
+
 var tests = null;
 var bars = null;
 
@@ -65,73 +70,77 @@ var storedData = null;
 
 //General update pattern that can be called to update the timeline graph
 function renderTimeline() {
-  var focusRectHeight = height / 10;
+  var focusRectHeight = height / 5;
 
-  bars = tests.selectAll('rect')
+  bars = tests.selectAll('g')
     .data(storedData);
+
+  //Create a structure with the g svg element holding all elements transformed in chart coords,
+  //with children offset at the new coords of the g element.
+
+  //On hovering over the project card, show the tooltip
+  bars
+    .enter()
+    .append('g')
+    .attr('transform', function(d) {
+      return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
+    })
+    .on("mouseover", function(d) {
+      tooltip.style("opacity", 1.0);
+      tooltip.select("text").text(d["tooltip"]);
+      tooltip.attr("transform", function() {
+        return "translate(" + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
+      });
+    })
+    .on("mouseout", function() {
+      tooltip.style("opacity", 0.0);
+    });
 
   bars
     .enter()
-    .append('rect')
-    .attr('height', focusRectHeight)
-    .attr('x', function(d) {
-      return xScale(d["start_date"]);
-    })
-    .attr('y', function(d) {
-      return yScale(d["proj_id"]) - focusRectHeight;
-    })
-    .style('fill', function(d,i) { return "steelblue"; })
-    .attr('width',function(d) {
+    .selectAll("g")
+    .append("rect")
+    .style('fill', function(d,i) { return "white"; })
+    .style('stroke', function(d,i) { return "steelblue"; })
+    .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
       //then calculate a width based on that.
       //We assume that end_date is later than start_date
       return xScale(d["end_date"]) - xScale(d["start_date"]);
     })
-    .on("mouseover", function() {
-      console.log("Tooltip");
-    })
-    .on("mouseout", function() {
-      console.log("Tooltip out");
-    });
+    .attr('height', focusRectHeight);
 
-  bars
+  bars //This only has to be declared once, since it is in relation to the whole group element
     .enter()
+    .selectAll("g")
     .append('text')
     .attr('x', function(d) {
-      return xScale(d["start_date"]);
+      var renderWidth = xScale(d["end_date"]) - xScale(d["start_date"]);
+      return renderWidth / 2;
     })
-    .attr('y', function(d) {
-      return yScale(d["proj_id"]) - focusRectHeight / 4;
-    })
+    .attr('y', focusRectHeight / 2)
+    .attr("text-anchor", "middle")
     .text(function(d) {
       return d["proj_name"];
     });
 
   //Update already existing elements when moved
+  //This updates the rectangle widths and overall group positions
   bars
-    .attr('height', focusRectHeight)
-    .attr('x', function(d) {
-      return xScale(d["start_date"]);
-    })
-    .attr('y', function(d) {
-      return yScale(d["proj_id"]) - focusRectHeight;
-    })
-    .style('fill', function(d,i) { return "steelblue"; })
-    .attr('width',function(d) {
+    .attr('transform', function(d) {
+      return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
+    });
+
+  bars.selectAll("rect")
+    .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
       //then calculate a width based on that.
       //We assume that end_date is later than start_date
       return xScale(d["end_date"]) - xScale(d["start_date"]);
-    });
-
-  bars
-    .selectAll("text")
-    .attr('x', function(d) {
-      return xScale(d["start_date"]);
     })
-    .attr('y', function(d) {
-      return yScale(d["proj_id"]) - focusRectHeight / 4;
-    });
+    .attr('height', focusRectHeight);
+
+
 }
 
 //Async csv call, load in the data for the first time, store it
@@ -199,6 +208,8 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
 
   renderTimeline();
 
+  //Append a text object once for the tooltip svg group to use
+  tooltip.append("text");
 
 }); //The hiking trail elevation data
 

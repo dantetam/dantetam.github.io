@@ -1,6 +1,6 @@
 proj_id,proj_name,start_date,end_date,category,github_repo_name,tooltip
 0,CivGame,2015-09,2016-02,Games,civgame,Civilization style game in Java/Processing/JOGL
-0,Serenine,2016-08,2016-10,Games,serenine,Worldbuilding strategy in Android OpenGL ES + pure OpenGL shaders
+0,Serenine,2016-07,2016-10,Games,serenine,Worldbuilding strategy in Android OpenGL ES + pure OpenGL shaders
 0,Starlight,2017-05,2017-7,Games,starlight,Social Android world exploration + augmented reality game engine
 0,Destiny and Desire,2015-04,2015-08,Games,roguelike,2D adventure RPG with permadeath + randomly generated levels
 0,Stargalaxy,2017-01,2017-08,Web,dantetam.github.io,Galaxy visualization and exploration + futuristic grand strategy
