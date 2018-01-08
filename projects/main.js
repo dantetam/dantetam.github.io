@@ -1,0 +1,198 @@
+// SVG setup as usual
+
+var totalWidth = $(window).width(), totalHeight = $(window).height();
+var margin = { top: 20, right: 20, bottom: totalHeight * 0.2, left: 40 };
+var smallMargin = { top: totalHeight * 0.8 + 30, right: 20, bottom: 30, left: 40 }; //The second SVG brush goes under the main display
+
+var width = totalWidth - margin.left - margin.right;
+var height = totalHeight - margin.top - margin.bottom;
+var smallHeight = totalHeight - smallMargin.top - smallMargin.bottom
+
+var svg = d3.select("body").append("svg")
+  .attr("height", totalHeight)
+  .attr("width", totalWidth);
+
+//Two sets of d3 scales for each graphic
+var xScale = d3.scaleTime().range([0, width]); //Special scale for time data
+var yScale = d3.scaleLinear().range([height, 0]); //Remember to invert, like in previous classes
+var smallXScale = d3.scaleLinear().range([0, width]);
+var smallYScale = d3.scaleLinear().range([smallHeight, 0]);
+
+//Decimal formatted axes
+var timeFormat = d3.timeFormat("%Y %m");
+var xAxis = d3.axisBottom(xScale).tickFormat(timeFormat);
+var smallXAxis = d3.axisBottom(smallXScale).tickFormat(timeFormat);
+var yAxis = d3.axisLeft(yScale); //Only need one y-axis for the main chart, since the brush is ~80 pixels high
+
+//Our one-dimensional brush in the X-axis, moves from left to right
+var brush = d3.brushX()
+  .extent([[0, 0], [width, smallHeight]])
+  .on('brush end', brushed); //Brush listener events, both brush and end
+
+
+
+//Once again use d3 zoom to zoom across any generated SVG
+var zoom = d3.zoom()
+  .scaleExtent([1, Infinity]) //Restricts the zoom level
+  .translateExtent([[0, 0], [width, height]]) //Restricts the range pan of the brush on the screen
+  .extent([[0, 0], [width, height]]) //Restricts the render pan of the brush on the screen
+  .on('zoom', zoomed); //Zoom event handler/listener
+
+svg.append("defs").append("clipPath") //Turning on and off:
+  .attr("id", "clip")
+  .append("rect") //Clip the area within the margins i.e. past the axes
+  .attr("width", width)
+  .attr("height", height);
+
+//Two group elements to store SVG objects for both graphs
+//These are offset by their respective division margins
+
+var focus = svg.append("g")
+  .attr("class", "focus")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var context = svg.append("g")
+  .attr("class", "context")
+  .attr("transform", "translate(" + smallMargin.left + "," + smallMargin.top + ")");
+
+//Async data load from csv, like before
+//d3.csv("./data/pct_ca_generalized.csv", formatter, function(err, data) {
+d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
+  if (err) throw err;
+
+  //We have to reset the domain scales to determine the extent of data
+  xScale.domain(d3.extent(data, function(d) {
+    return d["start_date"];
+  }));
+  smallXScale.domain(xScale.domain()); //Overloaded getter and setter, much like d.html("...") and d.html()
+  yScale.domain([0, d3.max(data, function(d) {
+    return d["proj_id"];
+  })]); //Use d3.max to access a special property of the data
+  smallYScale.domain(yScale.domain());
+
+  //Main larger chart
+  //Use datum for line and paths since there is only one object
+  /*focus.append("path")
+    .datum(data)
+    .attr("class", "area")
+    .attr("d", area);*/ //Unenclosed area path generator
+
+  var tests = focus.append('g');
+
+  var bars = tests.selectAll('rect')
+    .data(data);
+
+  bars
+    .enter()
+    .append('rect')
+    .attr('height',19)
+    .attr('x', function(d) {
+      return xScale(d["start_date"]);
+    })
+    .attr('y', function(d) {
+      return yScale(d["proj_id"]);
+    })
+    .style('fill',function(d,i) { return "steelblue"; })
+    .attr('width',function(d) {
+      //Figure out the transformation of the start and end dates into the screen,
+      //then calculate a width based on that.
+      //We assume that end_date is later than start_date
+      return xScale(d["end_date"]) - xScale(d["start_date"]);
+    });
+
+  console.log(tests);
+
+  //Axis groups in the SVG, which hold axis texts and ticks
+  focus.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+  focus.append("g")
+    .attr("class", "axis axis--y")
+    .call(yAxis);
+
+  //The smaller chart brush
+  /*context.append("path")
+    .datum(data)
+    .attr("class", "area")
+    .attr("d", smallArea);*/
+  context.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + smallHeight + ")")
+    .call(smallXAxis);
+
+  context.append("g")
+    .attr("class", "brush")
+    .call(brush)
+    .call(brush.move, xScale.range()); //Move brush to entire small graph area
+
+  //Create a rect to listen for zoom events in the whole SVG
+  svg.append("rect")
+    .attr("class", "zoom")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+    .call(zoom);
+
+
+}); //The hiking trail elevation data
+
+
+function brushed() {
+  //d3.event Refers to the event generated by a d3 listener
+  //Fire only when the user is done moving the brush
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; //Do not handle events related to zoom
+  //d3.event.selection returns the pixel (not data) value of the selection
+  var s = d3.event.selection || smallXScale.range();
+  xScale.domain(s.map(smallXScale.invert, smallXScale)); //xScale.invert returns a map from pixel -> data
+  //Set the domain of the main chart ^, and then update the areas
+  //focus.select(".area").attr("d", area); //Recall the area path generator
+  //focus.select(".axis--x").call(xAxis); //Update the axis as well
+
+  svg.select('.zoom')
+    .call(
+      zoom.transform,
+      d3.zoomIdentity
+        .scale(width / (s[1] - s[0]))
+        .translate(-s[0], 0)
+    ); //Call a brush event, reset zoom
+}
+
+function zoomed() {
+  if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; //Do not handle events related to brush movement/zoom
+  var t = d3.event.transform; //The k,x,y represent zoom and pan
+  xScale.domain(t.rescaleX(smallXScale).domain());
+
+  //Redraw everything again
+  //focus.select(".area").attr("d", area); //Recall the area path generator
+  //focus.select(".axis--x").call(xAxis); //Update the axis as well
+
+  //Also have to update the brush
+  /*context.select(".brush")
+    .call(
+      brush.move,
+      xScale.range().map(t.invertX, t)
+    );*/ //Call brush.move, which sets the location of the brush
+}
+
+//Row by row manipulate the rows of a CSV
+//In this case we convert meter -> mile/ft
+function formatter(row) {
+  row["start_date"] = Date.parse(row["start_date"]);
+  row["end_date"] = Date.parse(row["end_date"]);
+  row["proj_id"] = +row["proj_id"];
+  return row;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+//A comment to hold the line.
