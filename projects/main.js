@@ -55,10 +55,90 @@ var context = svg.append("g")
   .attr("class", "context")
   .attr("transform", "translate(" + smallMargin.left + "," + smallMargin.top + ")");
 
+var tests = null;
+var bars = null;
+
 //Async data load from csv, like before
 //d3.csv("./data/pct_ca_generalized.csv", formatter, function(err, data) {
+
+var storedData = null;
+
+//General update pattern that can be called to update the timeline graph
+function renderTimeline() {
+  var focusRectHeight = height / 10;
+
+  bars = tests.selectAll('rect')
+    .data(storedData);
+
+  bars
+    .enter()
+    .append('rect')
+    .attr('height', focusRectHeight)
+    .attr('x', function(d) {
+      return xScale(d["start_date"]);
+    })
+    .attr('y', function(d) {
+      return yScale(d["proj_id"]) - focusRectHeight;
+    })
+    .style('fill', function(d,i) { return "steelblue"; })
+    .attr('width',function(d) {
+      //Figure out the transformation of the start and end dates into the screen,
+      //then calculate a width based on that.
+      //We assume that end_date is later than start_date
+      return xScale(d["end_date"]) - xScale(d["start_date"]);
+    })
+    .on("mouseover", function() {
+      console.log("Tooltip");
+    })
+    .on("mouseout", function() {
+      console.log("Tooltip out");
+    });
+
+  bars
+    .enter()
+    .append('text')
+    .attr('x', function(d) {
+      return xScale(d["start_date"]);
+    })
+    .attr('y', function(d) {
+      return yScale(d["proj_id"]) - focusRectHeight / 4;
+    })
+    .text(function(d) {
+      return d["proj_name"];
+    });
+
+  //Update already existing elements when moved
+  bars
+    .attr('height', focusRectHeight)
+    .attr('x', function(d) {
+      return xScale(d["start_date"]);
+    })
+    .attr('y', function(d) {
+      return yScale(d["proj_id"]) - focusRectHeight;
+    })
+    .style('fill', function(d,i) { return "steelblue"; })
+    .attr('width',function(d) {
+      //Figure out the transformation of the start and end dates into the screen,
+      //then calculate a width based on that.
+      //We assume that end_date is later than start_date
+      return xScale(d["end_date"]) - xScale(d["start_date"]);
+    });
+
+  bars
+    .selectAll("text")
+    .attr('x', function(d) {
+      return xScale(d["start_date"]);
+    })
+    .attr('y', function(d) {
+      return yScale(d["proj_id"]) - focusRectHeight / 4;
+    });
+}
+
+//Async csv call, load in the data for the first time, store it
 d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
   if (err) throw err;
+
+  storedData = data;
 
   //We have to reset the domain scales to determine the extent of data
   xScale.domain(d3.extent(data, function(d) {
@@ -66,7 +146,7 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
   }));
   smallXScale.domain(xScale.domain()); //Overloaded getter and setter, much like d.html("...") and d.html()
   yScale.domain([0, d3.max(data, function(d) {
-    return d["proj_id"];
+    return d["proj_id"] + 1;
   })]); //Use d3.max to access a special property of the data
   smallYScale.domain(yScale.domain());
 
@@ -77,39 +157,19 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
     .attr("class", "area")
     .attr("d", area);*/ //Unenclosed area path generator
 
-  var tests = focus.append('g');
-
-  var bars = tests.selectAll('rect')
-    .data(data);
-
-  bars
-    .enter()
-    .append('rect')
-    .attr('height',19)
-    .attr('x', function(d) {
-      return xScale(d["start_date"]);
-    })
-    .attr('y', function(d) {
-      return yScale(d["proj_id"]);
-    })
-    .style('fill',function(d,i) { return "steelblue"; })
-    .attr('width',function(d) {
-      //Figure out the transformation of the start and end dates into the screen,
-      //then calculate a width based on that.
-      //We assume that end_date is later than start_date
-      return xScale(d["end_date"]) - xScale(d["start_date"]);
-    });
-
-  console.log(tests);
+  tests = focus.append('g');
 
   //Axis groups in the SVG, which hold axis texts and ticks
   focus.append("g")
     .attr("class", "axis axis--x")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
+    /*
+  //We no longer need this call, since there is no meaning to the y-axis in a timeline
   focus.append("g")
     .attr("class", "axis axis--y")
     .call(yAxis);
+*/
 
   //The smaller chart brush
   /*context.append("path")
@@ -127,12 +187,17 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
     .call(brush.move, xScale.range()); //Move brush to entire small graph area
 
   //Create a rect to listen for zoom events in the whole SVG
-  svg.append("rect")
+  /*var zoomRectListener = svg.append("rect")
     .attr("class", "zoom")
     .attr("width", width)
-    .attr("height", height)
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .call(zoom);
+    .attr("height", smallHeight)
+    .attr("transform", "translate(" + margin.left + "," + (smallMargin.top) + ")")
+    .style("z-index", 5)
+    .call(zoom);*/
+  //Move the rect listener to the back so timeline tooltips hover over
+  //zoomRectListener.moveToBack();
+
+  renderTimeline();
 
 
 }); //The hiking trail elevation data
@@ -147,7 +212,7 @@ function brushed() {
   xScale.domain(s.map(smallXScale.invert, smallXScale)); //xScale.invert returns a map from pixel -> data
   //Set the domain of the main chart ^, and then update the areas
   //focus.select(".area").attr("d", area); //Recall the area path generator
-  //focus.select(".axis--x").call(xAxis); //Update the axis as well
+  focus.select(".axis--x").call(xAxis); //Update the axis as well
 
   svg.select('.zoom')
     .call(
@@ -156,6 +221,8 @@ function brushed() {
         .scale(width / (s[1] - s[0]))
         .translate(-s[0], 0)
     ); //Call a brush event, reset zoom
+
+  renderTimeline();
 }
 
 function zoomed() {
@@ -165,14 +232,16 @@ function zoomed() {
 
   //Redraw everything again
   //focus.select(".area").attr("d", area); //Recall the area path generator
-  //focus.select(".axis--x").call(xAxis); //Update the axis as well
+  focus.select(".axis--x").call(xAxis); //Update the axis as well
 
   //Also have to update the brush
-  /*context.select(".brush")
+  context.select(".brush")
     .call(
       brush.move,
       xScale.range().map(t.invertX, t)
-    );*/ //Call brush.move, which sets the location of the brush
+    ); //Call brush.move, which sets the location of the brush
+
+  renderTimeline();
 }
 
 //Row by row manipulate the rows of a CSV
