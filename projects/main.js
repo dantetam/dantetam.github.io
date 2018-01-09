@@ -65,6 +65,8 @@ var projblocksContext = null;
 var bars = null;
 var barsContext = null;
 
+var barsGroups = null;
+
 //Async data load from csv, like before
 //d3.csv("./data/pct_ca_generalized.csv", formatter, function(err, data) {
 
@@ -81,7 +83,7 @@ function renderTimeline() {
   //with children offset at the new coords of the g element.
 
   //On hovering over the project card, show the tooltip
-  var barsGroups = bars
+  barsGroups = bars
     .enter()
     .append('g');
 
@@ -175,7 +177,7 @@ function renderTimeline() {
     .attr('y2', focusRectHeight * 19 / 20)
 
   //Right line update
-  barsGroups
+  bars
     .selectAll(".right-line")
     .attr('x1', function(d) {
       var width = xScale(d["end_date"]) - xScale(d["start_date"]);
@@ -207,7 +209,8 @@ function renderTimeline() {
       return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
     });
 
-  barsGroups.selectAll("rect")
+  bars
+    .selectAll("rect")
     .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
       //then calculate a width based on that.
