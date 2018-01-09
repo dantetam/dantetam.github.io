@@ -60,8 +60,10 @@ var tooltip = svg.append("g")
   .attr("transform", "translate(0,0)")
   .style("opacity", 0.5);
 
-var projblocks = null;
+var projblocksFocus = null;
+var projblocksContext = null;
 var bars = null;
+var barsContext = null;
 
 //Async data load from csv, like before
 //d3.csv("./data/pct_ca_generalized.csv", formatter, function(err, data) {
@@ -72,7 +74,7 @@ var storedData = null;
 function renderTimeline() {
   var focusRectHeight = height / 5;
 
-  bars = projblocks.selectAll('g')
+  bars = projblocksFocus.selectAll('g')
     .data(storedData);
 
   //Create a structure with the g svg element holding all elements transformed in chart coords,
@@ -83,6 +85,7 @@ function renderTimeline() {
     .enter()
     .append('g');
 
+  //Creating ^ and positioning the first group elements
   barsGroups
     .attr('transform', function(d) {
       return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
@@ -93,12 +96,28 @@ function renderTimeline() {
       tooltip.attr("transform", function() {
         return "translate(" + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
       });
+
+      //Rect graphic transitions
+      var t = d3.transition().duration(500).ease(d3.easeLinear);
+      var rectChild = d3.select(this).select("rect")
+
+      rectChild.transition(t).attr("height", focusRectHeight * 5 / 4);
+      //Reset the height and transition to keep the bottom side fixed
+      rectChild.attr("y", 0)
+      rectChild.transition(t).attr("y", - focusRectHeight * 1 / 4);
     })
     .on("mouseout", function() {
       tooltip.style("opacity", 0.0);
-    });
 
-  barsGroups.append("text").text("TEST");
+      //Rect graphic transitions
+      var t = d3.transition().duration(500).ease(d3.easeExp);
+      var rectChild = d3.select(this).select("rect")
+
+      rectChild.transition(t).attr("height", focusRectHeight);
+      //Reset the height and transition to keep the bottom side fixed
+      rectChild.attr("y", - focusRectHeight * 1 / 4)
+      rectChild.transition(t).attr("y", 0);
+    });
 
   barsGroups
     .append("rect")
@@ -110,18 +129,11 @@ function renderTimeline() {
       //We assume that end_date is later than start_date
       return xScale(d["end_date"]) - xScale(d["start_date"]);
     })
-    .attr('height', focusRectHeight)
-    .on("mouseover", function(d) {
-      var t = d3.transition().duration(500).ease(d3.easeLinear);
-      d3.select(this).transition(t).attr("height", focusRectHeight * 5 / 4);
-      d3.select(this).transition(t).attr("y", - focusRectHeight * 1 / 4);
-    })
-    .on("mouseout", function() {
-
-    });
+    .attr('height', focusRectHeight);
 
   barsGroups
     .append("polygon")
+    .attr("pointer-events", "none")
     .style('fill', function(d,i) { return "white"; })
     .style('stroke', function(d,i) { return "steelblue"; })
     .attr('points', function(d) {
@@ -189,6 +201,7 @@ function renderTimeline() {
 
   //Update already existing elements when moved
   //This updates the rectangle widths and overall group positions
+
   bars
     .attr('transform', function(d) {
       return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
@@ -203,7 +216,38 @@ function renderTimeline() {
     })
     .attr('height', focusRectHeight);
 
+  //-------------------------------------------------------------
+  //Nearly the same functions, to render the smaller chart context
+  var contextRectHeight = smallHeight / 4;
 
+  barsContext = projblocksContext.selectAll('g')
+    .data(storedData);
+
+  //Create a structure with the g svg element holding all elements transformed in chart coords,
+  //with children offset at the new coords of the g element.
+
+  //On hovering over the project card, show the tooltip
+  var barsGroupsContext = barsContext
+    .enter()
+    .append('g');
+
+  //Creating ^ and positioning the first group elements
+  barsGroupsContext
+    .attr('transform', function(d) {
+      return 'translate(' + xScale(d["start_date"]) + "," + (smallYScale(d["proj_id"]) - contextRectHeight) + ")";
+    });
+
+  barsGroupsContext
+    .append("rect")
+    .style('fill', function(d,i) { return "transparent"; })
+    .style('stroke', function(d,i) { return "steelblue"; })
+    .attr('width', function(d) {
+      //Figure out the transformation of the start and end dates into the screen,
+      //then calculate a width based on that.
+      //We assume that end_date is later than start_date
+      return xScale(d["end_date"]) - xScale(d["start_date"]);
+    })
+    .attr('height', contextRectHeight);
 }
 
 //Async csv call, load in the data for the first time, store it
@@ -236,7 +280,7 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
     .attr("class", "area")
     .attr("d", area);*/ //Unenclosed area path generator
 
-  projblocks = focus.append('g').attr('class', 'projblocks');
+  projblocksFocus = focus.append('g').attr('class', 'projblocksfocus');
 
   //Axis groups in the SVG, which hold axis texts and ticks
   focus.append("g")
@@ -255,6 +299,8 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
     .datum(data)
     .attr("class", "area")
     .attr("d", smallArea);*/
+  projblocksContext = context.append('g').attr('class', 'projblockscontext')
+
   context.append("g")
     .attr("class", "axis axis--x")
     .attr("transform", "translate(0," + smallHeight + ")")
@@ -279,7 +325,7 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
   renderTimeline();
 
   //Append a text object once for the tooltip svg group to use
-  tooltip.append("text");
+  var barsGroupsContext = tooltip.append("text");
 
 }); //The hiking trail elevation data
 
