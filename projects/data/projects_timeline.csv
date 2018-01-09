@@ -1,15 +1,15 @@
 proj_id,proj_name,start_date,end_date,category,github_repo_name,tooltip
 0,CivGame,2015-09,2016-02,Games,civgame,Civilization style game in Java/Processing/JOGL
 0,Serenine,2016-07,2016-10,Games,serenine,Worldbuilding strategy in Android OpenGL ES + pure OpenGL shaders
-0,Starlight,2017-05,2017-7,Games,starlight,Social Android world exploration + augmented reality game engine
+3,Starlight,2017-05,2017-7,Games,starlight,Social Android world exploration + augmented reality game engine
 0,Destiny and Desire,2015-04,2015-08,Games,roguelike,2D adventure RPG with permadeath + randomly generated levels
 0,Stargalaxy,2017-01,2017-08,Web,dantetam.github.io,Galaxy visualization and exploration + futuristic grand strategy
-1,Stella,2017-01,2017-08,Web,dantetam.github.io,Conversational agent Stella for automated commands with front-end UI
 1,Dante's Portfolio,2016-06,2018-01,Web,dantetam.github.io,Personal portfolio website + repo of experiments + writings + coursework + research
-1,US Census Vis,2017-06,2017-09,Web,dantetam.github.io,d3.js Visualization of geospatial US Census data + chloropleth maps and correlation maps
+2,Stella,2017-01,2017-08,Web,dantetam.github.io,Conversational agent Stella for automated commands with front-end UI
+2,US Census Vis,2017-06,2017-09,Web,dantetam.github.io,d3.js Visualization of geospatial US Census data + chloropleth maps and correlation maps
 2,Retumblr,2015-01,2015-05,Web,retumblr,Social interface for an interactive and colloborative content sharing full stack website
 2,HelloNode,2017-12,2018-01,Web,dantetam-server,Express.js/Node.js full stack web dev. experimentation
 3,StellaML,2016-03,2016-08,ML,tensorflowtest,Lin. reg. and CNN + word2vec methods for converting human speech into executable computer commands
 3,TensorFlow Test,2017-07,2018-01,ML,tensorflowtest,State-of-the-art ML experiments with lin. reg. + NNs word2vec + etc.
 3,Neuroevolution-World,2017-03,2017-04,ML,neuroevolution-world-simulation,World simulation of genetically evolving intelligent creatures (fork)
-2,NEAT-py,2017-12,2018-01,ML,neuroevolution-py,Implement of NEAT: evolving intelligent neural networks
+3,NEAT-py,2017-12,2018-01,ML,neuroevolution-py,Implement of NEAT: evolving intelligent neural networks

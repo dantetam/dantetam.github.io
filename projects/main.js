@@ -60,7 +60,7 @@ var tooltip = svg.append("g")
   .attr("transform", "translate(0,0)")
   .style("opacity", 0.5);
 
-var tests = null;
+var projblocks = null;
 var bars = null;
 
 //Async data load from csv, like before
@@ -72,16 +72,18 @@ var storedData = null;
 function renderTimeline() {
   var focusRectHeight = height / 5;
 
-  bars = tests.selectAll('g')
+  bars = projblocks.selectAll('g')
     .data(storedData);
 
   //Create a structure with the g svg element holding all elements transformed in chart coords,
   //with children offset at the new coords of the g element.
 
   //On hovering over the project card, show the tooltip
-  bars
+  var barsGroups = bars
     .enter()
-    .append('g')
+    .append('g');
+
+  barsGroups
     .attr('transform', function(d) {
       return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
     })
@@ -96,11 +98,11 @@ function renderTimeline() {
       tooltip.style("opacity", 0.0);
     });
 
-  bars
-    .enter()
-    .selectAll("g")
+  barsGroups.append("text").text("TEST");
+
+  barsGroups
     .append("rect")
-    .style('fill', function(d,i) { return "white"; })
+    .style('fill', function(d,i) { return "transparent"; })
     .style('stroke', function(d,i) { return "steelblue"; })
     .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
@@ -108,11 +110,72 @@ function renderTimeline() {
       //We assume that end_date is later than start_date
       return xScale(d["end_date"]) - xScale(d["start_date"]);
     })
+    .attr('height', focusRectHeight)
+    .on("mouseover", function(d) {
+      var t = d3.transition().duration(500).ease(d3.easeLinear);
+      d3.select(this).transition(t).attr("height", focusRectHeight * 5 / 4);
+      d3.select(this).transition(t).attr("y", - focusRectHeight * 1 / 4);
+    })
+    .on("mouseout", function() {
+
+    });
+
+  barsGroups
+    .append("polygon")
+    .style('fill', function(d,i) { return "white"; })
+    .style('stroke', function(d,i) { return "steelblue"; })
+    .attr('points', function(d) {
+      //Figure out the transformation of the start and end dates into the screen,
+      //then calculate a width based on that.
+      //We assume that end_date is later than start_date
+      var width = xScale(d["end_date"]) - xScale(d["start_date"]);
+      var w10 = focusRectHeight / 10;
+      var w6 = focusRectHeight / 6;
+      var w4 = focusRectHeight / 4;
+      var w9_10 = focusRectHeight * 9 / 10;
+      var w2 = focusRectHeight / 2;
+      return w10 + "," + w10 + " " + w4 + "," + w10 + " " + w2 + "," + w2
+      + " " + w4 + "," + w9_10 + " " + w10 + "," + w9_10;
+    })
     .attr('height', focusRectHeight);
 
-  bars //This only has to be declared once, since it is in relation to the whole group element
-    .enter()
-    .selectAll("g")
+  //Append the rectangle line graphics
+  barsGroups
+    .append("line")
+    .style('stroke', function(d,i) { return "black"; })
+    .attr('x1', focusRectHeight / 20)
+    .attr('x2', focusRectHeight / 20)
+    .attr('y1', focusRectHeight / 20)
+    .attr('y2', focusRectHeight * 19 / 20)
+  barsGroups
+    .append("line")
+    .attr("class", "right-line")
+    .style('stroke', function(d,i) { return "black"; })
+    .attr('x1', function(d) {
+      var width = xScale(d["end_date"]) - xScale(d["start_date"]);
+      return width - focusRectHeight / 20;
+    })
+    .attr('x2', function(d) {
+      var width = xScale(d["end_date"]) - xScale(d["start_date"]);
+      return width - focusRectHeight / 20;
+    })
+    .attr('y1', focusRectHeight / 20)
+    .attr('y2', focusRectHeight * 19 / 20)
+
+  //Right line update
+  barsGroups
+    .selectAll(".right-line")
+    .attr('x1', function(d) {
+      var width = xScale(d["end_date"]) - xScale(d["start_date"]);
+      return width - focusRectHeight / 20;
+    })
+    .attr('x2', function(d) {
+      var width = xScale(d["end_date"]) - xScale(d["start_date"]);
+      return width - focusRectHeight / 20;
+    });
+
+
+  barsGroups //This only has to be declared once, since it is in relation to the whole group element
     .append('text')
     .attr('x', function(d) {
       var renderWidth = xScale(d["end_date"]) - xScale(d["start_date"]);
@@ -131,7 +194,7 @@ function renderTimeline() {
       return 'translate(' + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
     });
 
-  bars.selectAll("rect")
+  barsGroups.selectAll("rect")
     .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
       //then calculate a width based on that.
@@ -149,10 +212,17 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
 
   storedData = data;
 
+  /*var dateDomain = d3.extent(data, function(d) {
+    return d["end_date"];
+  });*/
+
+  var adjDateDomain = [
+    Date.parse("2015-01"),
+    Date.parse("2018-03")
+  ];
+
   //We have to reset the domain scales to determine the extent of data
-  xScale.domain(d3.extent(data, function(d) {
-    return d["start_date"];
-  }));
+  xScale.domain(adjDateDomain);
   smallXScale.domain(xScale.domain()); //Overloaded getter and setter, much like d.html("...") and d.html()
   yScale.domain([0, d3.max(data, function(d) {
     return d["proj_id"] + 1;
@@ -166,7 +236,7 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
     .attr("class", "area")
     .attr("d", area);*/ //Unenclosed area path generator
 
-  tests = focus.append('g');
+  projblocks = focus.append('g').attr('class', 'projblocks');
 
   //Axis groups in the SVG, which hold axis texts and ticks
   focus.append("g")
