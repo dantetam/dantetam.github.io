@@ -1,14 +1,18 @@
 // SVG setup as usual
 
 var totalWidth = $(window).width(), totalHeight = $(window).height();
-var margin = { top: 20, right: 20, bottom: totalHeight * 0.2, left: 40 };
-var smallMargin = { top: totalHeight * 0.8 + 30, right: 20, bottom: 30, left: 40 }; //The second SVG brush goes under the main display
+var margin = { top: 20, right: totalWidth * 0.2, bottom: totalHeight * 0.2, left: totalWidth * 0.2 };
+var smallMargin = { top: totalHeight * 0.8 + 30, right: totalWidth * 0.2, bottom: 30, left: totalWidth * 0.2 }; //The second SVG brush goes under the main display
 
 var width = totalWidth - margin.left - margin.right;
 var height = totalHeight - margin.top - margin.bottom;
 var smallHeight = totalHeight - smallMargin.top - smallMargin.bottom
 
 var svg = d3.select("body").append("svg")
+  .attr("height", totalHeight)
+  .attr("width", totalWidth);
+
+var infoSvg = d3.select("body").append("svg")
   .attr("height", totalHeight)
   .attr("width", totalWidth);
 
@@ -72,6 +76,8 @@ var barsGroups = null;
 
 var storedData = null;
 
+var colors = d3.schemeSet3; //9 colors of a color scheme
+
 //General update pattern that can be called to update the timeline graph
 function renderTimeline() {
   var focusRectHeight = height / 5;
@@ -96,7 +102,11 @@ function renderTimeline() {
       tooltip.style("opacity", 1.0);
       tooltip.select("text").text(d["tooltip"]);
       tooltip.attr("transform", function() {
-        return "translate(" + xScale(d["start_date"]) + "," + (yScale(d["proj_id"]) - focusRectHeight) + ")";
+        //Center at the rectangle, and add the svg margin,
+        //since the tooltip is not within the parent that applies a margin.
+        var renderPos = xScale(d["end_date"]) + xScale(d["start_date"]);
+        var textCenterPos = margin.left + renderPos / 2;
+        return "translate(" + (textCenterPos) + "," + (yScale(d["proj_id"]) - focusRectHeight * 0.8) + ")";
       });
 
       //Rect graphic transitions
@@ -123,7 +133,10 @@ function renderTimeline() {
 
   barsGroups
     .append("rect")
-    .style('fill', function(d,i) { return "transparent"; })
+    .style('fill', function(d,i) {
+      //return "transparent";
+      return colors[i % (colors.length)]; //Returns an index 0..colors.length - 1 inclusive
+    })
     .style('stroke', function(d,i) { return "steelblue"; })
     .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
@@ -201,6 +214,7 @@ function renderTimeline() {
       return d["proj_name"];
     });
 
+
   //Update already existing elements when moved
   //This updates the rectangle widths and overall group positions
 
@@ -221,7 +235,7 @@ function renderTimeline() {
 
   //-------------------------------------------------------------
   //Nearly the same functions, to render the smaller chart context
-  var contextRectHeight = smallHeight / 4;
+  var contextRectHeight = smallHeight / 5;
 
   barsContext = projblocksContext.selectAll('g')
     .data(storedData);
@@ -242,7 +256,9 @@ function renderTimeline() {
 
   barsGroupsContext
     .append("rect")
-    .style('fill', function(d,i) { return "transparent"; })
+    .style('fill', function(d,i) {
+      return colors[i % (colors.length)]; //Returns an index 0..colors.length - 1 inclusive
+    })
     .style('stroke', function(d,i) { return "steelblue"; })
     .attr('width', function(d) {
       //Figure out the transformation of the start and end dates into the screen,
@@ -328,7 +344,8 @@ d3.csv("./data/projects_timeline.csv", formatter, function(err, data) {
   renderTimeline();
 
   //Append a text object once for the tooltip svg group to use
-  var barsGroupsContext = tooltip.append("text");
+  var tooltipText = tooltip.append("text");
+  tooltipText.attr("text-anchor", "middle");
 
 }); //The hiking trail elevation data
 
