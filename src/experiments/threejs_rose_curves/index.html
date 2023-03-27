@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Dante's Three.js App</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(10,10,10);
+      camera.lookAt(new THREE.Vector3(0,0,0));
+
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      let geometry = new THREE.BoxGeometry( 1, 1, 1 );
+      let material = new THREE.MeshBasicMaterial( { color: 0x00000ff } );
+      let cube = new THREE.Mesh( geometry, material );
+      scene.add( cube );
+
+      geometry = new THREE.SphereGeometry( 0.5,0.5,0.5 );
+      material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+      let cube2 = new THREE.Mesh( geometry, material );
+      cube2.translateZ(-5);
+      scene.add(cube2);
+
+      geometry = new THREE.SphereGeometry( 0.5,0.5,0.5 );
+      material = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
+      let cube3 = new THREE.Mesh( geometry, material );
+      cube3.position.x = -7;
+      let rotateGlobalObj = new THREE.Object3D();
+      rotateGlobalObj.add(cube3);
+      scene.add( rotateGlobalObj );
+
+      let frame = 0;
+
+      let traceObjects = []; let limit = 90; let index = 0;
+
+      function animate() {
+        cube.rotateY(-0.004);
+        rotateGlobalObj.rotateY(-0.01);
+
+        cube2.position.x = Math.cos(frame / 360 * Math.PI * 2) * 7;
+        cube2.position.z = Math.sin(frame / 360 * Math.PI * 2 / 3) * 7; //0.415 = Intentional lack of cycle to showcase movement
+        frame++;
+        if (frame == 3600) frame = 0;
+
+        if (frame % 20 == 0) {
+            let traceMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+            let traceGeo = new THREE.SphereGeometry( 0.2,0.2,0.2 );
+            let traceMarker = new THREE.Mesh( traceGeo, traceMaterial );
+            traceMarker.position.set(cube2.position.x, cube2.position.y, cube2.position.z);
+            scene.add(traceMarker);
+            if (traceObjects.length < limit) {
+                traceObjects.push(traceMarker);
+            } else {
+                let traceToRemove = traceObjects[index];
+                traceObjects[index] = traceMarker;
+                scene.remove(traceToRemove);
+                index = (index + 1) % limit;
+            }
+        }
+
+      	requestAnimationFrame( animate );
+      	renderer.render( scene, camera );
+      }
+      animate();
+
+    </script>
+  </body>
+</html>
